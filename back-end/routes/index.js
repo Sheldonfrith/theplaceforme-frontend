@@ -37,15 +37,14 @@ const getResults = (questionaireResults = null) => {
     default: 
       throw new Error('question 1 answer invalid');
   }
-
-
 }
 
 
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  getResults()
+  console.log('get request to /');
+  // getResults()
   // const questionaireResults = req.body();
   // res.send(getResults(questionaireResults));
   res.send('nothing');
