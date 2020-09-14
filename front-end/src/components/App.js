@@ -1,10 +1,10 @@
 import React from 'react';
 import '../App.css';
 import Header from './Header';
-import Questionaire from './Questionaire';
-import Results from './Results';
+// import Questionaire from './Questionaire';
+// import Results from './Results';
 import GlobalProvider from './containers/GlobalProvider';
-import TestEndpoint from './TestEndpoint';
+// import TestEndpoint from './TestEndpoint';
 
 function App() {
   return (
@@ -16,9 +16,9 @@ function App() {
       <a href="http://localhost:8080/restricted"><button>Make Restricted Request</button></a>
       <a href='http://localhost:8080/logout'><button>Logout</button></a>
         <Header/>
-        <TestEndpoint/>
+        {/* <TestEndpoint/>
         <Questionaire/>
-        <Results/>
+        <Results/> */}
       </GlobalProvider>
       
     </div>
