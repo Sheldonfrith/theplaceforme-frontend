@@ -5,6 +5,7 @@ import Header from './Header';
 // import Results from './Results';
 import GlobalProvider from './containers/GlobalProvider';
 // import TestEndpoint from './TestEndpoint';
+import DataInput from './DataInput'
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
       <a href="http://localhost:8080/restricted"><button>Make Restricted Request</button></a>
       <a href='http://localhost:8080/logout'><button>Logout</button></a>
         <Header/>
+        <DataInput/>
         {/* <TestEndpoint/>
         <Questionaire/>
         <Results/> */}

@@ -166,6 +166,14 @@ Starting from the lowest, least abstracted level
 
 
 ## KEY DECISION: CATEGORIZE ALL DATA BY COUNTRY ONLY, NO FINER GRANULARITY
+# What qualifies as a country in this database?
+    - Must make its own immigration laws, handle its own immigration, be generally self governing
+    - CAN BE DEPENDENT on a different nation for foreign policy and defense
+    - Citizens/Residents must not be required to pay taxes to a Parent country (except via a double taxation treaty in some cases)
+
+Yes: Curacao, Aruba, Anguilla, British Virgin Islands
+
+No: American Samoa, 
 ## How to add data to the database?
 1. specify the type of data to be added, must allow simple quantitative values to be assigned to each country
 2. specify the value for each country
