@@ -180,5 +180,37 @@ No: American Samoa,
  1. option 1 is manually input for each country, provide interface for this
  2. option 2 is to paste a list, and have a program validate it 
     
-
+## Database Structure:
+{
+  "rules": {
+    ".read": "now < 1602388800000",  // 2020-10-11
+    ".write": "now < 1602388800000",  // 2020-10-11
+    "datasets":{
+      "datasetName":{
+        "meta":{
+          "longName":"",
+          "shortName":"",
+          "sourceName":"",
+          "sourceLink":"",
+        }
+        "country1": "Val1",
+        "country2": "val2"
+      },
+      "dataset2":{}
+    },
+    "countrys":{
+      "country1":{
+        "meta":{
+          "datapoints": "4",
+          "sovreign": "UK",
+        },
+        "dataset1":"3",
+        "dataset2":"4",
+      },
+      "country2":{
+        
+      }
+    }
+  }
+} 
 

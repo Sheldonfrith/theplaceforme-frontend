@@ -4,8 +4,10 @@ import CountrySynonyms from "../lib/CountrySynonyms.json";
 import CountryDependents from "../lib/CountryDependents.json";
 import Select from "./Select";
 import DataInputPopup from "./DataInputPopup";
+import DataInputFinalReview from './DataInputFinalReview';
 
 let prevRawDataList = null;
+let prevShowFinalReview = false;
 
 const getCountryNamesMaster = () => {
   return CountryNamesMaster;
@@ -22,13 +24,16 @@ const tempDataList = [
   ["brazil", 400],
 ];
 
+
+
+//!FUNCTIONAL COMPONENT STARTS HERE
 export default function DataInput(props) {
-  const [currentDataName, setCurrentDataName] = useState("");
-  const [currentDataList, setCurrentDataList] = useState(tempDataList);
-  const [rawDataList, setRawDataList] = useState(null);
-  const [rawText, setRawText] = useState();
-  const [dataSourceLink, setDataSourceLink] = useState(null);
-  const [dataLabel, setDataLabel] = useState(null);
+
+  //view managemet
+  const [showPopup, setShowPopup] = useState(false);
+  const [showFinalReview, setShowFinalReview] = useState(false);
+
+  //initial state variables (params) for this component
   const [countryNamesMaster, setCountryNamesMaster] = useState(
     getCountryNamesMaster()
   ); //shallow array with list of allowed country names
@@ -36,6 +41,12 @@ export default function DataInput(props) {
   const [countryDependents, setCountryDependents] = useState(
     getCountryDependents()
   ); //object with allowed country names as keys and array of dependent names (including synonyms) as values
+
+  //UI Input State Variables
+  const [dataLongName, setDataLongName] = useState('');
+  const [rawText, setRawText] = useState('');
+  const [dataSourceLink, setDataSourceLink] = useState('');
+  const [dataLabel, setDataLabel] = useState('');
   const [shouldCombineDependents, setShouldCombineDependents] = useState(false);
   const [dependentCombineMethod, setDependentCombineMethod] = useState(
     "simple-addition"
@@ -46,63 +57,37 @@ export default function DataInput(props) {
     "bias-false",
     "bias-true",
   ];
-  const [showPopup, setShowPopup] = useState(false);
-  const [popupData, setPopupData] = useState(null);
-  const [savedByPopup, setSavedByPopup] = useState(null);
-  const [deleteThese, setDeleteThese] = useState([]);
-  const [synConvert, setSynConvert] = useState({});
-  const [depCombine, setDepCombine] = useState({});
-  const [intermediateList, setIntermediateList] = useState(null);
+
+  //DATA PROCESSING algorithm state variables
+  const [rawDataList, setRawDataList] = useState(null);
+  const [finalDataList, setFinalDataList] = useState([['',''],['','']]);
+  const [intermediateDataList, setIntermediateDataList] = useState(null);
+  const deleteThese = [];
+  //popup phase state variables
+  const [deleteByPopup, setDeleteByPopup]= useState([]);
+  const [savedByPopup, setSavedByPopup] = useState([]);
+  const [synConvert, setSynConvert] = useState([]);
+  const [depCombine, setDepCombine] = useState([]);
+  const [popupQueu, setPopupQueu] = useState([]);
+  const tempPopupQueu = [];
+
   //popup event handlers
-  const handlers = {
-    popupDelete: () => {
-      setDeleteThese((prev) => prev.push(popupData[0]));
-      setShowPopup(false);
+  const popupHandlers = {
+    popupDelete: (newList) => {
+      setDeleteByPopup(newList);
     },
-    popupSynonym: (boolean, country) => {
-      //TODO cannot alter json files from the frontend, need to use database requests
-      setSynConvert((prev) => (prev[popupData[0]] = country));
-      setShowPopup(false);
+    popupSynonym: (newList) => {
+      setSynConvert(newList);
     },
-    popupDependent: (boolean, country) => {
-      //TODO cannot alter the json files from the frontend, need to switch to database calls instead of json files
-      setDepCombine((prev) => (prev[popupData[0]] = country));
-      setShowPopup(false);
+    popupDependent: (newList) => {
+      setDepCombine(newList);
     },
-    popupSave: () => {
-      setSavedByPopup((prev) => prev.push(popupData));
-      setShowPopup(false);
+    popupSave: (newList) => {
+      setSavedByPopup(newList);
     },
   };
 
-  const findParentCountry = useCallback(
-    (name) => {
-      Object.keys(countryDependents).forEach((country) => {
-        countryDependents[country].forEach((dependent) => {
-          if (dependent === name) {
-            return country;
-          }
-        });
-      });
-      return null;
-    },
-    [countryDependents]
-  );
-
-  const ifSynonymReturnCountry = useCallback(
-    (name) => {
-      Object.keys(countrySynonyms).forEach((country) => {
-        countrySynonyms[country].forEach((synonym) => {
-          if (synonym === name) {
-            return country;
-          }
-        });
-      });
-      return null;
-    },
-    [countrySynonyms]
-  );
-
+  //DataInput UI Methods
   const changeRawText = useCallback(
     (event) => {
       setRawText(event.target.value);
@@ -133,9 +118,46 @@ export default function DataInput(props) {
     },
     [rawText, setRawDataList]
   );
+
+  //
+  //First stage sorting helper methods//
+  //
+  //
+  const findParentCountry = useCallback(
+    (name) => {
+    let result = null;
+
+      Object.keys(countryDependents).forEach((country) => {
+        countryDependents[country].forEach((dependent) => {
+          if (dependent.toLowerCase() === name.toLowerCase()) {
+            result= country;
+          }
+        });
+      });
+      return result;
+    },
+    [countryDependents]
+  );
+
+  const ifSynonymReturnCountry = useCallback(
+    (name) => {
+      let result = null;
+      Object.keys(countrySynonyms).forEach((country) => {
+        countrySynonyms[country].forEach((synonym) => {
+          if (synonym.toLowerCase() === name.toLowerCase()) {
+            result = country;
+          }
+        });
+      });
+      console.log('looked for synonym  of ',name,' found ',result);
+      return result;
+    },
+    [countrySynonyms]
+  );
+
   const depCombineReturnList = useCallback(
-    (mainList, parentCountryIndex, parentData, childData) => {
-      switch (dependentCombineMethod) {
+    (mainList, parentCountryIndex, parentData, childName, childData, method = dependentCombineMethod) => {
+      switch (method) {
         case "simple-addition":
           console.log("combining dependent with simple addition");
           mainList[parentCountryIndex][1] = parentData + childData;
@@ -156,11 +178,15 @@ export default function DataInput(props) {
           console.log("error, dependentCombine method not found");
           break;
       }
+      //delete child/dependent data
+      deleteThese.push(childName);
+      console.log('combined data for ',(mainList[parentCountryIndex][0]),'... ', parentData,' and ',childName,childData,' became:',(mainList[parentCountryIndex][1]))
       return mainList;
     },
-    [dependentCombineMethod]
+    [dependentCombineMethod, deleteThese]
   );
 
+  //!Primary data processing algorithm is here, first stage
   useEffect(() => {
       //whenever RawDataList Changes, run it through this verification function
       if (rawDataList === prevRawDataList) return;
@@ -192,12 +218,13 @@ export default function DataInput(props) {
       });
 
       //make sure the data is either pure numbers or booleans
+      //but preserve periods and - signs necessary to convert accurately to float
       newDataList.forEach((arr, index) => {
         console.log("removing strings from values");
         let thisData = arr[1];
         if (typeof thisData === "boolean") return;
-        //remove any non-numeric characters
-        thisData = thisData.replace(/\D/g, "");
+        //remove any non-numeric characters except - and .
+        thisData = thisData.replace(/[^0-9.-]/g, "");
         //convert to a float
         newDataList[index][1] = parseFloat(thisData);
       });
@@ -211,51 +238,62 @@ export default function DataInput(props) {
       });
       console.log("current list:", newDataList);
       //search for any key that does not exactly correspond to a name in the countrys master list
-      //TODO
-      await newDataList.forEach((arr, index) => {
+      newDataList.forEach((arr, index) => {
         if (!countryNamesMaster.includes(arr[0])) {
           //this country name is not in the master list
           console.log("found name not in master list");
           //search through the synonyms list and convert it if found
           const shouldBeName = ifSynonymReturnCountry(arr[0]);
           if (shouldBeName) {
+            //REPLACE SYNONYM
             //found synonym, replace the original name
-            console.log("found synonym name");
+            console.log('replacing '+newDataList[index][0]+'with'+shouldBeName);
             newDataList[index][0] = shouldBeName;
+            return;
           }
           //search through the dependents
           const parentCountry = findParentCountry(arr[0]);
           if (!parentCountry) {
             console.log("no parent no synonym found");
+            //ADD TO POPUP QUEU
             //no synonym and no parent country found, alert user and ask for direction
-            setPopupQueu(prev => prev.push(arr))
+            tempPopupQueu.push(arr);
           }
           if (parentCountry) {
             console.log("dependent country found");
+            //COMBINE PARENT WITH DEPENDENT
             //parent country found, combine according to users configuration
-            //! NO SUPPORT FOR AVERAGE FUNCTION CURRENTLY
             const parentCountryIndex = newDataList.findIndex(
               (element) => element[0] === parentCountry
             );
-            if (shouldCombineDependents) {
-              const parentData = newDataList[parentCountryIndex][1];
+            const parentData = newDataList[parentCountryIndex][1];
               const childData = arr[1];
+            if (shouldCombineDependents) {
               newDataList = depCombineReturnList(
                 newDataList,
                 parentCountryIndex,
                 parentData,
+                arr[0],
                 childData
               );
-              //delete the dependent now that the dependent is dealt with
-              deleteThese.push(arr[0]);
             }
+              //delete the dependent now that the dependent is dealt with
+            deleteThese.push(arr[0]);
+
           }
         }
       });
-      setIntermediateList(newDataList);
+      
+      //finish the 1st stage process here:
+      //delete everything in deleteThese
+      newDataList = newDataList.filter(arr => !deleteThese.includes(arr[0]));
+      setPopupQueu(tempPopupQueu);
+      setIntermediateDataList(newDataList);
+      setShowPopup(true);
       prevRawDataList = rawDataList;
   }, [
     rawDataList,
+    tempPopupQueu,
     countryNamesMaster,
     deleteThese,
     depCombine,
@@ -264,66 +302,99 @@ export default function DataInput(props) {
     ifSynonymReturnCountry,
     shouldCombineDependents,
     synConvert,
-    waitForPopupDone,
   ]);
 
+  //!Second stage, after user input gotten from popup component, data processing
   useEffect(()=>{
-    //go through popups after intermediateList changes
-    //set showpopup to true
-    //popup input
-    //then.
-  },[])
+    //runs whenever showFinalReview becomes true
+    if(prevShowFinalReview === showFinalReview) return;
+    //process the actions requested by the popup component
+    let secondTempDataList = intermediateDataList;
+    //DELETE
+    deleteByPopup.forEach(name => secondTempDataList = secondTempDataList.filter(arr => arr[0]!==name));
+    //SAVED (delete from main list)
+    savedByPopup.forEach(arr1=> secondTempDataList = secondTempDataList.filter(arr=>arr[0]!==arr1[0]));
+    //SYNONYMS 
+    synConvert.forEach(arr => {
+      const thisIndex = secondTempDataList.findIndex(element => element[0]===arr[0]);
+      secondTempDataList[thisIndex][0]=arr[1];
+    })
+    //DEPENDENTS
+    depCombine.forEach(arr=>{
+      const parentIndex = secondTempDataList.findIndex(element => element[0]===arr[1]);
+      const parentData = secondTempDataList[parentIndex][1];
+      const dependentData = secondTempDataList[secondTempDataList.findIndex(element => element[0]===arr[0])][1];
+      const action = arr[2];
+      let method;
+      switch (action) {
+        case 4:
+          method = 'simple-addition'
+          break;
+        case 5:
+          method = 'bias-false';
+          break;
+        case 6:
+          method = 'bias-true';
+          break;
+        default:
+          console.log('error, couldnt find action in second useeffect');
+          return; 
+      }
+      secondTempDataList = depCombineReturnList(secondTempDataList,parentIndex,parentData,arr[0],dependentData,method);
+    })
+    //delete the dependents just dealt with
+    console.log('deleting these: ',deleteThese);
+    secondTempDataList = secondTempDataList.filter(arr => deleteThese.includes(arr[0])===false);
 
-  useEffect(()=>{
-
-
-    //final modification based on the results of all popups
-    deleteThese.forEach((country) => {
-      const countryIndex = newDataList.findIndex(
-        (element) => element[0] === country
-      );
-      newDataList.splice(countryIndex, 1);
-    });
-    Object.keys(synConvert).forEach((incorrectCountry) => {
-      //key is incorrect, value is correct
-      const incorrectCountryIndex = newDataList.findIndex(
-        (element) => element[0] === incorrectCountry
-      );
-      newDataList[incorrectCountryIndex][0] = synConvert[incorrectCountry];
-    });
-    Object.keys(depCombine).forEach((dependent) => {
-      const parentCountry = depCombine[dependent];
-      const parentCountryIndex = newDataList.findIndex(
-        (element) => element[0] === parentCountry
-      );
-      const childCountryIndex = newDataList.findIndex(
-        (element) => element[0] === dependent
-      );
-      const parentData = newDataList[parentCountryIndex][1];
-      const childData = newDataList[childCountryIndex][1];
-      newDataList = depCombineReturnList(
-        newDataList,
-        parentCountryIndex,
-        parentData,
-        childData
-      );
-    });
-
-    //check if any countries on master country list were missed
-    console.log("checking for missing data");
-    countryNamesMaster.forEach((country, index) => {
-      let foundIndex = false;
-      newDataList.forEach((arr, index) => {
-        if (arr[0] === country) return;
-        foundIndex = true;
-      });
-      if (!foundIndex) {
-        newDataList.push([country, ""]);
+    //ADD MISSING COUNTRIES WITH BLANK DATA
+    //AND OPEN UP A NEW TAB WITH A GOOGLE SEARCH FOR THE DATA IF THIS OPTION HAS BEEN SET
+    //first get a list of all countrys in tempdatalist
+    const currentCountries = secondTempDataList.map(arr=>arr[0]);
+    CountryNamesMaster.forEach(country =>{
+      if (!currentCountries.includes(country)){
+        //this country is missing from the submitted dataset
+        secondTempDataList.push([country,""]);
       }
     });
-  },[])
+    //Finish up
+    setFinalDataList(secondTempDataList);
+    prevShowFinalReview = showFinalReview;
+  },[showFinalReview,deleteThese,deleteByPopup,depCombine,depCombineReturnList,intermediateDataList, savedByPopup,synConvert])
 
-  if (showPopup === false) {
+  
+  //ACTUAL JSX RETURNS HERE
+
+  if (showFinalReview) {
+    return (
+      <DataInputFinalReview
+        dataSourceLink={dataSourceLink}
+        setDataSourceLink={setDataSourceLink}
+        dataLabel={dataLabel}
+        setDataLabel={setDataLabel}
+        dataLongName={dataLongName}
+        setDataLongName={setDataLongName}
+        finalDataList={finalDataList}
+        savedByPopup={savedByPopup}
+        setFinalDataList={setFinalDataList}
+        CountryNamesMaster={CountryNamesMaster}
+      />
+    );
+  }
+  if (showPopup) {
+    return (
+      <DataInputPopup
+        showPopup={showPopup}
+        CountryNamesMaster={CountryNamesMaster}
+        intermediateDataList={intermediateDataList}
+        popupQueu={popupQueu}
+        shouldCombineDependents={shouldCombineDependents}
+        handlers={popupHandlers}
+        setShowPopup={setShowPopup}
+        setShowFinalReview={setShowFinalReview}
+      />
+    );
+  }
+  else {
     return (
       <div>
         <h2>Input Raw Data</h2>
@@ -333,6 +404,7 @@ export default function DataInput(props) {
             onChange={() => setShouldCombineDependents((prev) => !prev)}
           />
           <span>combine dependents with parent country data?</span>
+  
           <select onChange={(e) => setDependentCombineMethod(e.target.value)}>
             {combineMethodList.map((method, index) => (
               <option key={"combineMethod" + index} value={method}>
@@ -341,7 +413,7 @@ export default function DataInput(props) {
             ))}
           </select>
           <input
-            onChange={(e) => setCurrentDataName(e.target.value)}
+            onChange={(e) => setDataLongName(e.target.value)}
             placeholder="name this dataset"
           />
           <input
@@ -358,43 +430,8 @@ export default function DataInput(props) {
           ></textarea>
           <button type="submit">Submit</button>
         </form>
-        <h2>Verify data and then send to DB</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Source</th>
-              <th>{dataSourceLink}</th>
-            </tr>
-            <tr>
-              <th>Label</th>
-              <th>{dataLabel}</th>
-            </tr>
-            <tr>
-              <th>Country Name</th>
-              <th>{currentDataName}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentDataList.map((dataPair, index) => (
-              <tr key={"tableRow" + index}>
-                <th>{dataPair[0]}</th>
-                <th>{dataPair[1]}</th>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <div>{savedByPopup}</div>
       </div>
     );
   }
-  if (showPopup) {
-    return (
-      <DataInputPopup
-        CountryNamesMaster={CountryNamesMaster}
-        popupData={popupData}
-        shouldCombineDependents={shouldCombineDependents}
-        handlers={handlers}
-      />
-    );
-  }
+
 }

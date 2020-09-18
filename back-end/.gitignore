@@ -5,6 +5,10 @@
 /.pnp
 .pnp.js
 
+# sensitive
+admin-key.json
+theplaceforme-firebase-key.json
+
 # testing
 /coverage
 

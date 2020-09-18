@@ -38,7 +38,10 @@
     "Central African Republic": [],
     "Chad": [],
     "Chile": [],
-    "China": ["Hong Kong","Macao"],
+    "China": [
+        "Hong Kong",
+        "Macao"
+    ],
     "Colombia": [],
     "Comoros": [],
     "Cook Islands": [],
@@ -66,7 +69,20 @@
     "Faroe Islands": [],
     "Fiji": [],
     "Finland": [],
-    "France": ["French Guiana", "Guadeloupe","Martinique","Mayotte","New Caledonia","Reunion","Saint Martin","Saint Pierre and Miquelon","Saint Pierre & Miquelon"],
+    "France": [
+        "French Guiana",
+        "Guadeloupe",
+        "Martinique",
+        "Mayotte",
+        "New Caledonia",
+        "Reunion",
+        "Saint Martin",
+        "Saint Pierre and Miquelon",
+        "Saint Pierre & Miquelon",
+        "Wallis and Futuna",
+        "Wallis et Futuna",
+        "Wallis & Futuna"
+    ],
     "French Polynesia": [],
     "Gabon": [],
     "Georgia": [],
@@ -135,7 +151,9 @@
     "Nauru": [],
     "Nepal": [],
     "Netherlands": [],
-    "New Zealand": ["Tokelau"],
+    "New Zealand": [
+        "Tokelau"
+    ],
     "Nicaragua": [],
     "Niger": [],
     "Nigeria": [],
@@ -199,12 +217,29 @@
     "Tunisia": [],
     "Turkey": [],
     "Turkmenistan": [],
+    "Turks and Caicos": [],
     "Tuvalu": [],
     "Uganda": [],
     "Ukraine": [],
     "United Arab Emirates": [],
-    "United Kingdom": ["Saint Helena","St. Helena", "St Helena","Bermuda","Montserrat"],
-    "United States": ["American Samoa","Guam","Northern Mariana Islands","Puerto Rico"],
+    "United Kingdom": [
+        "Saint Helena",
+        "St. Helena",
+        "St Helena",
+        "Bermuda",
+        "Montserrat"
+    ],
+    "United States": [
+        "American Samoa",
+        "Guam",
+        "Northern Mariana Islands",
+        "Puerto Rico",
+        "United States Virgin Islands",
+        "US Virgin Islands",
+        "U.S. Virgin Islands",
+        "Virgin Islands of the United States",
+        "American Virgin Islands"
+    ],
     "Uruguay": [],
     "Uzbekistan": [],
     "Vanuatu": [],
@@ -213,5 +248,5 @@
     "Vietnam": [],
     "Yemen": [],
     "Zambia": [],
-    "Zimbabwe":[]
+    "Zimbabwe": []
 }
