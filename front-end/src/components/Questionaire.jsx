@@ -25,6 +25,7 @@ export default function Questionaire() {
   // }
 
   const [datasetIDs, setDatasetIDs] = useState(null);
+  const [rawDatasetIDs, setRawDatasetIDs] = useState(null);//not lower cased
   const [longNames, setLongNames] = useState(null);
   const [minVals, setMinVals] = useState(null);
   const [maxVals, setMaxVals] = useState(null);
@@ -35,23 +36,22 @@ export default function Questionaire() {
   const [countries, setCountries] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showBreakdown, setShowBreakdown] = useState(null);
-  const [datasetsData, setDatasetsData] = useState(null);
+  const [lcDatasetsData, setlcDatasetsData] = useState(null);//lowercased
+  const [rawDatasetsData, setRawDatasetsData] = useState(null); //not lower cased
   const [scoreBreakdown, setScoreBreakdown] = useState(null); //object with countries as keys, array as value, each value array has dataset name as index 0 and and total score as index 1
   const [howToHandleMissingData, setHowToHandleMissingData] = useState(
     "neutral"
   );
   const [scoresList, setScoresList] = useState(null); //nested array with countries as 0 and scores as 1
 
-  //onmount get the data from the server
+  //onmount get the raw data from the server
   useEffect(() => {
     const asyncWrapper = async () => {
-      await setDatasetsData(
-        await convertNullsInObject(
-          await convertObjectToLowerCase(
-            await getRequest("/datasets")
-            )
-          )
-      );
+      const httpResponse = await getRequest("/datasets");
+      const nullsConverted = await convertNullsInObject(httpResponse);
+      const lowerCased = await convertObjectToLowerCase(nullsConverted);
+      setlcDatasetsData(lowerCased);
+      setRawDatasetsData(nullsConverted);
     };
     asyncWrapper();
   }, []);
@@ -59,12 +59,13 @@ export default function Questionaire() {
   //once the data is retrieved, use it to set the relevant state variables
   useEffect(() => {
     //only run once, when datasetsData has been loaded
-    if (datasetsData && isLoading) {
-      console.log(datasetsData);
+    if (lcDatasetsData && isLoading && rawDatasetsData) {
+      console.log(lcDatasetsData);
       const getFromDatasetsData = (property) => {
         //remove meta from the iteration array
         let result = [];
-        Object.keys(datasetsData).forEach((id) => {
+        Object.keys(rawDatasetsData).forEach((rawID) => {
+          const id=rawID.toLowerCase();
           //ignore meta field
           if (id === "meta") return;
           //create list of dataset ids;
@@ -72,21 +73,25 @@ export default function Questionaire() {
             result.push(id);
             return;
           }
+          if (property === 'rawID'){
+            result.push(rawID);
+            return;
+          }
           //create list of vals that are halfway between min and max vals
           if (property === "val") {
-            const max = datasetsData[id].meta.maxvalue;
-            const min = datasetsData[id].meta.minvalue;
+            const max = lcDatasetsData[id].meta.maxvalue;
+            const min = lcDatasetsData[id].meta.minvalue;
             result.push((max - min * 1.0) / 2.0 + min);
             return;
           }
-          const thisData = datasetsData[id].meta[property];
+          const thisData = lcDatasetsData[id].meta[property];
           result.push(thisData);
           return;
         });
         return result;
       };
       const blankList = () => {
-        const result = Object.keys(datasetsData).map((id) => {
+        const result = Object.keys(lcDatasetsData).map((id) => {
           return "";
         });
         result.pop(); //remove the last value to account for the meta field in the datasets
@@ -95,7 +100,7 @@ export default function Questionaire() {
       const getCountries = () => {
         let result = [];
         //go through all countries in 1st dataset and use that as master country list
-        Object.keys(datasetsData[Object.keys(datasetsData)[0]]).forEach(
+        Object.keys(lcDatasetsData[Object.keys(lcDatasetsData)[0]]).forEach(
           (country) => {
             if (country === "meta") return;
             result.push(country);
@@ -105,12 +110,13 @@ export default function Questionaire() {
       };
       const zeroList = () => {
         let result = [];
-        for (let i = 0; i < datasetsData.length - 2; i++) {
+        for (let i = 0; i < lcDatasetsData.length - 2; i++) {
           result.push(0);
         }
         return result;
       };
       setDatasetIDs(getFromDatasetsData("id"));
+      setRawDatasetIDs(getFromDatasetsData('rawID'));
       setMaxVals(getFromDatasetsData("maxvalue"));
       setLongNames(getFromDatasetsData("longname"));
       setMinVals(getFromDatasetsData("minvalue"));
@@ -122,7 +128,9 @@ export default function Questionaire() {
     }
     return;
   }, [
-    datasetsData,
+    lcDatasetsData,
+    rawDatasetsData,
+    setRawDatasetIDs,
     setDatasetIDs,
     setMinVals,
     setCountries,
@@ -156,9 +164,8 @@ export default function Questionaire() {
     weights,
   ]);
 
-  const changeVal = (e) => {
-    const index = parseInt(e.target.className);
-    const val = parseFloat(e.target.value);
+  const changeVal = (value, index) => {
+    const val = parseFloat(value);
     setVals((prev) => {
       return prev.map((v, i) => {
         if (i === index) return val;
@@ -168,9 +175,8 @@ export default function Questionaire() {
       });
     });
   };
-  const changeWeight = (e) => {
-    const index = parseInt(e.target.className);
-    const val = parseInt(e.target.value);
+  const changeWeight = (value,index) => {
+    const val = parseInt(value);
     setWeights((prev) => {
       return prev.map((v, i) => {
         if (i === index) return val;
@@ -189,10 +195,10 @@ export default function Questionaire() {
     weights.forEach((weight, index) => {
       //if the weight value is zero, skip it.
       if (weight === 0 || weight === "") return;
-      const thisDataset = datasetsData[datasetIDs[index]];
+      const thisDataset = lcDatasetsData[datasetIDs[index]];
       // console.log(datasetsData, datasetIDs, index);
       // console.log('calculating for dataset ',thisDataset);
-      if (Object.keys(datasetsData).length - 1 !== vals.length)
+      if (Object.keys(lcDatasetsData).length - 1 !== vals.length)
         console.log("error:length discrepancy in CalculateResult");
       //if not, sort the countries according to proximity to the chosen value
       //if there is no data for the country, handle according to howToHandleMissingData
@@ -289,7 +295,7 @@ export default function Questionaire() {
     setScoresList,
     setScoreBreakdown,
     datasetIDs,
-    datasetsData,
+    lcDatasetsData,
     howToHandleMissingData,
     longNames,
     maxVals,
@@ -300,19 +306,19 @@ export default function Questionaire() {
 
   if (!isLoading) {
     return (
-      <div className="Questionaire">
-        <h3>Answer these questions to find out:</h3>
+      <div className="container-fluid text-light p-3 bg-dark">
+        <h3>Answer these questions to find out which countries are the best fit for you:</h3>
         {longNames.map((name, index) => {
           return (
-            <div key={"mockData" + index}>
-              <h3>Question {index + 1}: dataset: {datasetIDs[index]}</h3>
+            <div className="container border rounded p-3 m-3 bg-light text-dark" key={"mockData" + index}>
+              <h3>Question {index + 1}:</h3>
               <h4>What {name} would you prefer your country to have?</h4>
               {/* slider */}
               <input
-                className={index}
+                className="form-control-range"
                 key={"valSlider" + index}
                 type="range"
-                onChange={changeVal}
+                onChange={(e)=>changeVal(e.target.value,index)}
                 min={minVals[index]}
                 max={maxVals[index]}
                 defaultValue={vals[index]}
@@ -323,10 +329,10 @@ export default function Questionaire() {
               <h4>How important is this to you?</h4>
               {/* slider */}
               <input
-                className={index}
+                className="form-control-range"
                 key={"weightSlider" + index}
                 type="range"
-                onChange={changeWeight}
+                onChange={(e)=>changeWeight(e.target.value,index)}
                 min="0"
                 max="10"
                 defaultValue={weights[index] || 0}
@@ -344,6 +350,7 @@ export default function Questionaire() {
           What should we do when there is no data available for a country?
         </h4>
         <select
+          className="form-control"
           onChange={(e) => {
             setHowToHandleMissingData(e.target.value);
           }}
@@ -359,31 +366,55 @@ export default function Questionaire() {
             Rank it poorly, penalize the country for not having data
           </option>
         </select>
-        <button onClick={calculateResult}>submit</button>
-        <div className="Results">
-          <h3>Results:</h3>
-          <div>
+        <button className="btn-primary"onClick={calculateResult}>submit</button>
+        {scoresList?<div >
+          <h3>Results</h3>
+          <div className="container table-responsive bg-light p-1 m-1 text-dark">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Country</th>
+                  <th>Total Score</th>
+                  <th>Score Breakdown</th>
+                </tr>
+              </thead>
+              <tbody>
             {scoresList
               ? scoresList
                   .sort((a, b) => b[1] - a[1])
                   .map((arr, index) => {
                     return (
-                      <div key={"resultList" + index}>
-                        {arr[0]} : {parseFloat(arr[1]).toFixed(2)}
-                        <button onClick={(e) => setShowBreakdown(arr[0])}>
-                          show detailed breakdown
-                        </button>
-                        <div>
-                          {showBreakdown === arr[0]
-                            ? JSON.stringify(scoreBreakdown[arr[0]])
-                            : ""}
-                        </div>
-                      </div>
+                      <tr className="border" key={"resultList" + index}>
+                        <th>{arr[0]}</th>
+                        <th>{parseFloat(arr[1]).toFixed(2)}</th>
+                        <th>
+                              {Object.keys(scoreBreakdown[arr[0]]).map((dataset,index) =>{
+                                return (
+                                <div class="table-responsive">
+                                <table class="table" key={"sub-table-"+index}>
+                                  <tbody>
+                                  <tr className="overflow-auto">
+                                    <th>
+                                      {dataset}
+                                    </th>
+                                    <th>
+                                      {scoreBreakdown[arr[0]][dataset].toFixed(2)}
+                                    </th>
+                                  </tr>
+                                  </tbody>
+                                </table>
+                                </div>
+                              );
+                              })}
+                        </th>
+                      </tr>
                     );
                   })
               : ""}
+              </tbody>
+            </table>
           </div>
-        </div>
+        </div>:<br></br>}
       </div>
     );
   }

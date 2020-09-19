@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useContext } from "react";
-import "../styles/App.css";
+// import "../styles/App.css";
 import Header from "./Header";
 import Questionaire from './Questionaire';
 import Results from './Results';
@@ -84,13 +84,16 @@ function App() {
   //loggedout view
   if (!user || loading || error) {
     return (
-      <div className="app loggedOut">
-        <h1>Welcome to The Place For Me</h1>
-        <h3>Please log in to continue.</h3>
-        <StyledFirebaseAuth
-          uiConfig={uiConfig}
-          firebaseAuth={firebase.auth()}
-        />
+      <div className="container bg-light">
+        <div className="container bg-light">
+          
+          <h1>Welcome to The Place For Me</h1>
+          <h3>Please log in to continue.</h3>
+          <StyledFirebaseAuth
+            uiConfig={uiConfig}
+            firebaseAuth={firebase.auth()}
+          />
+        </div>
       </div>
     );
   }
@@ -99,24 +102,27 @@ function App() {
     //data entry view
     if (showDataEntry){
       return (
-      <div className="app">
-        <GlobalProvider>
-          <UserAccountUI logout={logout} user={user} isAdmin={isAdmin} />
-          <Header setShowDataEntry={setShowDataEntry}/>
-          <DataInput />
-        </GlobalProvider>
+      <div className="container-fluid bg-white">
+        
+          <GlobalProvider>
+            <UserAccountUI logout={logout} user={user} isAdmin={isAdmin} />
+            <Header setShowDataEntry={setShowDataEntry}/>
+            <div className="container bg-light">
+              <DataInput />
+            </div>
+
+          </GlobalProvider>
       </div>
       );
     } 
     //question/response view
     else {
       return (
-      <div className="app">
+      <div className="container-fluid bg-light">
         <GlobalProvider>
           <UserAccountUI logout={logout} user={user} isAdmin={isAdmin} setShowDataEntry={setShowDataEntry} />
-          <Header setShowDataEntry={setShowDataEntry}/>
+          <Header/>
           <Questionaire/>
-          <Results/>
         </GlobalProvider>
       </div>
       );

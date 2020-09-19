@@ -39,6 +39,8 @@ router.get('/', async function(req, res, next) {
         datasetIDs.push(datasetID);
         datasetNames[datasetID] = (datasetData[datasetID]['meta']['longName']);
         //find min and max datapoints
+        // only if dataType is float
+        if (datasetData[datasetID].meta.dataType !== 'float') return;
         //first convert all values into an array
         const valuesArray = Object.keys(datasetData[datasetID]).map(country=>{
             if (country==='meta') return;
@@ -46,8 +48,10 @@ router.get('/', async function(req, res, next) {
                 return datasetData[datasetID][country];
             }
         });
-        maxValues.push(valuesArray.sort((a,b)=>b-a)[0]);
-        minValues.push(valuesArray.sort((a,b)=>a-b)[0]);
+        //filter out any strings (ex: "NULL")
+        const filteredValuesArray = valuesArray.filter(value => typeof value === 'number');
+        maxValues.push(filteredValuesArray.sort((a,b)=>b-a)[0]);
+        minValues.push(filteredValuesArray.sort((a,b)=>a-b)[0]);
 
     });
 

@@ -35,13 +35,15 @@ export default function UserAccountUI({ user, logout, isAdmin, setShowDataEntry 
   //admin view
   else {
     return (
-        <div>
+        <div className="container-fluid bg-dark text-light p-2">
             You are an admin. 
-          <button onClick={logout}>Log Out</button>
-      <button onClick={()=>{setShowDataEntry(prev => !prev)}}>Switch View</button>
-      <button onClick={updateDatabase}>Update Database Meta-Info</button>
-          <button onClick={removeFromDatabase}>Remove dataset from database: </button>
-          <input type="text" placeholder="paste dataset id here" onChange={(e)=>setDatasetToDelete(e.target.value)}/>
+          <button className="btn btn-primary" onClick={logout}>Log Out</button>
+          <button className="btn btn-warning" onClick={()=>{setShowDataEntry(prev => !prev)}}>Switch View</button>
+          <button className="btn btn-warning" onClick={updateDatabase}>Update Database Meta-Info</button>
+          <button className="btn btn-danger" onClick={removeFromDatabase}>Remove dataset from database: </button>
+          <span>
+            <input className="form-control" type="text" placeholder="paste dataset id here" onChange={(e)=>setDatasetToDelete(e.target.value)}/>
+            </span>
         </div>
       );
 
