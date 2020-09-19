@@ -65,4 +65,14 @@ router.post('/', function(req, res, next) {
 asyncWrapper();
 });
 
+// router.get('/scores/q',function(req,res,next){
+//     const thisDatasetID = req.query.datasetID;
+//     const thisIdealVal = req.query.val;
+//     const weight = req.query.weight;
+//     //return a list of countries with their respective scores (multiplied by weight)
+    
+// })
+
+
+
 module.exports = router;

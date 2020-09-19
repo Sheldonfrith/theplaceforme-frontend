@@ -40,7 +40,9 @@
     "Chile": [],
     "China": [
         "Hong Kong",
-        "Macao"
+        "Macao",
+        "macau",
+        "macao sar, china"
     ],
     "Colombia": [],
     "Comoros": [],
@@ -164,7 +166,7 @@
     "Oman": [],
     "Pakistan": [],
     "Palau": [],
-    "Palestine": [],
+    "Palestine": ["west bank","gaza strip","west bank and gaza"],
     "Panama": [],
     "Papua New Guinea": [],
     "Paraguay": [],
@@ -175,7 +177,7 @@
     "Qatar": [],
     "Republic of the Congo": [],
     "Romania": [],
-    "Russia": [],
+    "Russia": ["russian federation"],
     "Rwanda": [],
     "Saint Barthelemy": [],
     "Saint Kitts and Nevis": [],
@@ -190,8 +192,8 @@
     "Seychelles": [],
     "Sierra Leone": [],
     "Singapore": [],
-    "Sint Maarten": [],
-    "Slovakia": [],
+    "Sint Maarten": ["sint maarten (dutch part)"],
+    "Slovakia": ["slovak republic"],
     "Slovenia": [],
     "Solomon Islands": [],
     "Somalia": [],
@@ -204,7 +206,7 @@
     "Suriname": [],
     "Sweden": [],
     "Switzerland": [],
-    "Syria": [],
+    "Syria": ["syrian arab republic"],
     "Taiwan": [],
     "Tajikistan": [],
     "Tanzania": [],
@@ -224,6 +226,7 @@
     "United Arab Emirates": [],
     "United Kingdom": [
         "Saint Helena",
+        "saint helena, ascension, and tristan da cunha",
         "St. Helena",
         "St Helena",
         "Bermuda",
@@ -244,9 +247,9 @@
     "Uzbekistan": [],
     "Vanuatu": [],
     "Vatican City": [],
-    "Venezuela": [],
+    "Venezuela": ["venezuela, rb"],
     "Vietnam": [],
-    "Yemen": [],
+    "Yemen": ["yemen, rep."],
     "Zambia": [],
     "Zimbabwe": []
 }

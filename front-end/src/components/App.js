@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useContext } from "react";
-import "../App.css";
+import "../styles/App.css";
 import Header from "./Header";
 import Questionaire from './Questionaire';
 import Results from './Results';
@@ -27,7 +27,7 @@ let prevUser = "";
 function App() {
   const [user, loading, error] = useAuthState(firebase.auth());
   const [isAdmin, setIsAdmin] = useState(false);
-  const [showDataEntry, setShowDataEntry] = useState(true);
+  const [showDataEntry, setShowDataEntry] = useState(false);
 
   useEffect(() => {
     //when user changes and isnt null
@@ -113,9 +113,8 @@ function App() {
       return (
       <div className="app">
         <GlobalProvider>
-          <UserAccountUI logout={logout} user={user} isAdmin={isAdmin} />
+          <UserAccountUI logout={logout} user={user} isAdmin={isAdmin} setShowDataEntry={setShowDataEntry} />
           <Header setShowDataEntry={setShowDataEntry}/>
-          <TestEndpoint/>
           <Questionaire/>
           <Results/>
         </GlobalProvider>

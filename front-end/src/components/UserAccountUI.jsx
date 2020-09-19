@@ -1,14 +1,21 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
-import { postRequest } from "../lib/HTTP";
+import { postRequest, getRequest } from "../lib/HTTP";
 
-export default function UserAccountUI({ user, logout, isAdmin }) {
+export default function UserAccountUI({ user, logout, isAdmin, setShowDataEntry }) {
   const [adminToken, setAdminToken] = useState(null);
 
   const submitAdminToken =(e) => {
     postRequest("/admins", [ adminToken, user.uid]);
   }
-
-  //admin view
+  const [datasetToDelete, setDatasetToDelete] = useState(null);
+    const updateDatabase =(e)=>{
+        getRequest('/update-database');
+    }
+    const removeFromDatabase = (e)=>{
+        getRequest('/delete-from-database/q?datasetID='+datasetToDelete);
+        setTimeout(()=>{getRequest('/update-database');},2000);
+    }
+  //non-admin view
   if (!isAdmin) {
     return (
         <div>
@@ -20,16 +27,21 @@ export default function UserAccountUI({ user, logout, isAdmin }) {
           />
           <button onClick={submitAdminToken}>Submit Admin Token</button>
           <button onClick={logout}>Log Out</button>
+          
         </div>
       );
   }
 
-  //non-admin view
+  //admin view
   else {
     return (
         <div>
             You are an admin. 
           <button onClick={logout}>Log Out</button>
+      <button onClick={()=>{setShowDataEntry(prev => !prev)}}>Switch View</button>
+      <button onClick={updateDatabase}>Update Database Meta-Info</button>
+          <button onClick={removeFromDatabase}>Remove dataset from database: </button>
+          <input type="text" placeholder="paste dataset id here" onChange={(e)=>setDatasetToDelete(e.target.value)}/>
         </div>
       );
 

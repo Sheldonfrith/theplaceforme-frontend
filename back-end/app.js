@@ -15,6 +15,7 @@ var datasetsRouter = require('./routes/datasets');
 var adminsRouter = require('./routes/admins');
 var restrictedRouter = require('./routes/restricted');
 var updateDatabaseRouter = require('./routes/update-database');
+var deleteFromDatabaseRouter = require('./routes/delete-from-database');
 
 var cors = require('cors');
 
@@ -80,6 +81,7 @@ app.use('/users', usersRouter);
 app.use('/datasets',checkIfAuthenticated,datasetsRouter);
 app.use('/admins',checkIfAuthenticated, adminsRouter);
 app.use('/update-database',checkIfAuthenticated, updateDatabaseRouter);
+app.use('/delete-from-database',checkIfAuthenticated, deleteFromDatabaseRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

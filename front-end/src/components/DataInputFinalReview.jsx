@@ -33,6 +33,9 @@ export default function DataInputFinalReview({
     return result;
   }
   const [inputVals, setInputVals] = useState(initializeInputVals());
+  const [isBooleans, setIsBooleans] = useState(false);
+  const [dataUnit, setDataUnit] = useState('');
+  const [dataNotes, setDataNotes]= useState('');
 
   const mainSubmit = (e) => {
     
@@ -42,36 +45,46 @@ export default function DataInputFinalReview({
       return;
     }
     //are any of the meta fields missing?
-    if (!dataLongName || !dataSourceLink || !dataLabel){
+    if (!dataLongName || !dataSourceLink || !dataLabel || !dataUnit || !dataNotes){
       alert('missing metadata');
       return;
     }
     if (!window.confirm("You sure you want to submit this to the database?"))
       return;
     //create the dataset object to be sent as body of http request
+    const dataType = isBooleans?'boolean':'float';
     const requestBody = {
       meta: {
         longName: dataLongName,
         label: dataLabel,
         sourceLink: dataSourceLink,
+        unit: dataUnit,
+        dataType: dataType,
+        note: dataNotes
       },
     };
     //add each country's data to the requestBody
+    //if the data is blank or falsy make it "NULL"
     //validate it to be either floats or booleans
-    const isBooleans = finalDataList[Object.keys(finalDataList)[0]]===('TRUE'||'true'||'True'||true||'FALSE'||'False'||'false'||false)? true:false;
     if (isBooleans) {console.log('booleans detected')} else {console.log('numbers detected')}
 
     finalDataList.forEach((arr, index) => {
       //if there is custom input in the final review, use that, otherwise use the value
       //in the finalDataList
       let thisVal = inputVals[arr[0]] ? inputVals[arr[0]] : arr[1];
+      if (thisVal === '' || thisVal=== null || thisVal ===' '){ thisVal = null}
       if (isBooleans){
         if (thisVal === ('TRUE'||'true'||'True'||true)){
           thisVal = true;
-        } else {thisVal =false;}
+        } else {thisVal = (thisVal===null)?null:false;}
       } else {
-        thisVal = parseFloat(thisVal);
+        thisVal = (thisVal===null)?null:parseFloat(thisVal);
       }
+      //FIREBASE CANNOT STORE NULL VALUES, convert to "NULL" string
+      console.log(thisVal);
+      if (thisVal===null) thisVal = "NULL";
+      if (thisVal===undefined) thisVal = "NULL";
+      if (thisVal===NaN) thisVal = "NULL";
       requestBody[arr[0]] = thisVal;
     });
 
@@ -81,7 +94,7 @@ export default function DataInputFinalReview({
 
     return;
   };
-
+//TODO ADD dataType and Unit fields...
   return (
     <div>
       <h2>Final Review of Data</h2>
@@ -124,6 +137,30 @@ export default function DataInputFinalReview({
             </th>
           </tr>
           <tr>
+            <th>Unit</th>
+            <th>{dataUnit}</th>
+            <th>
+              <input
+                type="text"
+                onChange={(e)=>{
+                  setDataUnit(e.target.value);
+                }}
+                />
+            </th>
+          </tr>
+          <tr>
+            <th>Notes</th>
+            <th>{dataNotes}</th>
+            <th>
+              <input
+                type="text"
+                onChange={(e)=>{
+                  setDataNotes(e.target.value);
+                }}
+                />
+              </th>
+          </tr>
+          <tr>
             <th>Country Name</th>
             <th>Value</th>
             <th>Over-ride Value</th>
@@ -150,6 +187,8 @@ export default function DataInputFinalReview({
           ))}
         </tbody>
       </table>
+      <input type="checkbox" onChange={()=>setIsBooleans(prev => !prev)}/>
+      <span>Check if the data is booleans</span>
       <button onClick={mainSubmit}>SUBMIT TO DATABASE</button>
       <h3>Saved (deleted from actual list) values for review:</h3>
       <div>
