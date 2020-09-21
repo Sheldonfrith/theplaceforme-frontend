@@ -1,6 +1,6 @@
 import { auth } from "../components/App";
 
-const baseURL = 'http://3.22.171.63';
+const baseURL = 'https://api.theplacefor.me';
 
 export const getRequest = async (endpoint) => {
   const url = baseURL+endpoint;

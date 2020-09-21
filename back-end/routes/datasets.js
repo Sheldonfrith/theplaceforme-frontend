@@ -16,7 +16,7 @@ router.get('/', async function(req,res){
     });
     formattedData = JSON.stringify(formattedData);
     res.type('json');
-    console.log('sending this data: '+formattedData);
+    // console.log('sending this data: '+formattedData);
     res.send(formattedData);
     
 })
@@ -41,7 +41,7 @@ router.post('/', function(req, res, next) {
     //country's table
 
     //post to database
-    console.log('sending ',body, ' to database');
+    // console.log('sending ',body, ' to database');
     var datasetsRef = await database.ref('datasets');
     const newDatasetRef = await datasetsRef.push(body);
     const datasetKey = newDatasetRef.key;
