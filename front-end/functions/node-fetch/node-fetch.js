@@ -7,7 +7,7 @@ exports.handler = async function(event, context) {
     const method = event.httpMethod;
     const body = event.body;
     const headers = event.headers;
-
+    console.log('sending request from function with... ',url, method, body, headers, authorization);
     const response = await fetch(url, {
       method: method,
       headers: {...headers, authorization: authorization},

@@ -1,0 +1,5 @@
+[build]
+  command = "CI=false npm run build"
+  
+  functions = "front-end/functions"
+  publish = "front-end/build"
