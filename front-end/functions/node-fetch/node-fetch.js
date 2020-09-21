@@ -3,16 +3,22 @@ const fetch = require('node-fetch')
 exports.handler = async function(event, context) {
   try {
     const url = event.queryStringParameters.url;
-    const authorization = JSON.parse(event.queryStringParameters.authorization);
     const method = event.httpMethod;
     const body = event.body;
-    const headers = event.headers;
-    console.log('sending request from function with... ',url, method, body, headers, authorization);
-    const response = await fetch(url, {
+    const authorization = event.headers.authorization;
+    const options = body? {
       method: method,
-      headers: {...headers, authorization: authorization},
-      body: body,
-    })
+      headers: {
+        'Content-Type':'application/json',
+        authorization: authorization},
+      body: body
+    }:{
+      method: method,
+      headers: {authorization: authorization},
+    };
+    console.log('sending request from function with... ',url, options);
+
+    const response = await fetch(url, options)
     if (!response.ok) {
       // NOT res.status >= 200 && res.status < 300
       return { statusCode: response.status, body: response.statusText }
