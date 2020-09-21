@@ -1,6 +1,6 @@
 import { auth } from "../components/App";
 
-const baseURL = 'https://api.theplacefor.me';
+const baseURL = 'http://api.theplacefor.me';
 
 export const getRequest = async (endpoint) => {
   const url = baseURL+endpoint;
