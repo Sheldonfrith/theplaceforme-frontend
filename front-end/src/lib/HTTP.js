@@ -1,6 +1,6 @@
 import { auth } from "../components/App";
 
-const baseURL = 'https://theplaceforme-bc9bb.web.app/';
+const baseURL = 'http://3.22.171.63';
 
 export const getRequest = async (endpoint) => {
   const url = baseURL+endpoint;
