@@ -249,7 +249,7 @@ export default function DataInput(props) {
       //convert to a float
       newDataList[index][1] = parseFloat(thisData);
       //if its NaN convert to empty string
-      if(!newDataList[index][1]) newDataList[index][1] = '';
+      if(newDataList[index][1]===NaN) newDataList[index][1] = '';
     });
 
     //remove accents from the country lists

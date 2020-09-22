@@ -390,8 +390,8 @@ export default function Questionaire() {
                         <th>
                               {Object.keys(scoreBreakdown[arr[0]]).map((dataset,index) =>{
                                 return (
-                                <div class="table-responsive">
-                                <table class="table" key={"sub-table-"+index}>
+                                <div key={'scorebreakdown'+index} className="table-responsive">
+                                <table className="table" key={"sub-table-"+index}>
                                   <tbody>
                                   <tr className="overflow-auto">
                                     <th>

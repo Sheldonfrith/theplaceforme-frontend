@@ -49,8 +49,8 @@ export default function DataInputFinalReview({
       alert('missing metadata');
       return;
     }
-    if (!window.confirm("You sure you want to submit this to the database?"))
-      return;
+    if (!window.confirm("You sure you want to submit this to the database?"))return;
+    console.log('submitting to database...');
     //create the dataset object to be sent as body of http request
     const dataType = isBooleans?'boolean':'float';
     const requestBody = {
