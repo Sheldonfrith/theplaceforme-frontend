@@ -29,7 +29,7 @@ export const postRequest = async (endpoint, body) => {
     const functionURL = functionBaseURL+'?url='+url;
    
     console.log('making post request to '+url);
-    const response = await fetch(url,{
+    const response = await fetch(functionURL,{
         method: 'POST',
         body: JSON.stringify(body),
         headers: {

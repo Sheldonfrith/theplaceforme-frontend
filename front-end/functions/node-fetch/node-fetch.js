@@ -3,7 +3,7 @@ const fetch = require('node-fetch')
 exports.handler = async function(event, context) {
   try {
     const url = event.queryStringParameters.url;
-    const method = event.httpMethod;
+    const me thod = event.httpMethod;
     const body = event.body;
     const authorization = event.headers.authorization;
     const options = body? {
