@@ -10,6 +10,8 @@ import UserAccountUI from "./UserAccountUI";
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
 import firebase from "firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
+import SimpleJSONInput from "./SimpleJSONInput";
+import DataInputProvider from "./containers/DataInput";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAJ-kNCFTlJZ943avU3KxvI9RXDJJYfUZk",
@@ -105,12 +107,13 @@ function App() {
       <div className="container-fluid bg-white">
         
           <GlobalProvider>
+            <DataInputProvider>
             <UserAccountUI logout={logout} user={user} isAdmin={isAdmin} />
             <Header setShowDataEntry={setShowDataEntry}/>
             <div className="container bg-light">
               <DataInput />
             </div>
-
+            </DataInputProvider>
           </GlobalProvider>
       </div>
       );

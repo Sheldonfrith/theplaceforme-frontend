@@ -1,195 +1,111 @@
 import React, { useState, useEffect, useContext } from "react";
 import { postRequest } from "../lib/HTTP";
+import { DataInputContext } from "./containers/DataInput";
+import useMyState from "../lib/Hooks/useMyState";
+import Table from "./reusable/Table";
+import TextInput from "./reusable/TextInput";
+import Button from './reusable/Button';
 
-const googleSearch = (searchQuery)=>{
+const googleSearch = (searchQuery) => {
   //replace spaces in the search query with +
-  searchQuery = searchQuery.replace(" ","+");
-  const baseURL = 'https://www.google.com/search?q=';
-  const fullURL = baseURL+searchQuery;
-  window.open(fullURL,"_blank");
-}
+  searchQuery = searchQuery.replace(" ", "+");
+  const baseURL = "https://www.google.com/search?q=";
+  const fullURL = baseURL + searchQuery;
+  window.open(fullURL, "_blank");
+};
 
-export default function DataInputFinalReview({
-  dataSourceLink,
-  setDataSourceLink,
-  dataLabel,
-  setDataLabel,
-  dataLongName,
-  setDataLongName,
-  finalDataList,
-  savedByPopup,
-  setFinalDataList,
-  CountryNamesMaster,
-}) {
+export default function DataInputFinalReview(props) {
+  const dataInputContext = useContext(DataInputContext);
+  const {
+    setDataSourceLink,
+    setDataLabel,
+    setDataLongName,
+    finalDataList,
+    savedByPopup,
+    setFinalDataList,
+    CountryNamesMaster,
+    dataLongName,
+    dataSourceLink,
+    dataLabel,
+    mainSubmit,
+  } = dataInputContext;
   //show one table that has only the country names from the master list, plus there recently
   //calculated values, with the ability to manually change these values
   //show beside it another list with the datapoints saved during the popup phase of the data processing
   //have one submit button
-  const initializeInputVals = () =>{
+  const initializeInputVals = () => {
     const result = {};
-    finalDataList.forEach(arr=>{
-      result[arr[0]] = '';
-    })
-    return result;
-  }
-  const [inputVals, setInputVals] = useState(initializeInputVals());
-  const [isBooleans, setIsBooleans] = useState(false);
-  const [dataUnit, setDataUnit] = useState('');
-  const [dataNotes, setDataNotes]= useState('');
-
-  const mainSubmit = (e) => {
-    
-    //are there any extra or missing countries?
-    if (finalDataList.length !== CountryNamesMaster.length){
-      alert('wrong number of countries. Should have '+CountryNamesMaster.length+' but instead have '+finalDataList.length);
-      return;
-    }
-    //are any of the meta fields missing?
-    if (!dataLongName || !dataSourceLink || !dataLabel || !dataUnit || !dataNotes){
-      alert('missing metadata');
-      return;
-    }
-    if (!window.confirm("You sure you want to submit this to the database?"))return;
-    console.log('submitting to database...');
-    //create the dataset object to be sent as body of http request
-    const dataType = isBooleans?'boolean':'float';
-    const requestBody = {
-      meta: {
-        longName: dataLongName,
-        label: dataLabel,
-        sourceLink: dataSourceLink,
-        unit: dataUnit,
-        dataType: dataType,
-        note: dataNotes
-      },
-    };
-    //add each country's data to the requestBody
-    //if the data is blank or falsy make it "NULL"
-    //validate it to be either floats or booleans
-    if (isBooleans) {console.log('booleans detected')} else {console.log('numbers detected')}
-
-    finalDataList.forEach((arr, index) => {
-      //if there is custom input in the final review, use that, otherwise use the value
-      //in the finalDataList
-      let thisVal = inputVals[arr[0]] ? inputVals[arr[0]] : arr[1];
-      if (thisVal === '' || thisVal=== null || thisVal ===' '){ thisVal = null}
-      if (isBooleans){
-        if (thisVal === ('TRUE'||'true'||'True'||true)){
-          thisVal = true;
-        } else {thisVal = (thisVal===null)?null:false;}
-      } else {
-        thisVal = (thisVal===null)?null:parseFloat(thisVal);
-      }
-      //FIREBASE CANNOT STORE NULL VALUES, convert to "NULL" string
-      console.log(thisVal);
-      if (thisVal===null) thisVal = "NULL";
-      if (thisVal===undefined) thisVal = "NULL";
-      if (thisVal===NaN) thisVal = "NULL";
-      requestBody[arr[0]] = thisVal;
+    finalDataList.forEach((arr) => {
+      result[arr[0]] = "";
     });
-
-    //send the http request
-    console.log('submitting this data to the database:',requestBody)
-    postRequest("/datasets", requestBody);
-
-    return;
+    return result;
   };
-//TODO ADD dataType and Unit fields...
+  const [inputVals, setInputVals] = useMyState(initializeInputVals(), "object");
+  const [isBooleans, setIsBooleans] = useState(false, "boolean");
+  const [dataUnit, setDataUnit] = useState("", "string");
+  const [dataNotes, setDataNotes] = useState("", "string");
+
+  const getTable1Column3 = ()=>{
+    return [
+      <TextInput onChange={(e)=> {const val = e.target.value; setDataLongName(val);}} />,
+      <TextInput onChange={(e)=> {const val = e.target.value; setDataSourceLink(val);}} />,
+      <TextInput onChange={(e)=> {const val = e.target.value; setDataLabel(val);}} />,
+      <TextInput onChange={(e)=> {const val = e.target.value; setDataUnit(val);}} />,
+      <TextInput onChange={(e)=> {const val = e.target.value; setDataNotes(val);}} />
+    ];
+  }
+
+  const getTable2Column1 = ()=>{
+    return  finalDataList.map((arr) => arr[0]);
+  }
+  const getTable2Column2 = ()=>{
+    return finalDataList.map((arr) => arr[1]);
+  }
+  const getTable2Column3 = ()=>{
+    return finalDataList.map((arr,index)=>{
+    return (
+      <div key={arr[0]+index}>
+        <TextInput
+          onChange={(e) => {
+            const newVal = e.target.value;
+            setInputVals((prev) => {
+              prev[arr[0]] = newVal;
+              return prev;
+            });
+          }}
+        />
+        <Button
+          onClick={() => googleSearch(arr[0] + " " + dataLongName)}
+        >
+          Google
+        </Button>
+      </div>
+    );});
+  }
+
+  //TODO ADD dataType and Unit fields...
   return (
     <div>
       <h2>Final Review of Data</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Data Name</th>
-            <th>{dataLongName}</th>
-            <th>
-              <input
-                type="text"
-                onChange={(e) => {
-                  setDataLongName(e.target.value);
-                }}
-              />
-            </th>
-          </tr>
-          <tr>
-            <th>Source</th>
-            <th>{dataSourceLink}</th>
-            <th>
-              <input
-                type="text"
-                onChange={(e) => {
-                  setDataSourceLink(e.target.value);
-                }}
-              />
-            </th>
-          </tr>
-          <tr>
-            <th>Label</th>
-            <th>{dataLabel}</th>
-            <th>
-              <input
-                type="text"
-                onChange={(e) => {
-                  setDataLabel(e.target.value);
-                }}
-              />
-            </th>
-          </tr>
-          <tr>
-            <th>Unit</th>
-            <th>{dataUnit}</th>
-            <th>
-              <input
-                type="text"
-                onChange={(e)=>{
-                  setDataUnit(e.target.value);
-                }}
-                />
-            </th>
-          </tr>
-          <tr>
-            <th>Notes</th>
-            <th>{dataNotes}</th>
-            <th>
-              <input
-                type="text"
-                onChange={(e)=>{
-                  setDataNotes(e.target.value);
-                }}
-                />
-              </th>
-          </tr>
-          <tr>
-            <th>Country Name</th>
-            <th>Value</th>
-            <th>Over-ride Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          {finalDataList.map((dataPair, index) => (
-            <tr key={"tableRow" + index}>
-              <th>{dataPair[0]}</th>
-              <th>{dataPair[1]}</th>
-              <th>
-                <input
-                  onChange={(e) => {
-                    const newVal = e.target.value;
-                    setInputVals((prev) => {prev[dataPair[0]] = newVal;return prev});
-                  }}
-                  defaultValue={inputVals[dataPair[0]]}
-                />
-              </th>
-              <th>
-                <button onClick={()=>googleSearch(dataPair[0]+' '+dataLongName)}>Google</button>
-              </th>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <input type="checkbox" onChange={()=>setIsBooleans(prev => !prev)}/>
-      <span>Check if the data is booleans</span>
-      <button onClick={mainSubmit}>SUBMIT TO DATABASE</button>
+      <Table
+        header={["Meta Field", "Value", "Edit Value"]}
+        columns={
+          [["Dataset Name", "Source Link", "Label", "Unit", "Notes"],
+          [dataLongName, dataSourceLink, dataLabel, dataUnit, dataNotes],
+          getTable1Column3()]
+        }
+      />
+      <Table
+        header={["Country Name", "Value", "Edit Value"]}
+        columns={
+         [getTable2Column1(),
+         getTable2Column2(),
+         getTable2Column3()]
+        }
+      />
+      <button onClick={(e) => mainSubmit(e, inputVals)}>
+        SUBMIT TO DATABASE
+      </button>
       <h3>Saved (deleted from actual list) values for review:</h3>
       <div>
         {savedByPopup.map((arr, index) => {

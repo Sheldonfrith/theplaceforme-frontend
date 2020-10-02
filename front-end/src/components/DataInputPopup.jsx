@@ -1,20 +1,19 @@
 import React, { useState, useEffect, useContext } from "react";
-import Select from "./Select";
+import { DataInputContext } from "./containers/DataInput";
+import useMyState from '../lib/Hooks/useMyState';
 
-export default function DataInputPopup({
-  handlers,
-  CountryNamesMaster,
-  shouldCombineDependents,
-  popupQueu,
-  setShowPopup,
-  intermediateDataList,
-  setShowFinalReview,
-}) {
-  const [addToSynonym, setAddToSynonym] = useState(false);
-  const [addToDependent, setAddToDependent] = useState(false);
-  const [synCountry, setSynCountry] = useState(null);
-  const [depCountry, setDepCountry] = useState(null);
-
+export default function DataInputPopup(props) {
+  const dataInputContext = useContext(DataInputContext);
+  const {popupHandlers,
+     CountryNamesMaster, 
+     shouldCombineDependents, 
+     popupQueu,
+     setShowPopup,
+     intermediateDataList,
+     setShowFinalReview,
+    } = dataInputContext;
+    const handlers = popupHandlers;
+  
   const tempDeleteList = [];
   const tempSynList = [];
   const tempDepList = [];
@@ -24,13 +23,13 @@ export default function DataInputPopup({
     popupQueu.forEach((arr,index)=>obj[arr[0]] = 'none');
     return obj;
   }
-  const [countrySelectList, setCountrySelectList] = useState(initCountrySelectList());
+  const [countrySelectList, setCountrySelectList] = useMyState(initCountrySelectList(),'object');
   const initPossibleActions = ()=>{
     let obj = {};
     popupQueu.forEach((arr,index)=> obj[arr[0]] = 1);
     return obj;
   }
-  const [possibleActionsList, setPossibleActionsList] = useState(initPossibleActions());
+  const [possibleActionsList, setPossibleActionsList] = useMyState(initPossibleActions(),'object');
   const possibleActions = [
     "delete",
     "saveForReview",
