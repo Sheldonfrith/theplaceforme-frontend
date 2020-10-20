@@ -83,7 +83,7 @@ export const postRequest = async (endpoint, body)=>{
     } else {
         const baseURL = 'http://api.theplacefor.me';
         const functionBaseURL = '/.netlify/functions/node-fetch';
-        return await netlifyGetRequest(endpoint, baseURL, functionBaseURL, body);
+        return await netlifyPostRequest(endpoint, baseURL, functionBaseURL, body);
     }
 }
 
