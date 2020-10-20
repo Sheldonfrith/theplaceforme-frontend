@@ -39,6 +39,12 @@ export const DataInputContext = React.createContext({
     dataType: '',
     setDataType: ()=>{},
     shouldCombineDependents: null,
+    dataNotes: '',
+    setDataNotes: ()=>{},
+    dataUnit: '',
+    setDataUnit: ()=>{},
+    dataCategory: '',
+    setDataCategory: ()=>{},
 });
 
 
@@ -58,13 +64,14 @@ const [dataLongName, setDataLongName] = useMyState("",'string');
 const [rawText, setRawText] = useMyState("",'string');
 const [dataSourceLink, setDataSourceLink] = useMyState("",'string');
 const [dataLabel, setDataLabel] = useMyState("",'string');
-const [dataType, setDataType] = useMyState('','string');
+const [dataType, setDataType] = useMyState('float','string');
+const [dataCategory, setDataCategory] = useMyState('','string');
 const [dataUnit, setDataUnit] = useMyState('','string');
 const [dataNotes, setDataNotes] = useMyState('','string');
 const [shouldCombineDependents, setShouldCombineDependents] = useMyState(false,'boolean');
 const [shouldRemoveMultiYearData, setShouldRemoveMultiYearData] = useMyState('','string');
 const [dependentCombineMethod, setDependentCombineMethod] = useMyState(
-  "simple-addition", 'string'
+  null, 'string'
 );
 const combineMethodList = [
   "simple-addition",
@@ -242,7 +249,7 @@ useMyEffect([hasShowFinalReviewChanged],() => {
   synConvert,
 ]);
 
-const mainSubmit = (e, inputVals) => {
+const mainSubmit = async (e, inputVals) => {
     
     //are there any extra or missing countries?
     if (finalDataList.length !== CountryNamesMaster.length){
@@ -250,7 +257,7 @@ const mainSubmit = (e, inputVals) => {
       return;
     }
     //are any of the meta fields missing?
-    if (!dataLongName || !dataSourceLink || !dataLabel || !dataUnit || !dataNotes){
+    if (!dataLongName || !dataSourceLink || !dataUnit || !dataCategory){
       alert('missing metadata');
       return;
     }
@@ -259,12 +266,14 @@ const mainSubmit = (e, inputVals) => {
     //create the dataset object to be sent as body of http request
     const requestBody = {
       meta: {
-        longName: dataLongName,
-        label: dataLabel,
-        sourceLink: dataSourceLink,
-        unit: dataUnit,
-        dataType: ((dataType!=='number')?dataType:'float'),
-        note: dataNotes
+        long_name: dataLongName,
+        country_id_type: 'primary_name',
+        source_link: dataSourceLink,
+        source_description: null,
+        unit_description: dataUnit,
+        data_type: ((dataType!=='number')?dataType:'float'),
+        notes: dataNotes,
+        category: dataCategory,
       },
     };
     //add each country's data to the requestBody
@@ -284,18 +293,12 @@ const mainSubmit = (e, inputVals) => {
       } else {
         thisVal = (thisVal===null)?null:parseFloat(thisVal);
       }
-      //FIREBASE CANNOT STORE NULL VALUES, convert to "NULL" string
-      console.log(thisVal);
-      if (thisVal===null) thisVal = "NULL";
-      if (thisVal===undefined) thisVal = "NULL";
-      if (isNaN(thisVal)) thisVal = "NULL";
       requestBody[arr[0]] = thisVal;
     });
 
     //send the http request
     console.log('submitting this data to the database:',requestBody)
-    postRequest("/datasets", requestBody);
-
+    alert(await postRequest("/datasets", requestBody));
     return;
   };
 
@@ -309,6 +312,8 @@ value={{
     setDataLabel: setDataLabel,
     setDataSourceLink: setDataSourceLink,
     setDataLongName: setDataLongName,
+    setDataNotes: setDataNotes,
+    dataNotes: dataNotes,
     setShouldRemoveMultiYearData: setShouldRemoveMultiYearData,
     setShouldCombineDependents: setShouldCombineDependents,
     setDependentCombineMethod: setDependentCombineMethod,
@@ -329,6 +334,10 @@ value={{
     dataType: dataType,
     setDataType: setDataType,
     shouldCombineDependents: shouldCombineDependents,
+    dataUnit: dataUnit,
+    setDataUnit: setDataUnit,
+    dataCategory: dataCategory,
+    setDataCategory: setDataCategory
 }}
 >
 {children}

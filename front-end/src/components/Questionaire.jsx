@@ -1,9 +1,14 @@
 import React from "react";
 import { useEffect } from "react";
 import { useContext, useState, useCallback } from "react";
-import { getRequest } from "../lib/HTTP";
+import { getRequest, postRequest } from "../lib/HTTP";
 import _ from "lodash";
 import { convertNullsInObject, convertObjectToLowerCase} from "../lib/Utils";
+import useMyEffect from "../lib/Hooks/useMyEffect";
+import {
+  AreaChart, ResponsiveContainer, Area, XAxis, YAxis, CartesianGrid, Tooltip,
+} from 'recharts';
+import Select from './reusable/Select';
 
 let prevDatasetsData = null;
 let prevIsLoading = false;
@@ -36,124 +41,101 @@ export default function Questionaire() {
   const [countries, setCountries] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showBreakdown, setShowBreakdown] = useState(null);
+
+  const [testChartData, setTestChartData] = useState(null);
+  const [testChartMod, setTestChartMod] = useState(null);
+
+  const [missingDataHandlerMethods, setMissingDataHandlerMethods] = useState(null);
+
   const [lcDatasetsData, setlcDatasetsData] = useState(null);//lowercased
   const [rawDatasetsData, setRawDatasetsData] = useState(null); //not lower cased
   const [scoreBreakdown, setScoreBreakdown] = useState(null); //object with countries as keys, array as value, each value array has dataset name as index 0 and and total score as index 1
   const [howToHandleMissingData, setHowToHandleMissingData] = useState(
     "neutral"
   );
-  const [scoresList, setScoresList] = useState(null); //nested array with countries as 0 and scores as 1
 
+  const [scoresList, setScoresList] = useState(null); //nested array with countries as 0 and scores as 1
+  const [simpleResults,setSimpleResults] = useState(null);
+  const [sortedResults, setSortedResults] = useState(null);
+  const [categories, setCategories] = useState(null);
+  const [formValues, setFormValues] = useState(null);
+  //object with this structure
+  // {
+  //   datasetId:{
+  //     weight:
+  //     idealValue
+  //     customScoreFunction
+  //     missingDataHandlerMethod
+  //     missingDataHandlerInput
+  //   }
+  // }
+  const [scoresRequest, setScoresRequest] = useState(null);
+  //scores request is the json object sent in the request to api/scores when we are done the questionairy
+  //structure:
+  //[{},{}]list with objects corresponding to each dataset
+  //each dataset object has this structure:
+  //{
+  //   datasetID: '',
+  //   weight: 0,
+  //   idealValue: val OR null,
+  //   customScoreFunction: function OR null,
+  //   missingDataHandlerMethod: 'text',
+  //   missingDataHandlerInput: number OR null
+  // }
+
+  
   //onmount get the raw data from the server
   useEffect(() => {
     const asyncWrapper = async () => {
       const httpResponse = await getRequest("/datasets");
-      const nullsConverted = await convertNullsInObject(httpResponse);
-      const lowerCased = await convertObjectToLowerCase(nullsConverted);
-      setlcDatasetsData(lowerCased);
-      setRawDatasetsData(nullsConverted);
+      setRawDatasetsData(httpResponse);
+      console.log(httpResponse);
+      const countries = await getRequest("/countries");
+      setCountries(countries);
+      const missingDHMethods = await getRequest("/missing-data-handler-methods");
+      setMissingDataHandlerMethods(missingDHMethods);
     };
     asyncWrapper();
   }, []);
 
-  //once the data is retrieved, use it to set the relevant state variables
-  useEffect(() => {
-    //only run once, when datasetsData has been loaded
-    if (lcDatasetsData && isLoading && rawDatasetsData) {
-      console.log(lcDatasetsData);
-      const getFromDatasetsData = (property) => {
-        //remove meta from the iteration array
-        let result = [];
-        Object.keys(rawDatasetsData).forEach((rawID) => {
-          const id=rawID.toLowerCase();
-          //ignore meta field
-          if (id === "meta") return;
-          //create list of dataset ids;
-          if (property === "id") {
-            result.push(id);
-            return;
-          }
-          if (property === 'rawID'){
-            result.push(rawID);
-            return;
-          }
-          //create list of vals that are halfway between min and max vals
-          if (property === "val") {
-            const max = lcDatasetsData[id].meta.maxvalue;
-            const min = lcDatasetsData[id].meta.minvalue;
-            result.push((max - min * 1.0) / 2.0 + min);
-            return;
-          }
-          const thisData = lcDatasetsData[id].meta[property];
-          result.push(thisData);
-          return;
-        });
-        return result;
-      };
-      const blankList = () => {
-        const result = Object.keys(lcDatasetsData).map((id) => {
-          return "";
-        });
-        result.pop(); //remove the last value to account for the meta field in the datasets
-        return result;
-      };
-      const getCountries = () => {
-        let result = [];
-        //go through all countries in 1st dataset and use that as master country list
-        Object.keys(lcDatasetsData[Object.keys(lcDatasetsData)[0]]).forEach(
-          (country) => {
-            if (country === "meta") return;
-            result.push(country);
-          }
-        );
-        return result;
-      };
-      const zeroList = () => {
-        let result = [];
-        for (let i = 0; i < lcDatasetsData.length - 2; i++) {
-          result.push(0);
-        }
-        return result;
-      };
-      setDatasetIDs(getFromDatasetsData("id"));
-      setRawDatasetIDs(getFromDatasetsData('rawID'));
-      setMaxVals(getFromDatasetsData("maxvalue"));
-      setLongNames(getFromDatasetsData("longname"));
-      setMinVals(getFromDatasetsData("minvalue"));
-      setDataTypes(getFromDatasetsData("datatype"));
-      setUnits(getFromDatasetsData("unit"));
-      setCountries(getCountries());
-      setVals(getFromDatasetsData("val"));
-      setWeights(blankList());
-    }
-    return;
-  }, [
-    lcDatasetsData,
-    rawDatasetsData,
-    setRawDatasetIDs,
-    setDatasetIDs,
-    setMinVals,
-    setCountries,
-    setMaxVals,
-    setLongNames,
-    setVals,
-    setWeights,
-    setIsLoading,
-    isLoading,
-  ]);
-
   //once those states are loaded, set isloading to false
   useEffect(() => {
-    if (!isLoading) return;
-    if (!minVals) return;
-    if (!longNames) return;
-    if (!maxVals) return;
+    if (!rawDatasetsData) return;
     if (!countries) return;
-    if (!vals) return;
-    if (!weights) return;
-    console.log('done loading', longNames, minVals, maxVals, countries, weights,vals);
+    if (!missingDataHandlerMethods) return;
+    //now organize the datasets by category
+    let categories = [];
+    let categoryNames = [];
+    rawDatasetsData.forEach(dataset=>{
+        if (!categoryNames.includes(dataset['category'])){
+            categories.push({
+                name:dataset['category'],
+                datasets: [dataset],
+            });
+            categoryNames.push(dataset['category']);
+        } else {
+            const index = categories.findIndex(element => element.name===dataset['category']);
+            categories[index]['datasets'].push(dataset);
+        }
+    });
+    setCategories(categories);
+    //initialize the formValues state object
+    const defaultFormValues = {};
+    rawDatasetsData.forEach(dataset=>{
+      const thisRef = defaultFormValues[dataset['id']] = {};
+      thisRef['weight'] = 0;
+      thisRef['idealValue'] = Math.abs(dataset['max_value']-dataset['min_value'])/2.0;
+      thisRef['customScoreFunction'] = null;
+      thisRef['missingDataHandlerMethod'] = 'average';
+      thisRef['missingDataHandlerInput'] = null;
+      thisRef['normalizationPercentage'] = 0;
+    });
+    setFormValues(defaultFormValues);
+    //initialize the test chart data
+    setTestChartData(rawDatasetsData[0]['distribution_map']);
     setIsLoading(false);
   }, [
+    missingDataHandlerMethods,
     isLoading,
     setIsLoading,
     minVals,
@@ -162,7 +144,17 @@ export default function Questionaire() {
     countries,
     vals,
     weights,
+    rawDatasetsData,
   ]);
+
+  //whenever scores results are loaded, sort the list for rendering by rank
+  useMyEffect([simpleResults],()=>{
+    const unsortedResultsList = Object.keys(simpleResults).map(countryCode=>{
+      return {'alpha_three_code':countryCode, ...simpleResults[countryCode]};
+    });
+    const sortedResultsList = unsortedResultsList.sort((a,b)=>a['rank']-b['rank']);
+    setSortedResults(sortedResultsList);
+  },[simpleResults, setSortedResults])
 
   const changeVal = (value, index) => {
     const val = parseFloat(value);
@@ -228,6 +220,11 @@ export default function Questionaire() {
         }
       });
       //handle countries WITH data first
+      //calculate how similar the actual value is to the ideal value (%)
+      // using 100-(abs(thisdata-idealval)*1)/onepercent
+      //calculate onepercent using
+      //(range * 1.0) / 100.0;
+      // multiply the score by the weight
       let percentSimilarList = [];
       withData.forEach((country) => {
         const thisData = thisDataset[country];
@@ -238,23 +235,11 @@ export default function Questionaire() {
           100.0 - (Math.abs(thisData - val) * 1.0) / onePercent;
         percentSimilarList.push(percentSimilar);
         const newScore = weight * percentSimilar;
-        // console.log(
-        //   "in " +
-        //     country +
-        //     " calc for " +
-        //     longNames[index] +
-        //     " with " +
-        //     thisData +
-        //     " turning into " +
-        //     newScore +
-        //     " plus old " + 
-        //     oldScore
-        // );
         _.set(tempScoreBreakdown, `${country}[${longNames[index]}]`, newScore);
-        // console.log(tempScoreBreakdown);
         countryScoreTotal[country] = oldScore + newScore;
-        // console.log(countryScoreTotal);
       });
+      
+    
       //handle countries WITHOUT data
       if (withoutData.length > 0) {
         //get average percent similar for this dataset
@@ -303,70 +288,198 @@ export default function Questionaire() {
     vals,
     weights,
   ]);
+  const getChartData = (distributionMap)=>{
+    const chartData =[];
+    const list = Array.isArray(distributionMap)?distributionMap:JSON.parse(distributionMap);
+    list.map((count,index)=>{
+      chartData.push({percent: index, count:count});
+    })
+    return chartData;
+  }
+
+  const changeTestChartData=(e)=>{
+    const modifier = JSON.parse(testChartMod) ||[0,null];
+    const index = modifier[0] || 0;
+    const mod1 = modifier[1] || null;
+    const list = Array.isArray(rawDatasetsData[modifier][index])?rawDatasetsData[modifier][index]:JSON.parse(rawDatasetsData[modifier][index]);
+    const newData = list.map(val=>{
+      let newVal;
+      if (mod1){
+        newVal =Math.log1p(val)/Math.log1p(mod1);
+      } else {
+        newVal = val;
+      }
+      
+      return isFinite(newVal)?newVal:0;
+    });
+    console.log(newData);
+    setTestChartData(newData);
+  }
+
+  const submitForm = async ()=>{
+    //convert formValues to scoresRequest structure object
+    const scoresRequest = [];
+    Object.keys(formValues).forEach(datasetID=>{
+      scoresRequest.push({
+        id:datasetID,
+        weight:formValues[datasetID].weight,
+        idealValue:formValues[datasetID].idealValue || null,
+        customScoreFunction: formValues[datasetID].customScoreFunction || null,
+        missingDataHandlerMethod: formValues[datasetID].missingDataHandlerMethod,
+        missingDataHandlerInput: formValues[datasetID].missingDataHandlerInput || null,
+        normalizationPercentage: formValues[datasetID].normalizationPercentage || 0,
+      })
+    })
+    await setScoresRequest(scoresRequest);
+    console.log(scoresRequest);
+    const response = await postRequest('/scores',scoresRequest);
+    console.log(response);
+    setSimpleResults(response);
+  }
 
   if (!isLoading) {
     return (
       <div className="container-fluid text-light p-3 bg-dark">
         <h3>Answer these questions to find out which countries are the best fit for you:</h3>
-        {longNames.map((name, index) => {
+        {categories.map((obj,ind)=>{
           return (
-            <div className="container border rounded p-3 m-3 bg-light text-dark" key={"mockData" + index}>
-              <h3>Question {index + 1}:</h3>
-              <h4>What {name} would you prefer your country to have?</h4>
-              {/* slider */}
-              <input
-                className="form-control-range"
-                key={"valSlider" + index}
-                type="range"
-                onChange={(e)=>changeVal(e.target.value,index)}
-                min={minVals[index]}
-                max={maxVals[index]}
-                defaultValue={vals[index]}
-              />
-              <span>
-                {parseFloat(vals[index]).toFixed(2)} {units[index]}
-              </span>
-              <h4>How important is this to you?</h4>
-              {/* slider */}
-              <input
-                className="form-control-range"
-                key={"weightSlider" + index}
-                type="range"
-                onChange={(e)=>changeWeight(e.target.value,index)}
-                min="0"
-                max="10"
-                defaultValue={weights[index] || 0}
-              />
-              <span>{weights[index]}</span>
-              <span>
-                {weights[index]
-                  ? ""
-                  : "Warning, setting this to 0 means this dataset will not be factored in to your results at all."}
-              </span>
+            <div key={'category'+ind}>
+              <h2>{obj.name}</h2>
+              {obj.datasets.map((dataset,index)=>{
+                return (
+                  <div className="container border rounded p-3 m-3 bg-light text-dark" key={"datasetsData"+obj.name+ index}>
+                    <h3>Question:</h3>
+                    <h4>What {dataset['long_name']} would you prefer your country to have?</h4>
+                    {/* distribution map */}
+                    <ResponsiveContainer width="100%" height={30}>
+                      <AreaChart
+                        data={getChartData(dataset['distribution_map'])}
+                        margin={{ top: 1, right: 0, left: 0, bottom: 1 }}
+                      >
+                        <Area type="monotone" dataKey="count" stroke="#8884d8" fill="#8884d8" />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                    {/* slider */}
+                    <input
+                      className="form-control-range"
+                      type="range"
+                      onChange={(e)=>{
+                        const newVal = e.target.value;
+                        setFormValues(prev=>{
+                          const next = {...prev};
+                          next[dataset.id]['idealValue']=newVal;
+                          return next;
+                        })
+                      }}
+                      min={dataset['min_value']}
+                      max={dataset['max_value']}
+                      name="idealValue"
+                      value={formValues[dataset['id']['idealValue']]}
+                      step={Math.abs(dataset['max_value']-dataset['min_value'])/100.0}
+                    />
+                    <input 
+                     type="text"
+                     value= {formValues[dataset.id]['idealValue']}
+                     
+                     onChange={(e)=>{
+                      
+                      const newVal = e.target.value;
+                      if((newVal<=dataset['max_value'] && newVal >=dataset['min_value']) || newVal==='-'){
+                      const newObj = {...formValues};
+                      newObj[dataset.id]['idealValue'] = newVal;
+                      setFormValues(newObj);
+                      }
+                     }}
+                    ></input>
+                    <span>
+                       {dataset['unit_description']}
+                    </span>
+                    <h4>How important is this to you?</h4>
+                    {/* slider */}
+                    <input
+                      className="form-control-range"
+                      key={"weightSlider" + index}
+                      type="range"
+                      onChange={(e)=>{
+                        const newVal = e.target.value;
+                        setFormValues(prev =>{
+                          const next = {...prev};
+                          next[dataset.id]['weight'] = newVal;
+                          return next;
+                        })
+                      }}
+                      min="0"
+                      max="100"
+                      defaultValue={formValues[dataset.id]['weight']}
+                    />
+                    <span>{formValues[dataset.id]['weight']}</span>
+                    <span>
+                      {formValues[dataset.id]['weight']
+                        ? ""
+                        : "Warning, setting this to 0 means this dataset will not be factored in to your results at all."}
+                    </span>
+                    <h4>What percentage of normalization would you like to apply?</h4>
+                    {/* slider */}
+                    <input
+                      className="form-control-range"
+                      key={"normSlider" + index}
+                      type="range"
+                      onChange={(e)=>{
+                        const newVal = e.target.value;
+                        setFormValues(prev =>{
+                          const next = {...prev};
+                          next[dataset.id]['normalizationPercentage'] = newVal;
+                          return next;
+                        })
+                      }}
+                      min="0"
+                      max="100"
+                      defaultValue={formValues[dataset.id]['normalizationPercentage']}
+                    />
+                    <span>{formValues[dataset.id]['normalizationPercentage']}</span>
+                    <p>Make this value higher for datasets that are highly skewed.</p>
+                    
+                    {/* set missing data handler method and input here */}
+                    <h4>How would you like to handle countries that are missing data in this dataset?</h4>
+                    <Select
+                      onChange={(e)=>{
+                        const newVal = e.target.value;
+                        const newObj = {...formValues};
+                        newObj[dataset.id]['missingDataHandlerMethod'] = newVal;
+                        setFormValues(newObj);
+                      }}
+                      optionsList={missingDataHandlerMethods}
+                    ></Select>
+                    {/* TODO make this part appear conditionally based on the method selected */}
+                    <input
+                      type="text"
+                      defaultValue={formValues[dataset.id]['missingDataHandlerInput']}
+                      onChange={(e)=>{
+                        const newVal = e.target.value;
+                        const newObj = {...formValues}
+                        newObj[dataset.id]['missingDataHandlerInput'] = newVal;
+                        setFormValues(newObj);
+                      }}
+                      placeholder="missingDataHandlerInput"
+                    >
+                    </input>
+                  </div>
+                );
+              })}
             </div>
           );
         })}
-        <h4>
-          What should we do when there is no data available for a country?
-        </h4>
-        <select
-          className="form-control"
-          onChange={(e) => {
-            setHowToHandleMissingData(e.target.value);
-          }}
-        >
-          <option value={"neutral"}>
-            Give it an average value so the lack of data doesn't affect its
-            final score
-          </option>
-          <option value={"good"}>
-            Rank it well, reward the country for not having data
-          </option>
-          <option value={"bad"}>
-            Rank it poorly, penalize the country for not having data
-          </option>
-        </select>
-        <button className="btn-primary"onClick={calculateResult}>submit</button>
+
+        <button className="btn-primary"onClick={submitForm}>submit</button>
+        {sortedResults?<div>
+          {sortedResults.map((object,index) =>{
+            return (
+              <div key={'countryresults'+index}>
+                {object['primary_name']}: Rank: {object['rank']} Score:{object['totalScore']}
+              </div>
+            );
+          })}
+        </div>:<></>}
         {scoresList?<div >
           <h3>Results</h3>
           <div className="container table-responsive bg-light p-1 m-1 text-dark">

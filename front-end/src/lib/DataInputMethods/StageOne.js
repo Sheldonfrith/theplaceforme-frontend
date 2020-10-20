@@ -30,6 +30,7 @@ export default function StageOne(array, options){
     if (options.handleSynonyms === 'convert'){
         array = ConvertSynonyms(array);
     } else {throw new Error ('invalid option for handleSynonyms in stageOne')}
+    // console.log('arr',array);
     if (options.dependentCombineMethod) array = ProcessDependents(array,options.dependentCombineMethod);
     if (options.addMissingCountries) array = AddMissingCountries(array);
     return array;

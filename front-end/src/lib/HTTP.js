@@ -37,7 +37,7 @@ export const netlifyGetRequest = async (endpoint, baseURL, functionBaseURL) => {
       .catch(error=>{console.log(error);});
   
       // console.log(response);
-      return response? response: null;
+      return await response? response: null;
   }
   const localGetRequest = async (endpoint, baseURL) =>{
     const token = await auth().currentUser.getIdToken();
@@ -46,7 +46,7 @@ export const netlifyGetRequest = async (endpoint, baseURL, functionBaseURL) => {
           headers: { authorization: `Bearer ${token}` },
         }).then(data => data?data.json():null)
         .catch(error => {console.log(error)});
-    return response;
+    return await response;
 }
 
 const localPostRequest = async (endpoint, baseURL, body)=>{
@@ -63,27 +63,27 @@ const localPostRequest = async (endpoint, baseURL, body)=>{
     const response = await fetch(url,fetchOptions)
     .then(data=>data?data.json():null)
     .catch(error=>console.log(error));
-    return response;
+    return await response;
 }
 
 export const getRequest = async(endpoint)=>{
     if (window.location.host.includes('localhost')){
-        const baseURL = 'http://localhost:3001';
-        return localGetRequest(endpoint, baseURL);
+        const baseURL = 'http://localhost:8000/api';
+        return await localGetRequest(endpoint, baseURL);
     } else {
         const baseURL = 'http://api.theplacefor.me';
         const functionBaseURL = '/.netlify/functions/node-fetch';
-        return netlifyGetRequest(endpoint, baseURL, functionBaseURL);
+        return await netlifyGetRequest(endpoint, baseURL, functionBaseURL);
     }
 }
 export const postRequest = async (endpoint, body)=>{
     if (window.location.host.includes('localhost')){
-        const baseURL = 'http://localhost:3001';
-        return localPostRequest(endpoint, baseURL, body);
+        const baseURL = 'http://localhost:8000/api';
+        return await localPostRequest(endpoint, baseURL, body);
     } else {
         const baseURL = 'http://api.theplacefor.me';
         const functionBaseURL = '/.netlify/functions/node-fetch';
-        return netlifyGetRequest(endpoint, baseURL, functionBaseURL, body);
+        return await netlifyGetRequest(endpoint, baseURL, functionBaseURL, body);
     }
 }
 

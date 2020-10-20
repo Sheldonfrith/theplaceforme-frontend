@@ -1,9 +1,11 @@
 import React, {useState, useEffect, useContext, useCallback} from 'react';
+import { getRequest } from '../lib/HTTP';
 import { DataInputContext } from './containers/DataInput';
 import Checkbox from './reusable/Checkbox';
 import Select from './reusable/Select';
 
 export default function DataInputInitial(props) {
+const [testResult, setTestResult] = useState('');
 const dataInputContext = useContext(DataInputContext);
 const {handleSubmitRaw, 
     setShouldCombineDependents, 
@@ -40,6 +42,11 @@ return (
             onChange={changeRawText}
             placeholder="paste your table here"
           ></textarea>
+          <button onClick={async (e)=>{
+            const newVal = await getRequest('/countries');
+            setTestResult(newVal);
+          }}>test getcountries</button>
+          <div>result here: {JSON.stringify(testResult)}</div>
           {/* <p>Just the countries</p>
           <textarea
             onChange={changeRawTextCountries}

@@ -20,14 +20,20 @@ export default function DataInputFinalReview(props) {
     setDataSourceLink,
     setDataLabel,
     setDataLongName,
+    setDataNotes,
     finalDataList,
     savedByPopup,
     setFinalDataList,
     CountryNamesMaster,
     dataLongName,
     dataSourceLink,
+    dataNotes,
+    dataUnit,
+    setDataUnit,
     dataLabel,
     mainSubmit,
+    dataCategory,
+    setDataCategory,
   } = dataInputContext;
   //show one table that has only the country names from the master list, plus there recently
   //calculated values, with the ability to manually change these values
@@ -42,16 +48,14 @@ export default function DataInputFinalReview(props) {
   };
   const [inputVals, setInputVals] = useMyState(initializeInputVals(), "object");
   const [isBooleans, setIsBooleans] = useState(false, "boolean");
-  const [dataUnit, setDataUnit] = useState("", "string");
-  const [dataNotes, setDataNotes] = useState("", "string");
 
   const getTable1Column3 = ()=>{
     return [
       <TextInput onChange={(e)=> {const val = e.target.value; setDataLongName(val);}} />,
       <TextInput onChange={(e)=> {const val = e.target.value; setDataSourceLink(val);}} />,
-      <TextInput onChange={(e)=> {const val = e.target.value; setDataLabel(val);}} />,
       <TextInput onChange={(e)=> {const val = e.target.value; setDataUnit(val);}} />,
-      <TextInput onChange={(e)=> {const val = e.target.value; setDataNotes(val);}} />
+      <TextInput onChange={(e)=> {const val = e.target.value; setDataNotes(val);}} />,
+      <TextInput onChange={(e)=>{const val = e.target.value; setDataCategory(val);}}/>,
     ];
   }
 
@@ -90,8 +94,8 @@ export default function DataInputFinalReview(props) {
       <Table
         header={["Meta Field", "Value", "Edit Value"]}
         columns={
-          [["Dataset Name", "Source Link", "Label", "Unit", "Notes"],
-          [dataLongName, dataSourceLink, dataLabel, dataUnit, dataNotes],
+          [["Dataset Name", "Source Link", "Unit", "Notes", "Category"],
+          [dataLongName, dataSourceLink, dataUnit, dataNotes, dataCategory],
           getTable1Column3()]
         }
       />

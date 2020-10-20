@@ -1,5 +1,6 @@
 {
     "Afghanistan": [],
+    "Aland Islands": [],
     "Albania": [],
     "Algeria": [],
     "Andorra": [],
@@ -9,7 +10,10 @@
     "Argentina": [],
     "Armenia": [],
     "Aruba": [],
-    "Australia": [],
+    "Australia": [
+        "Norfolk Island",
+        "Christmas Island"
+    ],
     "Austria": [],
     "Azerbaijan": [],
     "Bahrain": [],
@@ -206,6 +210,7 @@
     "Suriname": [],
     "Sweden": [],
     "Switzerland": [],
+    "Svalbard":[],
     "Syria": ["syrian arab republic"],
     "Taiwan": [],
     "Tajikistan": [],
