@@ -68,7 +68,8 @@ const localPostRequest = async (endpoint, baseURL, body)=>{
 
 export const getRequest = async(endpoint)=>{
     if (window.location.host.includes('localhost')){
-        const baseURL = 'http://localhost:8000/api';
+        console.log('sending local get request');
+        const baseURL = 'http://localhost:8000';
         return await localGetRequest(endpoint, baseURL);
     } else {
         const baseURL = 'http://api.theplacefor.me';
@@ -78,7 +79,7 @@ export const getRequest = async(endpoint)=>{
 }
 export const postRequest = async (endpoint, body)=>{
     if (window.location.host.includes('localhost')){
-        const baseURL = 'http://localhost:8000/api';
+        const baseURL = 'http://localhost:8000';
         return await localPostRequest(endpoint, baseURL, body);
     } else {
         const baseURL = 'http://api.theplacefor.me';

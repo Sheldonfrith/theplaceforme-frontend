@@ -41,6 +41,7 @@ export default function Questionaire() {
   const [countries, setCountries] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showBreakdown, setShowBreakdown] = useState(null);
+  const [localStorageFormValues, setLocalStorageFormValues] = useState(JSON.parse(localStorage.getItem('theplaceformeFormValues'))||null);
 
   const [testChartData, setTestChartData] = useState(null);
   const [testChartMod, setTestChartMod] = useState(null);
@@ -58,7 +59,7 @@ export default function Questionaire() {
   const [simpleResults,setSimpleResults] = useState(null);
   const [sortedResults, setSortedResults] = useState(null);
   const [categories, setCategories] = useState(null);
-  const [formValues, setFormValues] = useState(null);
+  const [formValues, setFormValues] = useState(localStorageFormValues);
   //object with this structure
   // {
   //   datasetId:{
@@ -120,7 +121,12 @@ export default function Questionaire() {
     });
     setCategories(categories);
     //initialize the formValues state object
-    const defaultFormValues = {};
+    //UNLESS there is already a valid formValues stored in local storage, 
+    //in which case load that instead
+    let defaultFormValues;
+    console.log(localStorageFormValues);
+    if (!localStorageFormValues){
+    defaultFormValues = {};
     rawDatasetsData.forEach(dataset=>{
       const thisRef = defaultFormValues[dataset['id']] = {};
       thisRef['weight'] = 0;
@@ -130,6 +136,7 @@ export default function Questionaire() {
       thisRef['missingDataHandlerInput'] = null;
       thisRef['normalizationPercentage'] = 0;
     });
+  } else {defaultFormValues = localStorageFormValues;}
     setFormValues(defaultFormValues);
     //initialize the test chart data
     setTestChartData(rawDatasetsData[0]['distribution_map']);
@@ -315,6 +322,14 @@ export default function Questionaire() {
     console.log(newData);
     setTestChartData(newData);
   }
+
+  //save form values in local storage so that user does not lose their data if they accidentally
+  //navigate away
+  useEffect(()=>{
+    console.log('setting to local storage');
+    
+    localStorage.setItem('theplaceformeFormValues', JSON.stringify(formValues));
+  },[formValues]);
 
   const submitForm = async ()=>{
     //convert formValues to scoresRequest structure object
