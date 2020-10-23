@@ -1,0 +1,22 @@
+{
+  "name": "theplaceforme-frontend",
+  "version": "1.0.0",
+  "description": "*Currently just a demo, as it will take me a while to gather/calculate all the data I want to include for ever country in order to make this tool truly comprehensive. Depending on server costs, would like to make this a free publicly accessible API.*",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sheldonfrith/theplaceforme-frontend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Sheldonfrith/theplaceforme-frontend/issues"
+  },
+  "homepage": "https://github.com/Sheldonfrith/theplaceforme-frontend#readme",
+  "dependencies": {
+    "create-react-app": "^3.4.1"
+  }
+}

@@ -1,5 +1,6 @@
 
 import { useEffect } from "react";
+import useHasChanged from './useHasChanged';
 
 //WRITTEN BY SHELDON FRITH
 // if dependency is missing throw an error?
@@ -9,11 +10,11 @@ import { useEffect } from "react";
 
 export default function useMyEffect (triggerVariables, callback, dependencies = []){
     //trigger Variable is an array
-    //each item in the array is a variable set by the useHasChanged hook that evaluates to TRUE if it has changed
-    //ALL items in the array must be true for this useEffect to run
+    //if any item in the array changes the effect will run, otherwise it wont
+        
+        const haveTriggerVariablesChanged = useHasChanged(triggerVariables);
         const effectHook = ()=>{
-            const unchangedVariables = triggerVariables.filter(item =>!item);
-            if (unchangedVariables.length>0) return;
+            if (!haveTriggerVariablesChanged) return;
             const asyncWrapper = async()=>{
                 await callback();
             }

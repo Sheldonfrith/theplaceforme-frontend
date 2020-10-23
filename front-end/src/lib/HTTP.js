@@ -2,7 +2,7 @@ import { auth } from "../components/App";
 
 export const netlifyGetRequest = async (endpoint, baseURL, functionBaseURL) => {
     const url = baseURL+endpoint;
-    const token = await auth().currentUser.getIdToken();
+    const token = auth().currentUser?await auth().currentUser.getIdToken():'not logged in';
     const authorization = `Bearer ${token}`;
     const functionURL = functionBaseURL + '/?url='+url;
     const response = await fetch(functionURL, {headers: {authorization: authorization}})
@@ -21,7 +21,7 @@ export const netlifyGetRequest = async (endpoint, baseURL, functionBaseURL) => {
   
   export const netlifyPostRequest = async (endpoint, baseURL, functionBaseURL, body) => {
       const url = baseURL+endpoint;
-      const token = await auth().currentUser.getIdToken();
+      const token = auth().currentUser?await auth().currentUser.getIdToken():'not logged in';
       const authorization =`Bearer ${token}`;
       const functionURL = functionBaseURL+'?url='+url;
      
@@ -40,7 +40,7 @@ export const netlifyGetRequest = async (endpoint, baseURL, functionBaseURL) => {
       return await response? response: null;
   }
   const localGetRequest = async (endpoint, baseURL) =>{
-    const token = await auth().currentUser.getIdToken();
+    const token = auth().currentUser?await auth().currentUser.getIdToken():'not logged in';
     const url = baseURL+endpoint;
     const response = await fetch(url, {
           headers: { authorization: `Bearer ${token}` },
@@ -50,7 +50,7 @@ export const netlifyGetRequest = async (endpoint, baseURL, functionBaseURL) => {
 }
 
 const localPostRequest = async (endpoint, baseURL, body)=>{
-    const token = await auth().currentUser.getIdToken();
+    const token = auth().currentUser?await auth().currentUser.getIdToken():'not logged in';
     const url = baseURL+endpoint;
     const fetchOptions = {
         method: 'POST',
