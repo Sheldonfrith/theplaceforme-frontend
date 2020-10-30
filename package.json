@@ -17,6 +17,10 @@
   },
   "homepage": "https://github.com/Sheldonfrith/theplaceforme-frontend#readme",
   "dependencies": {
-    "create-react-app": "^3.4.1"
+    "@material-ui/core": "^4.11.0",
+    "@types/color": "^3.0.1",
+    "color": "^3.1.3",
+    "create-react-app": "^3.4.1",
+    "material-ui-popup-state": "^1.7.0"
   }
 }

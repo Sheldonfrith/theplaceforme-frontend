@@ -5,6 +5,9 @@ import AccountPopup from './Popup-Account';
 import CountryBreakdownPopup from './Popup-CountryBreakdown';
 import LoginPopup from './Popup-Login';
 import { GlobalContext } from './containers/GlobalProvider';
+import styled from 'styled-components';
+import ChangeDefaultsPopup from './Popups-ChangeDefaults';
+// import {StyledContext} from './containers/StyledProvider';
 
 //this page should allow for:
 //logout
@@ -12,16 +15,14 @@ import { GlobalContext } from './containers/GlobalProvider';
 //view and load saved questionaires
 
 interface PopupsProps{
+
 }
 const Popups: React.FunctionComponent<PopupsProps>=({}) =>{
     const gc = useContext(GlobalContext);
-    const containerRef = useRef(null);
     const closePopup = ()=>gc.setCurrentPopup(null);
 if (gc.currentPopup){
 return (
-<div ref={containerRef}>
 <LargePopup
-    containerRef={containerRef}
     containerDisplay={'block'}
     closePopup={closePopup}
     accentColor={null}
@@ -31,11 +32,11 @@ return (
     closeButtonColor={null}
     containerStyle={null}
 >
-{gc.currentPopup==='login'?<LoginPopup closePopup={closePopup}/>:<></>}
-{gc.currentPopup==='account'?<AccountPopup closePopup={closePopup}/>:<></>}
+{gc.currentPopup==='login'?<LoginPopup  closePopup={closePopup}/>:<></>}
+{gc.currentPopup==='account'?<AccountPopup  closePopup={closePopup}/>:<></>}
 {gc.currentPopup==='countryBreakdown'?<CountryBreakdownPopup closePopup={closePopup}/>:<></>}
+{gc.currentPopup==='changeDefaults'?<ChangeDefaultsPopup closePopup={closePopup}/>:<></>}
 </LargePopup>
-</div>
 );
 } else {
     //current popup === null

@@ -16,9 +16,6 @@ const DefaultContainer = styled.div`
   justify-content: center;
   cursor: pointer;
 `;
-export const ClosePopupButtonStyle = (styledComponent)=>{
-    DefaultContainer = styledComponent;
-}
 const defaultColor = 'white';
 const defaultBackgroundColor = '';
 

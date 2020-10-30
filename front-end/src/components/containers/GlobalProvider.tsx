@@ -4,6 +4,7 @@ import { getRequest } from '../../lib/HTTP';
 import getColorByCategory from '../../lib/UI-Constants/categoryColors';
 import getIndexByCategory from '../../lib/UI-Constants/categoryOrder';
 import {ThemeProvider} from 'styled-components';
+import getThemeColors from '../../lib/UI-Constants/themeColors';
 
 //define our types outside the component so they can be used by both the context and provider components
 export interface Dataset{
@@ -42,7 +43,7 @@ export interface MissingDataHandlerMethods {
     [methodName: string]: MissingDataHandlerObject // key is the camelCase name of the method
 }
 type CurrentPageType = 'welcome'|'questionaire'|'results';
-type CurrentPopupType = 'account'|'login'|'countryBreakdown';
+type CurrentPopupType = 'account'|'login'|'countryBreakdown'|'changeDefaults';
 
 interface CountryBreakdown {
     score: number,
@@ -56,7 +57,7 @@ interface ScoreBreakdown {
 interface CategoryBreakdown {
     [category: string]: number // total score for that category
 }
-interface CountryResult {
+export interface CountryResult {
     primary_name: string,
     totalScore: number,
     rank: number,
@@ -68,6 +69,19 @@ interface CountryResult {
 interface Results {
     [alpha_three_code: string]: CountryResult // keys are alpha three codes
 }
+
+export interface CountryMetadata {
+    id: any,
+    updated_at: any,
+    alpha_three_code: string,
+    alpha_two_code: string,
+    numeric_code: string,
+    primary_name: string,
+}
+interface Countries {
+    [alpha_three_code: string]: CountryMetadata
+}
+
 
 
 //define the types for the GlobalContext component here
@@ -81,6 +95,21 @@ interface GlobalContextProps {
     setCurrentPopup: any,
     getCategoryByIndex: (index: number) => string|null,
     setResults: any,
+    results: Results,
+    setCurrentCountry: any,
+    currentCountry: string | null,
+    defaultWeight: number,
+    setDefaultWeight: any,
+    defaultMissingDataHandlerMethod: string,
+    setDefaultMissingDataHandlerMethod: any,
+    defaultMissingDataHandlerInput: number,
+    setDefaultMissingDataHandlerInput: any,
+    defaultNormalizationPercentage: number,
+    setDefaultNormalizationPercentage: any,
+    resetFormData: any,
+    shouldResetFormData: boolean,
+    setShouldResetFormData: any,
+    countries: Countries,
 }
 //create the context here
 export const GlobalContext = React.createContext<Partial<GlobalContextProps>>({});
@@ -88,21 +117,24 @@ export const GlobalContext = React.createContext<Partial<GlobalContextProps>>({}
 const GlobalProvider: React.FunctionComponent =({children}) =>{
 
     //! DEFINE ALL STATE VARIABLES HERE
+    const [defaultWeight, setDefaultWeight] = useState<number>(0);
+    const [defaultMissingDataHandlerMethod, setDefaultMissingDataHandlerMethod] = useState<string>('average');
+    const [defaultMissingDataHandlerInput, setDefaultMissingDataHandlerInput] = useState<number|undefined>(undefined);
+    const [defaultNormalizationPercentage, setDefaultNormalizationPercentage] = useState<number>(0);
+    const [shouldResetFormData, setShouldResetFormData] = useState<boolean>(false);
+    const [currentCountry, setCurrentCountry] = useState<string|null>(null); // used to show detailed results for each country, one at a time
     const [datasets, setDatasets] =useState<Datasets|null>(null);
     const [categories, setCategories] = useState<Categories|null>(null);
     const [missingDataHandlerMethods, setMissingDataHandlerMethods] = useState<MissingDataHandlerMethods|null>(null);
     const [currentPage, setCurrentPage] = useState<CurrentPageType|null>('welcome');
     const [currentPopup, setCurrentPopup] = useState<CurrentPopupType|null>(null);
-    const [results, setResults] = useState<Results|null>(null);
+    const [results, setResults] = useState<Results|undefined>(undefined);
+    const [countries, setCountries] = useState<Countries|undefined>(undefined);
     interface Theme {
         [key: string]: string
     }
     const theme: Theme = {
-        black:`#000000`,
-        white:`#ffffff`,
-        orange:`#ed4629`,
-        grey:`#5A6066`,
-        lightblue:`#C7D0D8`,
+        
         headerPicMax:`/images/sheldonfrith-header-max.jpg`,
         headerPic2050: '/images/sheldonfrith-header-2050.jpg',
         headerPic1500: '/images/sheldonfrith-header-1500.jpg',
@@ -115,6 +147,7 @@ const GlobalProvider: React.FunctionComponent =({children}) =>{
         arrowGraphicsPic:`/images/ArrowsForAnimation.svg`,
         backgroundTransitionPic:`/images/BackgroundWave.svg`,
         primaryBreakpoint:`500`,
+        ...getThemeColors()
     }
     //! RUN ONCE ON INITIAL LOAD
 
@@ -139,6 +172,12 @@ const GlobalProvider: React.FunctionComponent =({children}) =>{
         const missingDHMethodsResponse = await getRequest("/missing-data-handler-methods");
         setMissingDataHandlerMethods(missingDHMethodsResponse);
         console.log(missingDHMethodsResponse);
+        //HTTP REQUEST
+        //get COUNTRIES data
+        const countriesResponse = await getRequest('/countries');
+        const countriesFormatted: Countries = {};
+        countriesResponse.forEach((object: CountryMetadata) => countriesFormatted[object['alpha_three_code']]={...object});
+        setCountries(countriesFormatted);
         //all http requests done,
         //now use the dataset metainfo to generate the categories metainfo
         const newCategories: Categories = {};
@@ -173,6 +212,7 @@ const GlobalProvider: React.FunctionComponent =({children}) =>{
 
     },[currentPage]);
     //! METHODS AND CALLBACKS
+    
     const getCategoryByIndex = useCallback((index: number): string | null=>{
         if (!categories) return null;
         return Object.keys(categories).filter((categoryCode: string)=>categories[categoryCode].index ===index)[0];
@@ -188,6 +228,20 @@ const GlobalProvider: React.FunctionComponent =({children}) =>{
             setCurrentPopup: setCurrentPopup,
             getCategoryByIndex: getCategoryByIndex,
             setResults: setResults,
+            results: results,
+            setCurrentCountry: setCurrentCountry,
+            currentCountry: currentCountry,
+            defaultWeight: defaultWeight,
+            setDefaultWeight: setDefaultWeight,
+            defaultMissingDataHandlerMethod: defaultMissingDataHandlerMethod,
+            setDefaultMissingDataHandlerMethod: setDefaultMissingDataHandlerMethod,
+            defaultMissingDataHandlerInput: defaultMissingDataHandlerInput,
+            setDefaultMissingDataHandlerInput: setDefaultMissingDataHandlerInput,
+            defaultNormalizationPercentage: defaultNormalizationPercentage,
+            setDefaultNormalizationPercentage: setDefaultNormalizationPercentage,
+            shouldResetFormData: shouldResetFormData,
+            setShouldResetFormData: setShouldResetFormData,
+            countries: countries,
             }}>
             <ThemeProvider theme={theme}>
             {children}

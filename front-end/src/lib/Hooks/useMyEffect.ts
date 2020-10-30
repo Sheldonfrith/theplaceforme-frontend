@@ -8,17 +8,25 @@ import useHasChanged from './useHasChanged';
 
 // automatically wrap it in an async wrapper so async is easier
 
-export default function useMyEffect (triggerVariables, callback, dependencies = []){
+export default function useMyEffect (triggerVariables: Array<any>, callback: any, dependencies: Array<any>= [], returnFunction?: any){
     //trigger Variable is an array
     //if any item in the array changes the effect will run, otherwise it wont
-        
-        const haveTriggerVariablesChanged = useHasChanged(triggerVariables);
+        //if trigger varables is just set to an array with a single value of 'true'
+        //then the use effect will always run (dependent on regular react useEffect run conditions)
+
+        let haveTriggerVariablesChanged: boolean = useHasChanged(triggerVariables);
+        if (triggerVariables.length ==1 && triggerVariables[0] === true){
+            haveTriggerVariablesChanged = true;
+        }
         const effectHook = ()=>{
             if (!haveTriggerVariablesChanged) return;
             const asyncWrapper = async()=>{
                 await callback();
             }
             asyncWrapper();
+            if (returnFunction !==null){
+                return returnFunction;
+            }
         }
 
         useEffect(effectHook, dependencies);

@@ -1,21 +1,28 @@
 import React, {useState, useEffect, useContext, useCallback} from 'react';
 import styled from 'styled-components';
-import DataInputContainer from './DataInputContainer';
+import DataInputContainer, {DisabledOverlay} from './DataInputContainer';
 
 const InfoContainer = styled.div`
     color: ${props=>props.theme.black}
 `;
 
 interface NormalizationPickerProps{
-
+    updateNormalization: any,
+    normalization: number,
+    disabled: boolean
 }
-const NormalizationPicker: React.FunctionComponent<NormalizationPickerProps> =({})=> {
+const NormalizationPicker: React.FunctionComponent<NormalizationPickerProps> =({updateNormalization, normalization, disabled})=> {
 
 return (
+    <>
 <DataInputContainer
+topLeftString={'Normalization'}
 min={0}
 max={100}
+sliderOnChange={updateNormalization}
+sliderValue={normalization}
 mainText="% of normalization to apply"
+disabled={disabled}
 >
 <InfoContainer>
     Normalization spreads out the distribution of countries. It should be used for datasets/questions that are 
@@ -29,6 +36,7 @@ mainText="% of normalization to apply"
     will matter, and the less large differences will matter.
 </InfoContainer>
 </DataInputContainer>
+</>
 );
 }
 export default NormalizationPicker;

@@ -14,12 +14,12 @@ import {useRef,useEffect} from 'react';
 // };
 
 
-export default function useHasChanged (val) {
+export default function useHasChanged (val:any) {
     const prevVal = usePrevious(val)
     return JSON.stringify(prevVal) !== JSON.stringify(val);
 }
 
-const usePrevious = (value) => {
+const usePrevious = (value: any) => {
     const ref = useRef();
     useEffect(() => {
       ref.current = value;

@@ -5,15 +5,20 @@ import {Dataset}from '../containers/GlobalProvider';
 
 
 interface WeightPickerProps{
-
+    updateWeight: any,
+    weight: number
 }
-const WeightPicker: React.FunctionComponent<WeightPickerProps> =({})=> {
+const WeightPicker: React.FunctionComponent<WeightPickerProps> =({updateWeight, weight})=> {
 
 return (
 <DataInputContainer
  min={0}
  max={100}
+ topLeftString={'Weight'}
  mainText="How important is this to you?"
+ sliderValue={weight}
+ sliderOnChange={updateWeight}
+ disabled={false}
 >
 <div>
     If you set the importance value to 0 then this question will not
