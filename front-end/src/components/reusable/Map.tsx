@@ -40,7 +40,7 @@ if (!centerLocation){
     return (
         <GoogleMapReact
                 bootstrapURLKeys={{ key: 'AIzaSyBoePpl0ehHkrlOpougG15kis84opPXd9c' }}
-                defaultZoom={2}
+                defaultZoom={4}
                 defaultCenter={centerLocation}
               >
         </GoogleMapReact>
