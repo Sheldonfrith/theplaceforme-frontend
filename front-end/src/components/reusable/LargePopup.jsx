@@ -10,8 +10,8 @@ let DefaultContainer = styled.div`
   position: absolute;
   top: 1.5rem;
   bottom: 1rem;
-  left: 7rem;
-  right: 7rem;
+  left: 1rem;
+  right: 1rem;
   padding: 1.5rem;
 `;
 

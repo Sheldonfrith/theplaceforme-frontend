@@ -5,7 +5,7 @@ interface Colors {
 const colors: Colors  = {
     darkOverlay: 'rgb(1, 2, 3,0.5)',
     lightOverlay: 'rgb(200,200,200,0.5)',
-    whiteOverlay: 'rgb(255,255,255,0.5',
+    whiteOverlay: 'rgb(255,255,255,0.5)',
     black:`#010203`,
     white:`#F8F4FF`,
     grey:`#8B8680`,

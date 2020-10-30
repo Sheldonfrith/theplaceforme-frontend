@@ -40,6 +40,7 @@ const AppContainer = styled.div<{bgleft:string,bgmid:string,bgright:string}>`
   transition: background-image 1s ease 0s;
   background-blend-mode: overlay;
   background-color: rgb(0,0,0,0.5);
+  position:relative;
 `;
 
 function App() {

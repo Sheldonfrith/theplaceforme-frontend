@@ -38,11 +38,7 @@ const ResultsContainer = styled.div`
 `;
 
 
-const CountryResult = styled.div.attrs(props=>({
-    style:{
-        borderColor: props.color,
-    },
-    }))`
+const CountryResult = styled.div`
     ${HorizontalFlexBox};
     width: 100%;
     cursor: pointer;
@@ -54,11 +50,7 @@ const CountryResult = styled.div.attrs(props=>({
     margin: 0.2rem;
     background-color: ${props=>props.theme.whiteOverlay};
 `;
-const CountryResultNumber = styled.div.attrs(props=>({
-    style:{
-    backgroundImage: `linear-gradient(180deg, rgb(0,0,0,0) 0%, ${props.color} 100%)`,
-    },
-}))`
+const CountryResultNumber = styled.div`
     ${VerticalFlexBox};
     width:  15%;
     height: 65%;
@@ -109,10 +101,14 @@ return (
             const country = gc.results![countryCode];
             const color = getColorFromPercentile((country.totalScore/(scoreRange![1]-scoreRange![0]))*100.0);
             return (
-            <CountryResult key={country.primary_name} color={color} onClick={()=>{
-                gc.setCurrentCountry(countryCode);gc.setCurrentPopup('countryBreakdown');}
+            <CountryResult key={country.primary_name} style={{borderColor: color}} onClick={()=>{
+                gc.setCurrentCountry(countryCode);
+                gc.setCurrentPopup('countryBreakdown');
+            }
             }>
-                <CountryResultNumber color={color}>
+                <CountryResultNumber style={{
+                backgroundImage: `linear-gradient(180deg, rgb(0,0,0,0) 0%, ${color} 100%)`,
+                }}>
                     {country.rank}.
                 </CountryResultNumber>
                 {toTitleCase(country.primary_name)}

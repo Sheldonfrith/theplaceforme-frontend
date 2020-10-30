@@ -178,6 +178,7 @@ const GlobalProvider: React.FunctionComponent =({children}) =>{
         const countriesFormatted: Countries = {};
         countriesResponse.forEach((object: CountryMetadata) => countriesFormatted[object['alpha_three_code']]={...object});
         setCountries(countriesFormatted);
+        console.log('got this countries data from api', countriesFormatted);
         //all http requests done,
         //now use the dataset metainfo to generate the categories metainfo
         const newCategories: Categories = {};

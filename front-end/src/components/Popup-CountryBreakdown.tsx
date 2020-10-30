@@ -5,7 +5,9 @@ import {PopupInner, HorizontalFlexBox, H3, FilledButton, VerticalFlexBox} from '
 import {GlobalContext, CountryResult, CountryMetadata} from './containers/GlobalProvider';
 import useMyEffect from '../lib/Hooks/useMyEffect';
 import {PieChart, Pie, Sector, ResponsiveContainer} from 'recharts';
-// import GoogleMaps from './reusable/GoogleMaps';
+import Flag from 'react-world-flags'
+import Map from './reusable/Map';
+
 const Container = styled.div`
     ${PopupInner};
 `;
@@ -55,9 +57,15 @@ const SummaryItem = styled.div`
 `;
 const TitleContainer = styled.div`
     ${HorizontalFlexBox};
+    justify-content: space-evenly;
 `;
 const HorizontalContainer = styled.div`
     ${HorizontalFlexBox};
+`;
+const MapContainer = styled.div`
+    ${VerticalFlexBox};
+    width: 50%;
+    height: 10rem;
 `;
 
 const renderActiveShape = (props: any) => {
@@ -152,20 +160,19 @@ const CountryBreakdownPopup: React.FunctionComponent<CountryBreakdownPopupProps>
         <Container>
             <TitleContainer>
                 <h1>{currentCountryData.primary_name.toUpperCase()}</h1>
-                {/* <img
-                alt={currentCountryData.primary_name}
-                src={`http://purecatamphetamine.github.io/country-flag-icons/3x2/${currentCountryMetadata.alpha_two_code}.svg`}/> */}
+                <Flag code={currentCountryMetadata.alpha_three_code} style={{width:'30%'}}/>
             </TitleContainer>
-            <h2>Score Summary</h2>
+            <h2>Score Summary</h2> 
             <HorizontalContainer>
             <SummaryContainer>
                 <SummaryItem><b>Overall Ranking:</b> {currentCountryData.rank}</SummaryItem>
                 <SummaryItem><b>Total Score:</b> {currentCountryData.totalScore.toFixed(0)}</SummaryItem>
                 <SummaryItem><b>Percentile:</b> {currentCountryData.percentile.toFixed(0)}</SummaryItem>
             </SummaryContainer>
-            <div>View on Google Maps</div>
-            {/* <GoogleMaps/> */}
+            <MapContainer>
 
+            <Map locationName={currentCountryMetadata.primary_name}/>
+            </MapContainer>
             <ExpandButton onClick={()=>window.open(`https://wikipedia.org/wiki/${currentCountryData.primary_name.replace(' ','_')}`)}>View Wikipedia Page</ExpandButton>
             </HorizontalContainer>
             <ExpandButton onClick={()=>setShowDetails(prev =>!prev)}>Detailed Score Breakdown</ExpandButton>
