@@ -15,11 +15,15 @@ flex-direction: row;
 align-items: center;
 justify-content: space-evenly;
 width: 100%;
-color: ${props=>props.textColor};
+color: ${props=>props.theme.white};
+background: ${props=>props.theme.red};
+margin: 0 0 2rem 0;
+position: relative;
 `;
 
 const Title = styled.h1`
 cursor: pointer;
+font-family: ${props=>props.theme.fontFamHeader};
 `;
 
 const Logo = styled.div`
@@ -35,7 +39,7 @@ const Header : FunctionComponent<HeaderProps> =({resetHandler, textColor}) =>{
     const gc = useContext(GlobalContext);
     const theme = useContext(ThemeContext);
 
-    textColor = textColor || theme.white;
+    textColor = textColor || theme.black;
 
     const [user, loading, error] = useAuthState(auth());
     const getMenuItems = useCallback(()=>{
@@ -45,7 +49,7 @@ const Header : FunctionComponent<HeaderProps> =({resetHandler, textColor}) =>{
         ]; // regardless of user logged in status, or the current page, always have these options in the menu
         
         //if the page is the Questionaire page...
-        const questionDefaults = {text: 'Change Question Defaults', onClick:()=>gc.setCurrentPopup('changeDefaults')};
+        const questionDefaults = {text: 'Set Question Defaults', onClick:()=>gc.setCurrentPopup('changeDefaults')};
         if (resetHandler && gc.currentPage==='questionaire'){
             const resetForm = {text: 'Reset Questionaire', onClick:()=>resetHandler()};
             menuItems.splice(1,0,resetForm);
@@ -80,7 +84,7 @@ const Header : FunctionComponent<HeaderProps> =({resetHandler, textColor}) =>{
     return (
        <HeaderContainer textColor={textColor!}>
            <Logo onClick={()=>gc.setCurrentPage('welcome')}>logo</Logo>
-           <Title onClick={()=>gc.setCurrentPage('welcome')}>The Place For Me</Title>
+           <Title onClick={()=>gc.setCurrentPage('welcome')}>ThePlaceFor.Me</Title>
            {getMenuItems()?
             <CollapsibleNav 
             menuItems={getMenuItems()}/>

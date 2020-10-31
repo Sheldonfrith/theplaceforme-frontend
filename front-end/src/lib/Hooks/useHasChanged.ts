@@ -15,14 +15,17 @@ import {useRef,useEffect} from 'react';
 
 
 export default function useHasChanged (val:any) {
-    const prevVal = usePrevious(val)
-    return JSON.stringify(prevVal) !== JSON.stringify(val);
+    const prevVal = JSON.stringify(usePrevious(val));
+    const hasChanged: boolean = prevVal !== JSON.stringify(val);
+    // console.log('has changed:',hasChanged, prevVal, val);
+    return hasChanged;
 }
 
 const usePrevious = (value: any) => {
-    const ref = useRef();
-    useEffect(() => {
-      ref.current = value;
-    },[value]);
-    return ref.current;
+  //regular react method for detecting previous value
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  },[value]);
+  return ref.current;
 }

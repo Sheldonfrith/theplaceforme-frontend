@@ -16,11 +16,13 @@ const InfoContainer = styled.div<{display:string}>`
     position: absolute;
     top: 0;
     right: 0;
+    width: 20rem;
     background-color: ${props=>props.theme.white};
     color: ${props=>props.theme.black};
     padding: 1rem;
     z-index: 12;
     font-size: 1.2rem;
+    box-shadow: 2px 7px 19px 1px ${props=>props.theme.black};
 `;
 const IconContainer= styled.div`
     display: flex;
@@ -31,6 +33,10 @@ const IconContainer= styled.div`
     margin-right: 1rem;
     margin: 1rem 0;
     cursor: pointer;
+    color: ${props=>props.theme.primaryAccent};
+    :hover{
+        color: ${props=>props.theme.black};
+    }
 `;
 interface InfoPopupProps{
 

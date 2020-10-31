@@ -1,5 +1,11 @@
 import React from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import styled from 'styled-components';
+
+const StyledSelect = styled.select`
+    option:focus, option:active, option:hover{
+        background: ${props=>props.theme.red};
+    }
+`;
 
 export default function Select({onChange, optionsList}) {
     if (!optionsList || !Array.isArray(optionsList) || optionsList.length<1){
@@ -31,10 +37,10 @@ export default function Select({onChange, optionsList}) {
     }
     // console.log('successfully set props for Select: ',optionsList);
 return (
-<select className="form-control" onChange={onChange}>
+<StyledSelect className="form-control" onChange={onChange}>
     {optionsList.map((item,index)=>{
         return <option key={'select'+index} value={item[0]} >{item[1]}</option>
     })}
-</select>
+</StyledSelect>
 );
 }

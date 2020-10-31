@@ -1,7 +1,19 @@
 import React from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import styled from 'styled-components';
 
-export default function Table({header,columns,rows}) {
+const StyledTable = styled.table`
+    width: 100%;
+    text-align: left;
+    font-weight: normal;
+`;
+
+interface TableProps {
+    header: any[],
+    columns?: any[],
+    rows?: any[],
+}
+
+const Table: React.FunctionComponent<TableProps> = ({header,columns,rows}) => {
     if (columns && rows){
         return <div>Cannot define BOTH columns based and rows based lists</div>;
     }
@@ -28,28 +40,16 @@ if (rows){
 
 //rendering with row-based list is much easier, so convert columns based list to rows list here:
 if (columns && !rows){
-    // const newRows = [];
-    // //get max rows
-    // let longestCol = 0;
-    // columns.forEach(column=>{if(column.length>longestCol)longestCol=column.length});
-    // for (let i=0;i<longestCol;i++){
-    //     newRows.push([]);
-    // }
-    // newRows.forEach(rowArray=>{
-
-    // })
-
     //>> this short method taken from StackOverflow, im not sure how it would handle columns of different lengths
-    // console.log(columns);
     if (!Array.isArray(columns[0])) throw new Error('error in Table component, columns[0] is not an array'+columns[0]);
-    rows = columns[0].map((_, rowIndex) => columns.map(col => col[rowIndex]));
+    rows = columns[0].map((_, rowIndex) => columns!.map(col => col[rowIndex]));
 }
-const numberOfColumns = columns?columns.length:rows[0].length;
+const numberOfColumns = columns?columns.length:rows![0].length;
 
-//column based table
-if (columns){
     return (
-        <table className="table">
+        <>
+        {(rows)?
+        <StyledTable className="table">
                 {header?(
                     <thead>
                         <tr className="d-flex">
@@ -62,24 +62,18 @@ if (columns){
                 {rows.map((rowItems,index1)=>{
                     return (
                         <tr key={`tablerow${index1}`} className="d-flex">
-                            {rowItems.map((item,index)=>{
+                            {rowItems.map((item: any,index: any)=>{
                                 return <th key={`tablecell${index}`} className={'col-'+(12/numberOfColumns).toString()}>{item}</th>;
                             })}
                         </tr>
                     );
                 })}
             </tbody>
-        </table>
+        </StyledTable>
+        :<></>}
+        </>
         );
-}
 
-//row based table
-if (rows){
-    return (
-        <div>
-        
-        </div>
-        );
-}
 
 }
+export default Table;

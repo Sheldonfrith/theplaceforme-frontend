@@ -15,8 +15,11 @@ export default function useMyEffect (triggerVariables: Array<any>, callback: any
         //then the use effect will always run (dependent on regular react useEffect run conditions)
 
         let haveTriggerVariablesChanged: boolean = useHasChanged(triggerVariables);
-        if (triggerVariables.length ==1 && triggerVariables[0] === true){
+        if (triggerVariables.length === 1 && triggerVariables[0] === true){
+            // console.log('useMyEffect with [true] triggered');
             haveTriggerVariablesChanged = true;
+        } else {
+            // console.log('useMyEffect with watch list triggered', haveTriggerVariablesChanged, triggerVariables);
         }
         const effectHook = ()=>{
             if (!haveTriggerVariablesChanged) return;

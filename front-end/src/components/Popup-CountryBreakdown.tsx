@@ -1,19 +1,29 @@
 
 import React, {useState, useEffect, useContext, useCallback} from 'react';
 import styled from 'styled-components';
-import {PopupInner, HorizontalFlexBox, H3, FilledButton, VerticalFlexBox} from './ReusableStyles';
+import {PopupInner, HorizontalFlexBox, H3, TransparentButton, FilledButton, VerticalFlexBox} from './ReusableStyles';
 import {GlobalContext, CountryResult, CountryMetadata} from './containers/GlobalProvider';
 import useMyEffect from '../lib/Hooks/useMyEffect';
 import {PieChart, Pie, Sector, ResponsiveContainer} from 'recharts';
 import Flag from 'react-world-flags'
 import Map from './reusable/Map';
+import Table from './reusable/Table';
+
+const TableContainer = styled(Table)`
+`;
 
 const Container = styled.div`
     ${PopupInner};
+    overflow: auto;
 `;
 const ExpandButton = styled.button`
     ${FilledButton};
     background-color: ${props => props.theme.red};
+    font-family: ${props=>props.theme.fontFamHeader};
+`;
+const WikiButton = styled.button`
+    ${TransparentButton};
+    font-size: ${props=>props.theme.font4};
 `;
 const UnexpandedLowerArea = styled.div`
     ${VerticalFlexBox};
@@ -50,22 +60,36 @@ const SubTitle = styled.h3`
 const SummaryContainer = styled.div`
     ${VerticalFlexBox};
     width:100%;
+    margin: 1rem 0;
 `;
 const SummaryItem = styled.div`
+    ${HorizontalFlexBox};
     width: 100%;
     font-size: 200%;
 `;
 const TitleContainer = styled.div`
     ${HorizontalFlexBox};
     justify-content: space-evenly;
+    font-family: ${props=>props.theme.fontFamHeader};
 `;
-const HorizontalContainer = styled.div`
+const VariableContainer = styled.div`
     ${HorizontalFlexBox};
+    @media (max-width: ${props=>props.theme.largerBreakpoint}px){
+        ${VerticalFlexBox};
+    }
 `;
 const MapContainer = styled.div`
     ${VerticalFlexBox};
-    width: 50%;
-    height: 10rem;
+    width: 95%;
+    height: 100%;
+    margin: 1rem;
+`;
+const UpperFixedHeightContainer = styled.div`
+    ${VerticalFlexBox};
+    height: 65%;
+    @media (max-width: ${props=>props.theme.largerBreakpoint}px){
+        min-height: 90%;
+    }
 `;
 
 const renderActiveShape = (props: any) => {
@@ -126,6 +150,8 @@ const CountryBreakdownPopup: React.FunctionComponent<CountryBreakdownPopupProps>
     const [currentCountryMetadata, setCurrentCountryMetadata] = useState<CountryMetadata|null>(null);
     const [activePieIndex, setActivePieIndex]= useState<number>(0);
     const [pieData, setPieData]= useState<readonly object[]|undefined>(undefined);
+    const [detailedTables, setDetailedTables] = useState<JSX.Element[]|null>(null);//holds the jsx tables with per-dataset breakdown, as well as the inserted ads
+    const [ads, setAds] = useState<string[]>(['ad 1', 'ad 2 geoes here', 'ad 3...']);
 
     //whenever gc.currentCountry changes update currentCountryData and pie data
     useMyEffect([gc.currentCountry],()=>{
@@ -142,10 +168,49 @@ const CountryBreakdownPopup: React.FunctionComponent<CountryBreakdownPopupProps>
         setCurrentCountryMetadata(gc.countries[gc.currentCountry])
     },[gc.currentCountry, gc.results, setCurrentCountryData, gc.countries]);
 
-    const ads = ['ad 1', 'ad 2 geoes here', 'ad 3...'];
-    const endAds = (numberOfDatasets: number)=>{//assuming an insertion ratio of 1 ad to 4 datasets
+    //whenever current country data score breakdown changes, update the per-dataset jsx tables
+    useMyEffect([true],()=>{
+        // console.log('might update per dataset jsx tables here...', currentCountryData, gc.datasets);
+        if (!currentCountryData || !currentCountryData.scoreBreakdown || !gc.datasets) return;
+        // console.log('WILL update per dataset jsx tables now...');
+        //! important variable here, determines how often ads are inserted
+        const datasetsPerAd:number = 4;
+        const scoreBreakdown = currentCountryData!.scoreBreakdown;
+
+        const newDetailedTables = [];// <Table elements holding 4 rows, with ads inserted between each table elemment
+        //make list of all rows to go into the tables
+        const allRows = Object.keys(scoreBreakdown).map(datasetID=>{
+            const thisDataset = scoreBreakdown[datasetID];
+            return [
+                gc.datasets![datasetID].long_name,
+                thisDataset.score.toFixed(0),
+                thisDataset.rank,
+                thisDataset.percentile.toFixed(0),
+                thisDataset.dataWasMissing?'Yes':'No',
+            ];
+        }
+            );
+            // console.log('done making all rows', allRows);
+        //determine how many tables of 'datasetsPerAd' or less rows there needs to be
+        const numberOfTables = (allRows.length*1.0/datasetsPerAd)+(((allRows.length%datasetsPerAd)>0)?1:0);
+        // console.log('going to make tables now, with ', numberOfTables);
+        for (let i = 0; i<numberOfTables;i++){
+            const newTable = <TableContainer 
+                                header={[<b>DATASET NAME</b>, <b>SCORE</b>, <b>RANK</b>, <b>PERCENTILE</b>, <b>WAS THE DATA MISSING?</b>]}
+                                rows={allRows.slice(i*datasetsPerAd,(i*datasetsPerAd)+datasetsPerAd)}
+                            />;
+            console.log(newTable);
+        newDetailedTables.push(newTable);//table
+        if (i=== numberOfTables-1) break; // don't place an ad below the last table, that is handled elsewhere
+        newDetailedTables.push(<Ad>{ads[i]}</Ad>);//ad
+        }
+        // console.log('setting detailed tables elements to...',newDetailedTables);
+        setDetailedTables(newDetailedTables);
+    },[currentCountryData,setDetailedTables, gc.datasets])
+
+    const endAds = useCallback((numberOfDatasets: number)=>{//assuming an insertion ratio of 1 ad to 4 datasets
         return ads.slice((numberOfDatasets/4)-1);
-    }//these are the ads that WONT be inserted within the datasets breakdown
+    },[ads]);//these are the ads that WONT be inserted within the datasets breakdown
     //because there are not enough datasets
 
     const onPieEnter = (data:any,index:any) =>{
@@ -158,23 +223,36 @@ const CountryBreakdownPopup: React.FunctionComponent<CountryBreakdownPopupProps>
     } else {
     return (
         <Container>
+            <UpperFixedHeightContainer>
             <TitleContainer>
                 <h1>{currentCountryData.primary_name.toUpperCase()}</h1>
                 <Flag code={currentCountryMetadata.alpha_three_code} style={{width:'30%'}}/>
             </TitleContainer>
             <h2>Score Summary</h2> 
-            <HorizontalContainer>
+            <VariableContainer>
             <SummaryContainer>
-                <SummaryItem><b>Overall Ranking:</b> {currentCountryData.rank}</SummaryItem>
-                <SummaryItem><b>Total Score:</b> {currentCountryData.totalScore.toFixed(0)}</SummaryItem>
-                <SummaryItem><b>Percentile:</b> {currentCountryData.percentile.toFixed(0)}</SummaryItem>
+                <SummaryItem><div>
+                    <b>Overall Ranking:</b>
+                </div><div>
+                    {currentCountryData.rank}
+                </div></SummaryItem>
+                <SummaryItem><div>
+                    <b>Total Score:</b>
+                </div><div>
+                    {currentCountryData.totalScore.toFixed(0)}
+                </div></SummaryItem>
+                <SummaryItem><div>
+                    <b>Percentile:</b>
+                </div><div>
+                    {currentCountryData.percentile.toFixed(0)}
+                </div></SummaryItem>
             </SummaryContainer>
+            <WikiButton onClick={()=>window.open(`https://wikipedia.org/wiki/${currentCountryData.primary_name.replace(' ','_')}`)}>View Wikipedia Page</WikiButton>
+            </VariableContainer>
             <MapContainer>
-
             <Map locationName={currentCountryMetadata.primary_name}/>
             </MapContainer>
-            <ExpandButton onClick={()=>window.open(`https://wikipedia.org/wiki/${currentCountryData.primary_name.replace(' ','_')}`)}>View Wikipedia Page</ExpandButton>
-            </HorizontalContainer>
+            </UpperFixedHeightContainer>
             <ExpandButton onClick={()=>setShowDetails(prev =>!prev)}>Detailed Score Breakdown</ExpandButton>
             {showDetails?
                 <ExpandedLowerArea>
@@ -209,24 +287,10 @@ const CountryBreakdownPopup: React.FunctionComponent<CountryBreakdownPopupProps>
                         })}
                     </CategoryBreakdowns>
                     <DatasetBreakdowns>
-                        <SubTitle>Scores per dataset</SubTitle>
-                    {/* 4 countries ,then an ad, etc. */}
-                    {Object.keys(currentCountryData.scoreBreakdown).map((datasetID,index)=>{
-                        return (
-                            <React.Fragment key={datasetID}>
-                            <DatasetBreakdown key={datasetID}>
-                                <div>Dataset: {gc.datasets![datasetID].long_name}</div>
-                                <div>Score: {currentCountryData.scoreBreakdown[datasetID].score.toFixed(0)}</div>
-                                <div>Rank: {currentCountryData.scoreBreakdown[datasetID].rank}</div>
-                                <div>Percentile: {currentCountryData.scoreBreakdown[datasetID].percentile.toFixed(0)}</div>
-                                <div>Data Was Missing? {currentCountryData.scoreBreakdown[datasetID].dataWasMissing?'Yes':'No'}</div>
-                            </DatasetBreakdown>
-                            {index%4===0?
-                            <Ad key={datasetID+'ad'}>{ads[(index/4)-1]}</Ad>
-                            :<></>}
-                            </React.Fragment>
-                        );
-                    })}
+                        <SubTitle>Per-Dataset Details</SubTitle>
+                        {detailedTables?
+                            detailedTables
+                        :<></>}
                     {/* Remaining ads go at the bottom */}
                     {endAds(Object.keys(currentCountryData.scoreBreakdown).length).map(ad =>{
                         return (

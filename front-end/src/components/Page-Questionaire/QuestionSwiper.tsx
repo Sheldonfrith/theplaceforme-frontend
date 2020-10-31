@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useContext, useCallback} from 'react';
-import styled from 'styled-components';
+import styled, {ThemeContext} from 'styled-components';
 import Swipe from 'react-easy-swipe';
 
 const Triangle = styled.div`
@@ -10,7 +10,7 @@ const Triangle = styled.div`
     border-bottom: 1rem solid ${props=>props.color};
     position: absolute;
     top: -1rem;
-    right: 38vw;
+    right: 48vw;
     z-index: 5;
 
 `;
@@ -34,7 +34,7 @@ interface QuestionSwiperProps{
     backgroundColor: string,
 }
 const QuestionSwiper: React.FunctionComponent<QuestionSwiperProps> =({children, backgroundColor, prevQuestion, nextQuestion})=> {
-
+const theme = useContext(ThemeContext);
 const handleSwipeLeft= ()=>{
     prevQuestion();
     //if there is no question or category previous, then do nothing
@@ -52,8 +52,8 @@ const handleSwipeRight= ()=>{
     //then change question with immediate in-from-left on next questionc
 }
 return (
-<SwiperContainer color={backgroundColor}>
-    <Triangle color={backgroundColor}/>
+<SwiperContainer color={backgroundColor || theme.red}>
+    <Triangle color={backgroundColor || theme.red}/>
 {/* <Swipe
     onSwipeLeft={handleSwipeLeft}
     onSwipeRight={handleSwipeRight}

@@ -1,107 +1,93 @@
-import React, {useState, useEffect, useContext, useCallback, useRef} from 'react';
-import styled from 'styled-components';
-import {MoreHoriz} from '@material-ui/icons';
-import useOnClickOutside from '../../lib/Hooks/useOnClickOutside';
-import Button from '@material-ui/core/Button';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
-import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state';
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useCallback,
+  useRef,
+} from "react";
+import styled, { ThemeContext } from "styled-components";
+import useOnClickOutside from "../../lib/Hooks/useOnClickOutside";
+import { FilledButton, VerticalFlexBox, H4} from "../ReusableStyles";
 
 
-const Icon =styled.div`
-    cursor: pointer;
+const PositionContainer = styled.div`
+  ${VerticalFlexBox};
+  position: relative;
 `;
-
-const Container = styled.div`
-    position: relative;
+const MenuButton = styled.button`
+  ${FilledButton};
+  background: ${(props) => props.theme.white};
+  font-family: ${(props) => props.theme.fontFamHeader};
+  color: ${(props) => props.theme.black};
+  font-size: ${props=>props.theme.font4};
+  :hover{
+    color: ${props=>props.theme.red};
+  }
 `;
-
-const DropdownContainer =  styled.div<{display:string}>`
-    display: ${props => props.display};
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    background-color: ${props => props.theme.black};
-    color: ${props => props.theme.white};
-    font-size: 3rem;
-    position: absolute;
-    top: 0;
-    right: 0;
-    z-index: 12;
-    padding: 1rem;
-    border-radius: 1rem 0 1rem 1rem;
-    border: ${props=> props.theme.black};
+const MenuContainer = styled.div<{display: string}>`
+  ${VerticalFlexBox};
+  background: ${(props) => props.theme.white};
+  display: ${props=>props.display};
+  position: absolute;
+  top: 0;
+  z-index: 21;
+  width: 20rem;
+  box-shadow: 2px 7px 19px 1px ${props=>props.theme.black};
+  
 `;
-const DropdownItem = styled.div`
-    text-align: center;
-    border: lightgrey solid;
-    border-width: 0.2rem;
-    border-radius: 0.5rem;
-    width: 15rem;
-    padding: 1rem 2rem;
-    /* background-image: radial-gradient(white,white, transparent); */
-    margin: 0.4rem 0;
-    cursor: pointer;
+const MenuItem = styled.div`
+  ${H4};
+  font-family: ${(props) => props.theme.fontFamHeader};
+  color: ${(props) => props.theme.black};
+  margin: 1rem;
+  cursor: pointer;
+  font-size: ${props=> props.theme.font3};
+  :hover{
+    color: ${props=>props.theme.red};
+  }
 `;
 
 interface menuItem {
-    text: string,
-    onClick?: (...args: any)=>any,
+  text: string;
+  onClick?: (...args: any) => any;
 }
 type menuItems = Array<menuItem>;
 interface CollapsibleNavProps {
-    menuItems: menuItems
+  menuItems: menuItems;
 }
 
-const CollapsibleNav: React.FunctionComponent<CollapsibleNavProps>= ({menuItems})=> {
-    const ref = useRef(null);
-    useOnClickOutside(ref,()=>setIsOpen(false));
-const [isOpen, setIsOpen] = useState<boolean>(false);
+const CollapsibleNav: React.FunctionComponent<CollapsibleNavProps> = ({
+  menuItems,
+}) => {
+  const ref = useRef(null);
+  useOnClickOutside(ref, () => setIsOpen(false));
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const theme = useContext(ThemeContext);
 
-// return (
-// <Container>
-//     <Icon onClick={():void=>{
-//         console.log('menu clicked', isOpen);
-//         setIsOpen((prev:boolean):boolean =>!prev);  
-//         }}>
-//     <MoreHoriz />
-//     </Icon>
-//     <DropdownContainer 
-//     ref={ref}
-//     display={isOpen?'flex':'none'}>
-//     {menuItems?
-//         menuItems.map((item: menuItem,index: number)=><DropdownItem key={'collapsibleNav'+index} onClick={item.onClick}>{item.text.toUpperCase()}</DropdownItem>)
-//     :<></>}
-//     </DropdownContainer>
-// </Container>
-// );
-
-return (
-    <PopupState variant="popover" popupId="demo-popup-menu">
-      {(popupState) => (
-        <React.Fragment>
-          <Button variant="contained" {...bindTrigger(popupState)}>
-            Menu
-          </Button>
-          <Menu 
-          {...bindMenu(popupState)}
-          PaperProps={{
-            style: {
-              maxHeight: '80vh',
-              width: '19rem',
-            },
-          }}
-          >
-              {menuItems?
-        menuItems.map((item: menuItem,index: number)=>{
-        if (!item || !item.onClick) return <></>;
-        return <MenuItem key={'collapsibleNav'+index} onClick={()=>{popupState.close();item.onClick!();}}>{item.text.toUpperCase()}</MenuItem>
-        })
-    :<></>}
-          </Menu>
-        </React.Fragment>
-      )}
-    </PopupState>
-);
-}
+  return (
+    <PositionContainer>
+      <MenuButton onClick={() => setIsOpen(true)}>Menu</MenuButton>
+      <MenuContainer ref={ref} display={isOpen?'flex':'none'}>
+        {menuItems ? (
+          menuItems.map((item: menuItem, index: number) => {
+            if (!item || !item.onClick) return <></>;
+            return (
+              <MenuItem
+                key={"collapsibleNav" + index}
+                onClick={() => {
+                  setIsOpen(false);
+                  item.onClick!();
+                }}
+              >
+                {item.text.toUpperCase()}
+              </MenuItem>
+            );
+          })
+        ) : (
+          <></>
+        )}
+      </MenuContainer>
+    </PositionContainer>
+  );
+};
 export default CollapsibleNav;

@@ -5,6 +5,7 @@ const worstColor = Color.rgb(216, 28, 28);
 const onePercent = (bestColor.hue()-worstColor.hue())/100;
 
 const getColorFromPercentile = (percentile: number) =>{
+    // console.log(percentile, onePercent);
     return worstColor.rotate(onePercent*percentile).string();
 }
 export default getColorFromPercentile;

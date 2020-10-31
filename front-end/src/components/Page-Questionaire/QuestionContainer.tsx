@@ -4,18 +4,22 @@ import useMyEffect from '../../lib/Hooks/useMyEffect';
 
 const Container = styled.div<{animation: any}>`
     position: relative;
-    background-color: ${props=>props.theme.darkOverlay};
+    background-color: ${props=>props.theme.white};
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    color: ${props=>props.theme.white};
+    color: ${props=>props.theme.black};
     margin: auto;
     height: 100%;
     width: 100%;
     overflow: auto;
-    position: relative;
-    animation: ${props=> props.animation} 0.3s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+    position: absolute;
+    /* top: 1rem;
+    bottom: 1rem;
+    right: 1rem;
+    left: 1rem; */
+    animation: ${props=> props.animation} 0.3s cubic-bezier(0.250, 0.460, 0.450, 0.940) backwards;
     border-radius: 0.5rem;
     box-sizing: border-box;
     padding: 1rem;

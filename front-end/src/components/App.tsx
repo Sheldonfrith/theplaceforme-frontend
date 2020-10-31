@@ -7,6 +7,7 @@ import ResultsPage from "./Page-Results";
 import styled from 'styled-components';
 import Popups from "./Popups";
 import { GlobalContext } from "./containers/GlobalProvider";
+import {VerticalFlexBox} from './ReusableStyles';
 
 
 export const firebaseConfig = {
@@ -28,19 +29,19 @@ export const logout = () => {
 
 
 const AppContainer = styled.div<{bgleft:string,bgmid:string,bgright:string}>`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
+  font-family: ${props=>props.theme.fontFamBody};
+  font-size: ${props=>props.theme.font2};
+  ${VerticalFlexBox}
   margin: auto;
   width: 80%;
   height: 100vh;
   overflow: hidden;
-  background-image: linear-gradient(to right,${props=>props.bgleft},${props=>props.bgmid},${props=>props.bgright});
-  transition: background-image 1s ease 0s;
-  background-blend-mode: overlay;
-  background-color: rgb(0,0,0,0.5);
+  background-image: ${props =>props.theme.primaryLightBackground};
+  color: ${props=>props.theme.black};
   position:relative;
+  @media (max-width: ${props=>props.theme.largerBreakpoint}px){
+    width: 100%;
+  }
 `;
 
 function App() {

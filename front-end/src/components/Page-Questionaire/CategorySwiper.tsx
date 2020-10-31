@@ -13,8 +13,12 @@ const Category = styled.div<{color:string}>`
     padding: 1rem;
     width: 12rem;
     font-size: 1.5rem;
+    color: ${props=>props.theme.white};
     margin: 0 1rem;
-    box-shadow: 1px 3px 3px rgba(0,0,0,0.25);
+    box-shadow: 1px 2px 3px rgba(0,0,0,0.8);
+    :hover{
+        box-shadow: 2px 3px 3px rgba(0,0,0,0.9);
+    }
 `;
 
 const SwipeSubcontainer= styled.div<{positionLeft:number}>`

@@ -147,6 +147,16 @@ const GlobalProvider: React.FunctionComponent =({children}) =>{
         arrowGraphicsPic:`/images/ArrowsForAnimation.svg`,
         backgroundTransitionPic:`/images/BackgroundWave.svg`,
         primaryBreakpoint:`500`,
+        largerBreakpoint: `800`,
+        fontFamHeader: `Marmelad`,
+        fontFamBody:`Noto Sans`,
+        font1:`0.833rem`,
+        font2:`1rem`,
+        font3:`1.2rem`,
+        font4:`1.44rem`,
+        font5:`1.728rem`,
+        font6:`2.074rem`,
+        font7:`2.488rem`,
         ...getThemeColors()
     }
     //! RUN ONCE ON INITIAL LOAD
@@ -154,6 +164,7 @@ const GlobalProvider: React.FunctionComponent =({children}) =>{
     
     //! OTHER USEEFFECTS
     useMyEffect([currentPage],async ()=>{
+        console.log('current page changed',currentPage);
         //DELAY UNTIL QUESTIONAIRE PAGE IS LOADED
         if (currentPage !== 'questionaire') return;
         //AND ONLY RUN ONCE PER QUESTIONAIRE SESSION 

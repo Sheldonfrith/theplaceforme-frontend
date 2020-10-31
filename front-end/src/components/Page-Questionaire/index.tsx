@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useContext, useCallback} from 'react';
 import Header from '../Header';
-import styled, {css, keyframes} from 'styled-components';
+import styled, {css, keyframes, ThemeContext} from 'styled-components';
 import CategorySwiper from './CategorySwiper';
 import IdealValuePicker from './IdealValuePicker';
 import NormalizationPicker from './NormalizationPicker';
@@ -13,58 +13,52 @@ import useMyEffect from '../../lib/Hooks/useMyEffect';
 import {postRequest} from '../../lib/HTTP';
 import getCategoryColor from '../../lib/UI-Constants/categoryColors';
 import getAllFormDataStorageLocation from '../../lib/APP-Constants/localStorage';
-import {TransparentButton} from '../ReusableStyles';
+import {TransparentButton, H3, VerticalFlexBox} from '../ReusableStyles';
+import {Ring} from 'react-spinners-css';
 
 const slideOutLeft = keyframes`
     0% {
-        -webkit-transform: translateX(0);
-                transform: translateX(0);
-        opacity: 1;
+        left: 0;
+        right: 0;
     }
     100% {
-        -webkit-transform: translateX(-1000px);
-                transform: translateX(-1000px);
-        opacity: 0;
+        left: -1000px;
+        right: 1000px;
     }
 `;
 const slideOutRight = keyframes`
     0% {
-        -webkit-transform: translateX(0);
-                transform: translateX(0);
-        opacity: 1;
+        left: 0;
+        right: 0;
     }
     100% {
-        -webkit-transform: translateX(1000px);
-                transform: translateX(1000px);
-        opacity: 0;
+        left: 1000px;
+        right: -1000px;
     }
 `;
 const slideInLeft = keyframes`
     0% {
-        -webkit-transform: translateX(-1000px);
-                transform: translateX(-1000px);
-        opacity: 0;
+        left: -1000px;
+        right: 1000px;
     }
     100% {
-        -webkit-transform: translateX(0);
-                transform: translateX(0);
-        opacity: 1;
+        left: 0;
+        right: 0;
     }
 `;
 const slideInRight = keyframes`
     0% {
-        -webkit-transform: translateX(1000px);
-                transform: translateX(1000px);
-        opacity: 0;
+        left: 1000px;
+        right: -1000px;
     }
     100% {
-        -webkit-transform: translateX(0);
-                transform: translateX(0);
-        opacity: 1;
+        left: 0;
+        right: 0;
     }
 `;
 const QuestionText = styled.h3`
-    font-size: 1.8rem;
+    font-size: ${props=>props.theme.font4};
+    font-family: ${props=>props.theme.fontFamHeader};
     padding: 0 3rem;
 `;
 
@@ -78,10 +72,17 @@ const BottomButtonContainer = styled.div`
 `;
 const BottomButton = styled.button`
    ${TransparentButton}
+   font-family: ${props=>props.theme.fontFamHeader};
 `;
 const AdvancedOptionsTitle = styled.h4`
-    font-size: 1.5rem;
-    margin: 0;
+    ${H3};
+    margin: 1rem;
+    font-family: ${props=>props.theme.fontFamHeader};
+`;
+const LoadingContainer = styled.div`
+    ${VerticalFlexBox};
+    width: 100%;
+    height: 100%;
 `;
 
 interface QuestionairePageProps {
@@ -94,7 +95,7 @@ const QuestionairePage :React.FunctionComponent<QuestionairePageProps> = ({setbg
 
     //! states
     const gc = useContext(GlobalContext);
-
+    const theme = useContext(ThemeContext);
     interface QuestionInput{
         id: string,
         category: string,
@@ -225,7 +226,7 @@ const QuestionairePage :React.FunctionComponent<QuestionairePageProps> = ({setbg
         setCurrentDataset(newDataset);
     },[currentQuestionIndex, currentCategory, setCurrentQuestion, gc.categories, gc.datasets, setCurrentDataset]);
 
-    //whenever the current dataset, or formdata changes update the zeroWeight boolean
+    //whenever the current dataset, or formdata changes update the zeroWeight boolean and localStorage value
     useMyEffect([true],()=>{
         console.log('waiting for condition');
         if (!allFormData || currentDataset==null) return;
@@ -239,8 +240,9 @@ const QuestionairePage :React.FunctionComponent<QuestionairePageProps> = ({setbg
     },[currentDataset,allFormData, setZeroWeight, getFormDataIndexFromID])
 
     //whenever the formdata changes, update the localstorage value
-    useMyEffect([allFormData],()=>{
+    useMyEffect([true],()=>{
         if (!allFormData) return;
+        console.log('saving to local storage', getAllFormDataStorageLocation(), allFormData);
         localStorage.setItem(getAllFormDataStorageLocation(),JSON.stringify(allFormData));
     },[allFormData])
 
@@ -295,6 +297,7 @@ const QuestionairePage :React.FunctionComponent<QuestionairePageProps> = ({setbg
         if (currentCategoryIndex === null || !gc.categories) return;
         //if at last category go to results page
         if (currentCategoryIndex>=Object.keys(gc.categories).length-1) {
+            getResults();
             gc.setCurrentPage('results');
             return;
         }
@@ -336,6 +339,8 @@ const QuestionairePage :React.FunctionComponent<QuestionairePageProps> = ({setbg
 
     //!submit form to api
     const getResults = useCallback(async ()=>{
+        //validate the form data object
+
         console.log('sending this to /scores ',allFormData);
         const results = await postRequest('/scores',allFormData);
         gc.setResults(results);
@@ -358,7 +363,7 @@ return (
     <QuestionSwiper 
         prevQuestion={prevQuestion}
         nextQuestion={nextQuestion}
-        backgroundColor={currentCategory?getCategoryColor(currentCategory):'white'}
+        backgroundColor={currentCategory?getCategoryColor(currentCategory):theme.red}
         >
         {(currentDataset && currentDataset.id && allFormData)?
             <QuestionContainer animation={questionAnimation}>
@@ -381,7 +386,9 @@ return (
                 idealValue={allFormData[getFormDataIndexFromID(currentDataset.id)].idealValue}/>
                 <WeightPicker
                 updateWeight={(e: any, notEvent?: boolean)=>{
-                    const newVal: number = notEvent?e: e.target.value;
+                    const newVal: number = parseInt(notEvent?e: e.target.value);
+                    //convert the newVal to an integer
+
                     setAllFormData((prev: any)=>{
                         const newObj = [...prev];
                         const thisIndex = getFormDataIndexFromID(currentDataset.id)
@@ -413,7 +420,7 @@ return (
                 normalization={allFormData[getFormDataIndexFromID(currentDataset.id!)].normalizationPercentage||0}
                 />
             </QuestionContainer>
-        :<div>... loading next question</div>}
+        :<LoadingContainer><Ring color={theme.white} size={80}/></LoadingContainer>}
     </QuestionSwiper>
     <BottomButtonContainer>
         <BottomButton onClick={(e)=>prevQuestion()}>{'<'}</BottomButton>

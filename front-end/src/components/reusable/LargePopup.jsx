@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useContext, useCallback, useRef } from "react";
-import styled from "styled-components";
+import styled, {ThemeContext} from "styled-components";
 import ClosePopupButton from "./ClosePopupButton";
 import useOnClickOutside from '../../lib/Hooks/useOnClickOutside';
+import useMyEffect from '../../lib/Hooks/useMyEffect';
 
 let DefaultContainer = styled.div`
   display: ${(props) => props.display};
@@ -12,7 +13,9 @@ let DefaultContainer = styled.div`
   bottom: 1rem;
   left: 1rem;
   right: 1rem;
-  padding: 1.5rem;
+  padding: 1rem;
+  box-shadow: 2px 4px 5px 1px rgb(0,0,0,0.8);
+  border-radius: 0.2rem;
 `;
 
 const defaultAccentColor = "orange";
@@ -30,15 +33,18 @@ export default function LargePopup({
   closeButtonColor,
   containerStyle,
 }) {
-  if (!ClosePopupButton) {
-    throw new Error("ClosePopupButton required as prop, in LargePopup");
-  }
-  accentColor = accentColor ? accentColor : defaultAccentColor;
-  lightColor = lightColor ? lightColor : defaultLightColor;
-  darkColor = darkColor ? darkColor : defaultDarkColor;
-
   const ref = useRef(null);
   useOnClickOutside(ref, ()=>closePopup());
+  const theme = useContext(ThemeContext);
+
+    if (!ClosePopupButton) {
+      throw new Error("ClosePopupButton required as prop, in LargePopup");
+    }
+    accentColor = accentColor ? accentColor : theme.red;
+    lightColor = lightColor ? lightColor : theme.white;
+    darkColor = darkColor ? darkColor : theme.black;  
+ 
+  
 
   return (
     <DefaultContainer

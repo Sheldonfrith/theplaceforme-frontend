@@ -1,10 +1,11 @@
 import React, {useState, useEffect, useContext, useCallback, useRef} from 'react';
-import styled from 'styled-components';
+import styled, {ThemeContext} from 'styled-components';
 import {Info} from '@material-ui/icons';
 import InfoPopup from './InfoPopup';
 import {
     AreaChart, ResponsiveContainer, Area, XAxis, YAxis, CartesianGrid, Tooltip,
   } from 'recharts';
+  import useMyEffect from '../../lib/Hooks/useMyEffect';
 
 export const DisabledOverlay = styled.div<{display: string}>`
     display: ${props=> props.display};
@@ -28,7 +29,6 @@ export const Container = styled.div`
     min-height: 10.7rem;
     max-height: 10.7rem;
     width:100%;
-    
 `;
 
 export const BlurContainer = styled.div<{blur:boolean}>`
@@ -51,48 +51,53 @@ export const BlurContainer = styled.div<{blur:boolean}>`
     margin: 0.5rem 0;
     box-sizing: border-box;
     padding: 0.5rem;
+    background: white;
 `;
 
 const Graph = styled.div`
     position: absolute;
-    top:0.5%; 
+    top:0.7rem; 
     left: 1rem;
     right: 1rem;
 `;
 
 const TopRightNumber = styled.div`
     position: absolute;
-    top: 0;
+    top: -0.3rem;
     right: 0.5rem;
-    font-size: 1rem;
-    color: ${props=>props.theme.white};
+    font-size: ${props=>props.theme.font1};
+    color: ${props=>props.theme.black};
 `;
 const TopLeftLabel = styled.div`
     position: absolute;
-    top: 0;
+    top: -0.3rem;
     left: 0.5rem;
-    font-size: 1.3rem;
-    color: ${props=>props.theme.white};
+    font-size: ${props=>props.theme.font2};
+    color: ${props=>props.theme.black};
 `;
 const Slider = styled.input`
     width:70vw;
     margin: 3rem 0 0 0;
 `;
 const PreciseValueArea = styled.input`
-    background-color: ${props=>props.theme.darkOverlay};
-    font-size: 1.5rem;
-    color: ${props=>props.theme.white};
+    background: white;
+    font-size: ${props=>props.theme.font3};
+    color: ${props=>props.theme.black};
     border-radius: 0.5rem;
     box-shadow: inset 0px 4px 4px rgba(0, 0, 0, 0.25);
     border-style: none;
     padding:0 0.5rem;
     margin: 0;
     width:10rem;
+    :hover{
+        color: ${props=>props.theme.red};
+    }
 `;
 export const MainTextArea = styled.div`
-    font-size: 130%;
-    color: ${props=>props.theme.white};
+    font-size: ${props=>props.theme.font3};
+    color: ${props=>props.theme.black};
     max-width: 60%;
+    width: 100%;
 `;
 
 
@@ -121,8 +126,12 @@ const DataInputContainer: React.FunctionComponent<DataInputContainerProps> =({
     disabled,
 })=> {
 
+    const [topRightString, setTopRightString] = useState<string|null>(null);
+
 //make sure sliderValue is always within min and max
-if (min && max && sliderValue){
+//run on mount
+useMyEffect([true],()=>{
+    if (min && max && sliderValue){
     //if it is not, set it to the closest allowed value
     if (max < sliderValue){
         sliderOnChange(max, true);
@@ -130,21 +139,23 @@ if (min && max && sliderValue){
     if (sliderValue <min){
         sliderOnChange(min, true);
     }
-}
-
-//convert topRightNumber if it exists to a less precise number
-let topRightString: string|null=null;
+    }
+    //convert topRightNumber if it exists to a less precise number
 if (topRightNumber!==null && topRightNumber!==undefined){
-    topRightString = topRightNumber.toFixed(2)+'%';
+    setTopRightString(topRightNumber.toFixed(2)+'%');
 }
+},[]);
 
-const getChartData = (distributionMap: Array<number>)=>{
+
+
+const getChartData = useCallback((distributionMap: Array<number>)=>{
     const list: Array<number> = Array.isArray(distributionMap)?distributionMap:JSON.parse(distributionMap);
     const chartData: object[] = list.map((count: number,index:number)=>{
         return {percent: index, count:count};
     })
     return chartData;
-    }
+    },[]);
+    const theme = useContext(ThemeContext);
    
 return (
 <Container>
@@ -152,12 +163,12 @@ return (
 <BlurContainer blur={disabled}>
 {distributionMap?
 <Graph>
-<ResponsiveContainer minWidth="100%" height={30}>
+<ResponsiveContainer minWidth="100%" height={22}>
     <AreaChart
     data={getChartData(distributionMap)}
     margin={{ top: 1, right: 0, left: 0, bottom: 1 }}
     >
-    <Area type="monotone" dataKey="count" stroke="#ffffff" fill="#ffffff" />
+    <Area type="monotone" dataKey="count" stroke={theme.red} fill={theme.red} />
     </AreaChart>
 </ResponsiveContainer>
 
