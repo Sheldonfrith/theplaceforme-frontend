@@ -355,11 +355,11 @@ const QuestionairePage :React.FunctionComponent<QuestionairePageProps> = ({setbg
     //!submit form to api
     const getResults = useCallback(async ()=>{
         //validate the form data object
+        gc.setCurrentPage('results');
 
         console.log('sending this to /scores ',allFormData);
         const results = await postRequest('/scores',allFormData);
         gc.setResults(results);
-        gc.setCurrentPage('results');
     },[allFormData, gc, gc.setCurrentPage, gc.setResults]);
 
 //! RENDER

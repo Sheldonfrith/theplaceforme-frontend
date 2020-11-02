@@ -45,7 +45,7 @@ return (
     <input type="text" placeholder={'Input for above method...'} onChange={(e)=>gc.setDefaultMissingDataHandlerInput(e.target.value)} value={gc.defaultMissingDataHandlerInput}></input>
     </>
     :<></>}
-    <div>Default Normalization Percentage:</div>
+    <SubTitle>Default Normalization Percentage:</SubTitle>
     <input type="text" placeholder={'0'} onChange={(e)=>gc.setDefaultNormalizationPercentage(e.target.value)} value={gc.defaultNormalizationPercentage}></input>
     <ResetButton onClick={()=>gc.setShouldResetFormData(true)}>Save Defaults and Reset Questionaire</ResetButton>
     </>
