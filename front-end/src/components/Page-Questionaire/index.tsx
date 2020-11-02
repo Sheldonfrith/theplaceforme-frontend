@@ -70,6 +70,7 @@ const BottomButtonContainer = styled.div`
     justify-content: space-evenly;
     width: 100%;
     padding: 1rem;
+    margin: 1rem;
 `;
 const BottomButton = styled.button`
    ${TransparentButton}

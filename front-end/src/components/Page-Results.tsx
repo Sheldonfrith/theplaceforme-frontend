@@ -43,22 +43,28 @@ const ResultsContainer = styled.div`
     ${VerticalFlexBox};
     overflow: auto;
     width:90%;
-    margin: 0 0 1.2srem 0;
+    margin: 0 0 0 0;
+    box-shadow: inset 1px 3px 7px 2px rgb(50,0,0,0.8);
+    padding: 1rem;
+    background: ${props=>props.theme.primaryGradient};
+    border-radius: 0.3rem;
 `;
 
 
 const CountryResult = styled.div`
     ${HorizontalFlexBox};
-    width: 100%;
+    width: 99%;
     cursor: pointer;
-    border: solid 0.2rem;
+    border: solid 0.3rem;
     box-sizing: border-box;
     background: none;
     margin: 0.2rem;
     font-size: ${props=>props.theme.font6};
-    background-color: ${props=>props.theme.whiteOverlay};
+    background-color: white;
+    border-radius: 0.3rem;
+    box-shadow: 1px 0.5px 2px 0.5px black;
     :hover{
-        background: white;
+        box-shadow: 1px 1px 2px 1px black;
     }
 `;
 const CountryName = styled.div`
@@ -71,9 +77,11 @@ const CountryName = styled.div`
 
 const CountryResultNumber = styled.div`
     ${VerticalFlexBox};
-    width:  15%;
+    width:  12%;
     height: 65%;
     padding: 1rem;
+    color: white;
+    text-shadow: 1px 1px black;
 `;
 
 const HelpContainer = styled.div`
@@ -128,7 +136,7 @@ return (
                     }
                 }>
                 <CountryResultNumber style={{
-                    backgroundImage: `linear-gradient(180deg, rgb(0,0,0,0) 0%, ${color} 100%)`,
+                    backgroundImage: `linear-gradient(270deg, rgb(0,0,0,0) 0%, ${color} 0%)`,
                 }}>
                     {country.rank}.
                 </CountryResultNumber>

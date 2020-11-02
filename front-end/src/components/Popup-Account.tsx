@@ -5,15 +5,17 @@ import styled from 'styled-components';
 import { logout, auth} from './App';
 import { useAuthState } from "react-firebase-hooks/auth";
 // import {StyledContext} from './containers/StyledProvider';
-import {PopupInner, TransparentButton, H3,VerticalFlexBox, H1} from './ReusableStyles';
+import {PopupInner, TransparentButton, FilledButton, H3,VerticalFlexBox, H1} from './ReusableStyles';
 
 const PopupInnerContainer = styled.div`${PopupInner}`;
 const LogoutButton = styled.button`
-${TransparentButton}
-background-color: ${props=>props.theme.red};
+${FilledButton}
 `;
 const Subtitle = styled.h3`${H3}`;
-const AccountInfo = styled.div`${VerticalFlexBox}`;
+const AccountInfo = styled.div`
+${VerticalFlexBox}
+align-items: flex-start;
+`;
 
 const Title = styled.div`${H1}`;
 const InfoText = styled.div`font-size:200%;`;
@@ -43,7 +45,7 @@ if (user) { return (
     <AccountInfo>
         {user.displayName?<InfoText><b>Display Name:</b> {user.displayName}</InfoText>:<></>}
         {user.email?<InfoText><b>Email:</b> {user.email}</InfoText>:<></>}
-        {user.providerId?<InfoText><b>Provider:</b> {user.providerId}</InfoText>:<></>}
+        {/* {user.providerId?<InfoText><b>Provider:</b> {user.providerId}</InfoText>:<></>} */}
     </AccountInfo>
     <LogoutButton onClick={()=>logout()}>Logout</LogoutButton>
     <Subtitle>Saved Questionaires</Subtitle>

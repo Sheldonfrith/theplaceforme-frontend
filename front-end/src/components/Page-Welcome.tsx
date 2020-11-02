@@ -36,11 +36,6 @@ const WelcomeBlurb = styled.p`
 `;
 const PrimaryActionButton = styled.button`
   ${FilledButton};
-  font-size: ${(props) => props.theme.font6};
-  padding: 1rem 2rem;
-  margin: 2rem;
-  background-color: ${(props) => props.theme.red};
-  font-family: ${(props) => props.theme.fontFamHeader};
 `;
 const LoginButton = styled.button`
   ${TransparentButton};

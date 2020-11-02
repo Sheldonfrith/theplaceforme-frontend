@@ -10,7 +10,7 @@ const Triangle = styled.div`
     border-bottom: 1rem solid ${props=>props.color};
     position: absolute;
     top: -1rem;
-    right: 39vw;
+    right: 32vw;
     z-index: 5;
     @media (max-width: ${props=>props.theme.largerBreakpoint}px){
         right: 48vw;
@@ -25,7 +25,7 @@ const SwiperContainer = styled.div<{color:string}>`
     align-items: center;
     justify-content: space-between;
     background: ${props => props.color};
-    height: 70vh;
+    height: 60vh;
     margin-top: 6rem;
     width: 100%;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
@@ -56,7 +56,7 @@ const handleSwipeRight= ()=>{
 }
 return (
 <SwiperContainer color={backgroundColor || theme.red}>
-    <Triangle color={backgroundColor || theme.red}/>
+    <Triangle color={ theme.primaryAccent}/>
 {/* <Swipe
     onSwipeLeft={handleSwipeLeft}
     onSwipeRight={handleSwipeRight}

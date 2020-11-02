@@ -22,6 +22,11 @@ const MenuButton = styled.button`
   font-size: ${props=>props.theme.font4};
   :hover{
     color: ${props=>props.theme.red};
+    background: ${props=>props.theme.white};
+  }
+  :active{
+    color: ${props=>props.theme.black};
+    background: ${props=>props.theme.white};
   }
 `;
 const MenuContainer = styled.div<{display: string}>`

@@ -1,4 +1,24 @@
-import styled, { css } from 'styled-components';
+import styled, { css, keyframes} from 'styled-components';
+
+  export const FilledButtonClickAnimation = (props:any) => keyframes`
+    0%{
+      background: ${props.theme.primaryAccent};
+    }
+    100%{
+      background: ${props.theme.primaryAccent};
+    }
+  `;
+
+  export const TransparentButtonClickAnimation = (props:any) => keyframes`
+    0% {
+      background: white;
+      box-shadow: inset 0px 4px 4px rgba(0, 0, 0, 0.35);
+    }
+    100%{
+      background: white;
+      box-shadow: inset 0px 4px 4px rgba(0, 0, 0, 0.35);
+    }
+  `;
   
   //reusable styled components
   export const VerticalFlexBox = css`
@@ -23,23 +43,35 @@ import styled, { css } from 'styled-components';
     border-style: solid;
     font-size: ${props=>props.theme.font6};
     padding: 0.5rem 1.8rem;
-    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-    text-transform: uppercase;
+    margin: 0.5rem;
+    box-shadow: inset 0px 4px 4px rgba(0, 0, 0, 0.35);
     cursor: pointer;
     :hover{
-      background:white;
+      box-shadow: inset 0px -4px 4px rgba(0, 0, 0, 0.35);
+    }
+    :active{
+      background: white;
+      box-shadow: inset 0px 4px 4px rgba(0, 0, 0, 0.35);
     }
   `;
   
   export const FilledButton = css`
     border-radius: 0.5rem;
     color: ${props=>props.theme.white};
+    background: ${props=>props.theme.primaryGradient};
     font-size: ${props=>props.theme.font6};
-    padding: 0.5rem 1.8rem;
-    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-    text-transform: uppercase;
+    font-family: ${props=>props.theme.fontFamHeader};
+    padding: 1rem 2rem;
+    margin: 2rem;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.4);
     cursor: pointer;
     border: none;
+    :hover {
+      background: ${props=>props.theme.primaryDark};
+    }
+    :active{
+      background: ${props=>props.theme.primaryAccent};
+    }
   `;
   
   export const H1 = css`

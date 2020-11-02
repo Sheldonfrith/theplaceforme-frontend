@@ -186,6 +186,7 @@ return (
     onChange={sliderOnChange}
     min={min ||0}
     max={max ||100}
+    step={(max-min)/100.0}
     value={sliderValue}
 />
 <PreciseValueArea
