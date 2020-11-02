@@ -57,7 +57,8 @@ return (
 }
 <InfoPopup>
     <div>
-        See our Methodology page for more info about these different methods
+        Choose how to handle countries that have no data for this dataset.
+        See our <a href={'https://github.com/Sheldonfrith/theplaceforme-backend/wiki/Methodology'}>Methodology</a> page for more info about these different methods
         for handling countries with missing data.
     </div>
 </InfoPopup>

@@ -25,8 +25,10 @@ return (
         disabled={disabled}
     >
     <div>
-        Information about choosing your ideal value goes here.
-        The graph show the distribution of countries within the dataset. etc.
+        Move the slider or input a value directly. Countries that are closer to the value you choose here
+        will get higher scores and be ranked higher in the final results. 
+        The graph above the slider show the distribution of countries within the dataset.
+        The number at the top right shows the percentage of countries that are missing data for this dataset.
     </div>
     </DataInputContainer>
     </>

@@ -10,8 +10,11 @@ const Triangle = styled.div`
     border-bottom: 1rem solid ${props=>props.color};
     position: absolute;
     top: -1rem;
-    right: 48vw;
+    right: 39vw;
     z-index: 5;
+    @media (max-width: ${props=>props.theme.largerBreakpoint}px){
+        right: 48vw;
+    }
 
 `;
 
@@ -21,7 +24,7 @@ const SwiperContainer = styled.div<{color:string}>`
     position: relative;
     align-items: center;
     justify-content: space-between;
-    background-color: ${props => props.color};
+    background: ${props => props.color};
     height: 70vh;
     margin-top: 6rem;
     width: 100%;

@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext, useCallback} from 'react';
+import React, {useState, useEffect, useContext, useCallback, useRef} from 'react';
 import Header from '../Header';
 import styled, {css, keyframes, ThemeContext} from 'styled-components';
 import CategorySwiper from './CategorySwiper';
@@ -15,6 +15,7 @@ import getCategoryColor from '../../lib/UI-Constants/categoryColors';
 import getAllFormDataStorageLocation from '../../lib/APP-Constants/localStorage';
 import {TransparentButton, H3, VerticalFlexBox} from '../ReusableStyles';
 import {Ring} from 'react-spinners-css';
+import DatasetNotes from './DatasetNotes';
 
 const slideOutLeft = keyframes`
     0% {
@@ -125,6 +126,18 @@ const QuestionairePage :React.FunctionComponent<QuestionairePageProps> = ({setbg
     const [zeroWeight, setZeroWeight]= useState<boolean>(true);
     const [questionAnimation, setQuestionAnimation] = useState<any>(`slideInRight`);
     const [categoryChangeQueu, setCategoryChangeQueu] = useState<number>(0); //hack for sending info down to the category swiper
+    const getBottomButtonText = (): string[] =>{
+        //based on media query make bottom buttons either <> or prev/next
+        var width = window.matchMedia(`(max-width: ${theme.primaryBreakpoint}px)`);
+        if (width.matches){
+            return ['<', '>'];
+        } else {
+            return ['Previous', 'Next'];
+        }
+    }
+    const [bottomButtonText, setBottomButtonText]= useState<string[]>(getBottomButtonText());//[0] is back button, [1] is forward button
+
+
     //!USE EFFECTS
     //initialize the form data
     useMyEffect([gc.datasets],()=>{
@@ -169,6 +182,7 @@ const QuestionairePage :React.FunctionComponent<QuestionairePageProps> = ({setbg
         console.log('initialized currentCategory', firstCategory);
     },[gc.categories, gc.getCategoryByIndex, setCurrentCategory]);
 
+    
 
     //whenever the category index changes
     //update the category
@@ -363,7 +377,7 @@ return (
     <QuestionSwiper 
         prevQuestion={prevQuestion}
         nextQuestion={nextQuestion}
-        backgroundColor={currentCategory?getCategoryColor(currentCategory):theme.red}
+        backgroundColor={currentCategory?getCategoryColor(currentCategory):theme.primaryGradient}
         >
         {(currentDataset && currentDataset.id && allFormData)?
             <QuestionContainer animation={questionAnimation}>
@@ -419,12 +433,21 @@ return (
                 }}
                 normalization={allFormData[getFormDataIndexFromID(currentDataset.id!)].normalizationPercentage||0}
                 />
+                {/* {(!currentDataset.source_link && !currentDataset.source_description && !currentDataset.notes)? */}
+                <DatasetNotes 
+                text={
+                    'Data Source: '+currentDataset.source_link || 
+                    'Data Source: '+ currentDataset.source_description || 
+                    'Notes For This Dataset: '+currentDataset.notes || 
+                    'Nothing to display.'}
+                />
+                {/* :<></>} */}
             </QuestionContainer>
         :<LoadingContainer><Ring color={theme.white} size={80}/></LoadingContainer>}
     </QuestionSwiper>
     <BottomButtonContainer>
-        <BottomButton onClick={(e)=>prevQuestion()}>{'<'}</BottomButton>
-        <BottomButton onClick={(e)=>nextQuestion()}>{'>'}</BottomButton>
+        <BottomButton onClick={(e)=>prevQuestion()}>{bottomButtonText[0]}</BottomButton>
+        <BottomButton onClick={(e)=>nextQuestion()}>{bottomButtonText[1]}</BottomButton>
         <BottomButton onClick={(e)=>getResults()}>Submit Now</BottomButton>
     </BottomButtonContainer>
 </>

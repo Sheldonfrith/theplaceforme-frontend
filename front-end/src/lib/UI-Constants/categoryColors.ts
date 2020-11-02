@@ -18,7 +18,7 @@ const colorsByCategories: {[key: string]:string} = {
 }
 
 const getColorByCategory =(category: string): string=>{
-    return getSingleColor('primaryAccent');
+    return getSingleColor('primaryGradient');
     // return getSingleColor(colorsByCategories[category]);
 }
 

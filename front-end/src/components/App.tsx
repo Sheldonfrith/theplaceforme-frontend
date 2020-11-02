@@ -33,7 +33,8 @@ const AppContainer = styled.div<{bgleft:string,bgmid:string,bgright:string}>`
   font-size: ${props=>props.theme.font2};
   ${VerticalFlexBox}
   margin: auto;
-  width: 80%;
+  width: 66%;
+  box-shadow: 3px 3px 12px 3px black;
   height: 100vh;
   overflow: hidden;
   background-image: ${props =>props.theme.primaryLightBackground};

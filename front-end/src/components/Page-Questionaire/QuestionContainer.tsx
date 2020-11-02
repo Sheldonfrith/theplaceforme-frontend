@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext, useCallback} from 'react';
+import React, {useState, useEffect, useContext, useCallback, useRef} from 'react';
 import styled, {keyframes} from 'styled-components';
 import useMyEffect from '../../lib/Hooks/useMyEffect';
 
@@ -26,13 +26,23 @@ const Container = styled.div<{animation: any}>`
 `;
 
 interface QuestionContainerProps{
-    animation: string
+    animation: string,
+    
 }
 const QuestionContainer: React.FunctionComponent<QuestionContainerProps> =({children, animation})=> {
     useMyEffect([animation],()=>{console.log('animation changed',animation)},[animation])
+
+//whenever the question changes, scroll to the top of the question container
+const scrollTopRef = useRef<HTMLDivElement>(null);
+useMyEffect([true],()=>{
+    if (!scrollTopRef || !scrollTopRef.current) return;
+    // @ts-ignore
+    scrollTopRef.current.scrollTo(0,0);
+},[animation, scrollTopRef])
+
 return (
 
-<Container animation={animation}>
+<Container animation={animation} ref={scrollTopRef}>
 {children}
 </Container>
 );

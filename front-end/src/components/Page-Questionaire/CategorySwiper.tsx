@@ -7,7 +7,7 @@ import useMyEffect from '../../lib/Hooks/useMyEffect';
 
 
 const Category = styled.div<{color:string}>`
-    background-color: ${props =>props.color};
+    background: ${props =>props.color};
     border-radius: 3rem;
     text-align: center;
     padding: 1rem;

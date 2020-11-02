@@ -7,13 +7,18 @@ import getColorFromPercentile from '../lib/UI-Constants/rankColors';
 import {toTitleCase} from '../lib/Utils';
 import {Help} from '@material-ui/icons';
 import useMyEffect from '../lib/Hooks/useMyEffect';
+import {Ring} from 'react-spinners-css';
 
 const Container = styled.div`
     ${PageContainer};
     background-image: ${props=>props.theme.primaryLightBackground};
     color: ${props=>props.theme.black};
 `;
-
+const LoadingContainer = styled.div`
+    ${VerticalFlexBox};
+    width: 100%;
+    height: 100%;
+`;
 
 const BackButton = styled.button`
     ${FilledButton};
@@ -138,7 +143,7 @@ return (
             </CountryResult>
             );
         })
-        :'loading results...'}
+        :<LoadingContainer><Ring color={theme.white} size={80}/></LoadingContainer>}
     </ResultsContainer>
     <BottomButtonsContainer>
         <BackButton onClick={(e)=>gc.setCurrentPage('questionaire')}>Back to Questions</BackButton>
