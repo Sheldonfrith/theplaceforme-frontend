@@ -26,6 +26,9 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  @media (max-width: 800px){
+    background: none;
+  }
 }
 
 input, textarea, button, select {font-family: 'Noto Sans'}
