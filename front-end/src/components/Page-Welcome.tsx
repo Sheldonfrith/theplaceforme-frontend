@@ -84,7 +84,11 @@ const WelcomePage: React.FunctionComponent<WelcomePageProps> = ({}) => {
           </WelcomeGreeting>
           <SecondaryButtonArea>
             <LoginButton onClick={() => logout()}>Logout</LoginButton>
-            <SecondaryButton>Donate</SecondaryButton>
+            <SecondaryButton
+              onClick={()=>{
+                window.open('https://www.patreon.com/sheldonfrith_web');
+              }}
+            >Donate</SecondaryButton>
             <SecondaryButton
               onClick={() =>
                 window.open(

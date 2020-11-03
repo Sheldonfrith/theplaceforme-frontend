@@ -70,7 +70,7 @@ const Header: FunctionComponent<HeaderProps> = ({
         onClick: () =>
           window.open("https://github.com/Sheldonfrith/theplaceforme-frontend"),
       },
-      { text: "Donate", onClick: () => null },
+      { text: "Donate", onClick: () => window.open('https://www.patreon.com/sheldonfrith_web') },
       {
         text: "Methodology",
         onClick:()=> window.open('https://github.com/Sheldonfrith/theplaceforme-backend/wiki/Methodology'),
