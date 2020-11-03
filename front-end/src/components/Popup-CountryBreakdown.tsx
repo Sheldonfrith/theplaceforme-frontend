@@ -68,6 +68,7 @@ const CategoryBreakdown = styled.div`
 const DatasetBreakdowns = styled.div`
   ${VerticalFlexBox};
   ${ParagraphText};
+  width: 100%;
 `;
 const DatasetBreakdown = styled.div`
   ${HorizontalFlexBox};

@@ -105,25 +105,31 @@ const ResultsPage: React.FunctionComponent<ResultsPageProps> = () => {
   const gc = useContext(GlobalContext);
   const theme = useContext(ThemeContext);
   const [scoreRange, setScoreRange] = useState<Array<number> | null>(null); // index 0 is min score, index 1 is max score
+    const [retryScoreRangeCount, setRetryScoreRangeCount] = useState<number>(5);
+
+    const updateScoreRange = useCallback(()=>{
+        if (!gc.results) return;
+        let min = Infinity;
+        let max = 0;
+        Object.keys(gc.results).forEach((countryCode) => {
+          const thisScore = gc.results![countryCode].totalScore;
+          if (thisScore > max) {
+            max = thisScore;
+          }
+          if (thisScore < min) {
+            min = thisScore;
+          }
+        });
+        setScoreRange([min, max]);
+    },[gc.results, setScoreRange])
+
   //update score range whenever gc.results change
   useMyEffect(
-    [gc.results],
+    [true],
     () => {
-      if (!gc.results) return;
-      let min = Infinity;
-      let max = 0;
-      Object.keys(gc.results).forEach((countryCode) => {
-        const thisScore = gc.results![countryCode].totalScore;
-        if (thisScore > max) {
-          max = thisScore;
-        }
-        if (thisScore < min) {
-          min = thisScore;
-        }
-      });
-      setScoreRange([min, max]);
+     updateScoreRange();
     },
-    [gc.results]
+    [updateScoreRange]
   );
 
   const getSortedCountryIDs = () =>
@@ -146,14 +152,22 @@ const ResultsPage: React.FunctionComponent<ResultsPageProps> = () => {
                 (scoreRange![1] - scoreRange![0])) *
               100.0;
             if (scorePercentile > 100 || scorePercentile < 0)
-              throw new Error(
-                "score percentile out of the 0-100 range... percentile..." +
-                  scorePercentile +
-                  " countryscore... " +
-                  country.totalScore +
-                  " scorerange... " +
-                  scoreRange
-              );
+            {
+                if (retryScoreRangeCount ===0){
+                    throw new Error(
+                      "score percentile out of the 0-100 range... percentile..." +
+                        scorePercentile +
+                        " countryscore... " +
+                        country.totalScore +
+                        " scorerange... " +
+                        scoreRange
+                    );
+                } else {
+                    //update scoreRange and try again
+                    updateScoreRange();
+                    setRetryScoreRangeCount(prev=>prev-1);
+                }
+            }
             const color = getColorFromPercentile(scorePercentile);
             return (
               <CountryResult
