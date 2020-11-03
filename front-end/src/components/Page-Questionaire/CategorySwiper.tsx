@@ -75,9 +75,9 @@ const CategorySwiper: React.FunctionComponent<CategorySwiperProps> = ({prevCateg
 
     //when categoryChangeQueu changes, means parent component has changed category and 
     //swiper needs to update position
-    console.log(categoryChangeQueu);
+    // console.log(categoryChangeQueu);
      useMyEffect([categoryChangeQueu],()=>{
-        console.log('category change queu has changed', categoryChangeQueu);
+        // console.log('category change queu has changed', categoryChangeQueu);
         if (!categoryChangeQueu) return;
         const newLeftPosition = getLeftPositionFromIndex(currentCategoryIndex+categoryChangeQueu);
         console.log('dealing with category change queu', newLeftPosition);

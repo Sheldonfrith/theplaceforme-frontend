@@ -164,7 +164,7 @@ const GlobalProvider: React.FunctionComponent =({children}) =>{
     
     //! OTHER USEEFFECTS
     useMyEffect([currentPage],async ()=>{
-        console.log('current page changed',currentPage);
+        // console.log('current page changed',currentPage);
         //DELAY UNTIL QUESTIONAIRE PAGE IS LOADED
         if (currentPage !== 'questionaire') return;
         //AND ONLY RUN ONCE PER QUESTIONAIRE SESSION 
@@ -177,19 +177,19 @@ const GlobalProvider: React.FunctionComponent =({children}) =>{
         const datasetsFormatted: Datasets = {};
         datasetsResponse.forEach((object: Dataset) => datasetsFormatted[object['id']]={...object});
         setDatasets(datasetsFormatted);
-        console.log(datasetsFormatted);
+        // console.log(datasetsFormatted);
         //HTTP REQUEST
         //get meta info on missing data handler methods
         const missingDHMethodsResponse = await getRequest("/missing-data-handler-methods");
         setMissingDataHandlerMethods(missingDHMethodsResponse);
-        console.log(missingDHMethodsResponse);
+        // console.log(missingDHMethodsResponse);
         //HTTP REQUEST
         //get COUNTRIES data
         const countriesResponse = await getRequest('/countries');
         const countriesFormatted: Countries = {};
         countriesResponse.forEach((object: CountryMetadata) => countriesFormatted[object['alpha_three_code']]={...object});
         setCountries(countriesFormatted);
-        console.log('got this countries data from api', countriesFormatted);
+        // console.log('got this countries data from api', countriesFormatted);
         //all http requests done,
         //now use the dataset metainfo to generate the categories metainfo
         const newCategories: Categories = {};
@@ -219,7 +219,7 @@ const GlobalProvider: React.FunctionComponent =({children}) =>{
         })
         //finished creating the categories
         setCategories(newCategories);
-        console.log(newCategories);
+        // console.log(newCategories);
         //initiliaze the ordered categories list
 
     },[currentPage]);

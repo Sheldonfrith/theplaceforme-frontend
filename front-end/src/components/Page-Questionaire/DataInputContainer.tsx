@@ -88,7 +88,7 @@ const PreciseValueArea = styled.input`
     border-style: none;
     padding:0 0.5rem;
     margin: 0;
-    width:10rem;
+    width:15vw;
     :hover{
         color: ${props=>props.theme.red};
     }

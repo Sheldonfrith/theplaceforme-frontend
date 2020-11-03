@@ -180,7 +180,7 @@ const QuestionairePage :React.FunctionComponent<QuestionairePageProps> = ({setbg
         if (!firstCategory) return;
         setCurrentCategory(firstCategory);//set to the first category found
         setCurrentCategoryIndex(0);
-        console.log('initialized currentCategory', firstCategory);
+        // console.log('initialized currentCategory', firstCategory);
     },[gc.categories, gc.getCategoryByIndex, setCurrentCategory]);
 
     
@@ -216,7 +216,7 @@ const QuestionairePage :React.FunctionComponent<QuestionairePageProps> = ({setbg
 
             setCurrentQuestionIndex(0);
             
-            console.log('current cat changed...', currentCategory);
+            // console.log('current cat changed...', currentCategory);
         },50);
         //set the colors immediately so the transition looks smoother
         const currentCatIndex = gc.categories![currentCategory].index;
@@ -231,22 +231,22 @@ const QuestionairePage :React.FunctionComponent<QuestionairePageProps> = ({setbg
 
     //whenever the current question index changes, update the current question and current dataset
     useMyEffect([currentQuestionIndex],():void=>{
-        console.log(currentQuestionIndex);
+        // console.log(currentQuestionIndex);
         if (currentQuestionIndex===null || !gc.datasets|| !gc.categories || !currentCategory) return;
-        console.log('got past conditions?');
+        // console.log('got past conditions?');
         const newQuestion =gc.categories[currentCategory].datasets[currentQuestionIndex];
         const newDataset = gc.datasets[newQuestion];
-        console.log('updating current question and dataset', newQuestion, newDataset);
+        // console.log('updating current question and dataset', newQuestion, newDataset);
         setCurrentQuestion(newQuestion);
         setCurrentDataset(newDataset);
     },[currentQuestionIndex, currentCategory, setCurrentQuestion, gc.categories, gc.datasets, setCurrentDataset]);
 
     //whenever the current dataset, or formdata changes update the zeroWeight boolean and localStorage value
     useMyEffect([true],()=>{
-        console.log('waiting for condition');
+        // console.log('waiting for condition');
         if (!allFormData || currentDataset==null) return;
         const weight =allFormData[getFormDataIndexFromID(currentDataset.id)].weight;
-        console.log('updating zeroWeight boolean', weight);
+        // console.log('updating zeroWeight boolean', weight);
         if (weight == 0){
             setZeroWeight(true);
         } else {
@@ -257,7 +257,7 @@ const QuestionairePage :React.FunctionComponent<QuestionairePageProps> = ({setbg
     //whenever the formdata changes, update the localstorage value
     useMyEffect([true],()=>{
         if (!allFormData) return;
-        console.log('saving to local storage', getAllFormDataStorageLocation(), allFormData);
+        // console.log('saving to local storage', getAllFormDataStorageLocation(), allFormData);
         localStorage.setItem(getAllFormDataStorageLocation(),JSON.stringify(allFormData));
     },[allFormData])
 
@@ -267,10 +267,10 @@ const QuestionairePage :React.FunctionComponent<QuestionairePageProps> = ({setbg
     const resetFormData = useCallback(()=>{
         //first make sure the user wants to do this 
         const shouldReset = window.confirm('Are you sure you want to reset all answers to all questions?');
-        console.log('reset info', shouldReset, gc.datasets);
+        // console.log('reset info', shouldReset, gc.datasets);
         if (!shouldReset) return;
         if (!gc.datasets) return;
-        console.log('initializing form data reset');
+        // console.log('initializing form data reset');
         const newFormObject: FormData = Object.keys(gc.datasets).map((datasetID: string): QuestionInput =>{
             const thisDataset = gc.datasets![datasetID];
             const max = thisDataset.max_value;
@@ -286,7 +286,7 @@ const QuestionairePage :React.FunctionComponent<QuestionairePageProps> = ({setbg
                 normalizationPercentage: gc.defaultNormalizationPercentage!,
             };
         });
-        console.log('resetting all form data and clearing local storage', newFormObject, getAllFormDataStorageLocation());
+        // console.log('resetting all form data and clearing local storage', newFormObject, getAllFormDataStorageLocation());
         setAllFormData(newFormObject);
         //now clear local storage
         localStorage.removeItem(getAllFormDataStorageLocation());
@@ -304,7 +304,7 @@ const QuestionairePage :React.FunctionComponent<QuestionairePageProps> = ({setbg
         //if at first category do nothing
         if (currentCategoryIndex<1) return;
         //otherwise move back
-        console.log('setting category change queu -1',currentCategoryIndex);
+        // console.log('setting category change queu -1',currentCategoryIndex);
         setCategoryChangeQueu(-1);
     },[currentCategoryIndex, setCategoryChangeQueu]);
 
@@ -317,7 +317,7 @@ const QuestionairePage :React.FunctionComponent<QuestionairePageProps> = ({setbg
             return;
         }
         //otherwise move forward
-        console.log('setting category change queu 1', currentCategoryIndex);
+        // console.log('setting category change queu 1', currentCategoryIndex);
         setCategoryChangeQueu(1);
     },[currentCategoryIndex, gc, setCategoryChangeQueu]);
 
@@ -357,8 +357,9 @@ const QuestionairePage :React.FunctionComponent<QuestionairePageProps> = ({setbg
         //validate the form data object
         gc.setCurrentPage('results');
 
-        console.log('sending this to /scores ',allFormData);
+        // console.log('sending this to /scores ',allFormData);
         const results = await postRequest('/scores',allFormData);
+        // console.log('received this from /scores ', results);    
         gc.setResults(results);
     },[allFormData, gc, gc.setCurrentPage, gc.setResults]);
 

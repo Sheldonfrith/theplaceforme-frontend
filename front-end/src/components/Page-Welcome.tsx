@@ -33,6 +33,9 @@ const WelcomeBlurb = styled.p`
   ${ParagraphText};
   font-size: ${(props) => props.theme.font7};
   width: 90%;
+  @media (max-width: ${props=>props.theme.primaryBreakpoint}px){
+    font-size: ${props=> props.theme.font5};
+  }
 `;
 const PrimaryActionButton = styled.button`
   ${FilledButton};
@@ -45,6 +48,9 @@ const LoginButton = styled.button`
 const SecondaryButtonArea = styled.div`
   ${HorizontalFlexBox};
   width: 85%;
+  @media (max-width: ${props=>props.theme.primaryBreakpoint}px){
+        flex-direction: column;
+    }
 `;
 const SecondaryButton = styled.button`
   ${TransparentButton};

@@ -96,7 +96,7 @@ import styled, { css, keyframes} from 'styled-components';
   `;
   export const SubheadingText = css`
     ${ParagraphText}
-    font-size: ${props=>props.theme.font3};
+    font-size: ${props=>props.theme.font5};
     text-indent: 0;
   `;
   export const PopupInner = css`

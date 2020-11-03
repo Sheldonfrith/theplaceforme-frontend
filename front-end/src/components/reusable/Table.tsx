@@ -1,5 +1,18 @@
 import React from 'react';
 import styled from 'styled-components';
+// import TableCore from '@material-ui/core/Table';
+// import TableBody from '@material-ui/core/TableBody';
+// import TableCell from '@material-ui/core/TableCell';
+// import TableContainer from '@material-ui/core/TableContainer';
+// import TableHead from '@material-ui/core/TableHead';
+// import TableRow from '@material-ui/core/TableRow';
+
+
+const TableContainer = styled.div`
+    width: 100%;
+    height: 100%;
+    overflow-x:auto;
+`;
 
 const StyledTable = styled.table`
     width: 100%;
@@ -15,15 +28,15 @@ interface TableProps {
 
 const Table: React.FunctionComponent<TableProps> = ({header,columns,rows}) => {
     if (columns && rows){
-        return <div>Cannot define BOTH columns based and rows based lists</div>;
+        throw new Error('cannot define BOTH columns and rows for this table component');
     }
-    if (!(columns || rows)){
+    if (!columns && !rows){
         // console.log(header,columns, rows);
-        return <div>No input list detected for this component...</div>;
+        throw new Error('No input list of rows or columns detected for this Table component');
     }
-    if (!(Array.isArray(columns) || Array.isArray(rows))){
+    if (!Array.isArray(columns?columns:rows)){
         // console.log(header,columns, rows);
-        return <div>Input lists are not valid arrays...</div>
+        throw new Error('Cannot render table component because inputs are not valid arrays');
     }
 //table can be either defined by columns or rows, not both
 //the input props are simply a list of lists of of jsx elements, which will be inserted in order
@@ -47,13 +60,13 @@ if (columns && !rows){
 const numberOfColumns = columns?columns.length:rows![0].length;
 
     return (
-        <>
+        <TableContainer>
         {(rows)?
-        <StyledTable className="table">
+        <StyledTable>
                 {header?(
                     <thead>
                         <tr className="d-flex">
-                        {header.map((item,index)=><th key={`tableHeader${index}`} className={'col-'+(12/numberOfColumns).toString()}>{item}</th>)}
+                        {header.map((item,index)=><th key={`tableHeader${index}`} align="left">{item}</th>)}
                         </tr>
                     </thead>
                 )
@@ -63,7 +76,7 @@ const numberOfColumns = columns?columns.length:rows![0].length;
                     return (
                         <tr key={`tablerow${index1}`} className="d-flex">
                             {rowItems.map((item: any,index: any)=>{
-                                return <th key={`tablecell${index}`} className={'col-'+(12/numberOfColumns).toString()}>{item}</th>;
+                                return <td key={`tablecell${index}`} align="left">{item}</td>;
                             })}
                         </tr>
                     );
@@ -71,7 +84,7 @@ const numberOfColumns = columns?columns.length:rows![0].length;
             </tbody>
         </StyledTable>
         :<></>}
-        </>
+        </TableContainer>
         );
 
 

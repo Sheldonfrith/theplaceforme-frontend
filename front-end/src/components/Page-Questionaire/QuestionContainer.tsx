@@ -30,7 +30,7 @@ interface QuestionContainerProps{
     
 }
 const QuestionContainer: React.FunctionComponent<QuestionContainerProps> =({children, animation})=> {
-    useMyEffect([animation],()=>{console.log('animation changed',animation)},[animation])
+    // useMyEffect([animation],()=>{console.log('animation changed',animation)},[animation])
 
 //whenever the question changes, scroll to the top of the question container
 const scrollTopRef = useRef<HTMLDivElement>(null);

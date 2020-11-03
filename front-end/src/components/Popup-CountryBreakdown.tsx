@@ -258,7 +258,7 @@ const CountryBreakdownPopup: React.FunctionComponent<CountryBreakdownPopupProps>
       const allRows = Object.keys(scoreBreakdown).map((datasetID) => {
         const thisDataset = scoreBreakdown[datasetID];
         return [
-          <div style={{ width: "30rem" }}>
+          <div style={{ width: "30vw" }}>
             {gc.datasets![datasetID].long_name}
           </div>,
           thisDataset.score.toFixed(0),
@@ -267,33 +267,41 @@ const CountryBreakdownPopup: React.FunctionComponent<CountryBreakdownPopupProps>
           thisDataset.dataWasMissing ? "Yes" : "No",
         ];
       });
-      // console.log('done making all rows', allRows);
+      console.log('done making all rows', allRows);
       //determine how many tables of 'datasetsPerAd' or less rows there needs to be
-      const numberOfTables =
+      const numberOfTables: number = (allRows.length>datasetsPerAd)?
         (allRows.length * 1.0) / datasetsPerAd +
-        (allRows.length % datasetsPerAd > 0 ? 1 : 0);
+        (allRows.length % datasetsPerAd > 0 ? 1 : 0)
+        :1;
       // console.log('going to make tables now, with ', numberOfTables);
+      
       for (let i = 0; i < numberOfTables; i++) {
+        let rowsForTable: any[] =[];
+        if (allRows.length === 1){
+          rowsForTable = allRows;
+        } else if (allRows.length < datasetsPerAd){
+          rowsForTable = allRows;
+        } else {
+          rowsForTable = allRows.slice(i* datasetsPerAd, i*datasetsPerAd +datasetsPerAd);
+        }
+      console.log('rows for table ',rowsForTable);
         const newTable = (
           <TableContainer
             header={[
-              <b>DATASET NAME</b>,
-              <b>SCORE</b>,
-              <b>RANK</b>,
-              <b>PERCENTILE</b>,
-              <b>WAS THE DATA MISSING?</b>,
+              'DATASET NAME',
+              'SCORE',
+              'RANK',
+              'PERCENTILE',
+              'DATA MISSING?',
             ]}
-            rows={allRows.slice(
-              i * datasetsPerAd,
-              i * datasetsPerAd + datasetsPerAd
-            )}
+            rows={rowsForTable}
             key={"table" + i}
           />
         );
         console.log(newTable);
         newDetailedTables.push(newTable); //table
         if (i === numberOfTables - 1) break; // don't place an ad below the last table, that is handled elsewhere
-        newDetailedTables.push(<Ad>{ads[i]}</Ad>); //ad
+        newDetailedTables.push(ads[i]?<Ad key={'ads[i]'}>{ads[i]}</Ad>:<></>); //ad
       }
       // console.log('setting detailed tables elements to...',newDetailedTables);
       setDetailedTables(newDetailedTables);
@@ -409,6 +417,7 @@ const CountryBreakdownPopup: React.FunctionComponent<CountryBreakdownPopupProps>
             {/* Remaining ads go at the bottom */}
             {endAds(Object.keys(currentCountryData.scoreBreakdown).length).map(
               (ad) => {
+                if (!ad) return <></>;
                 return <Ad key={ad}>{ad}</Ad>;
               }
             )}
