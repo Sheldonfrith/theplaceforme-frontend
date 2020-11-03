@@ -1,8 +1,7 @@
 
-import React, {useState, useEffect, useContext, useCallback, useRef} from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import {Container, BlurContainer} from './DataInputContainer';
-import {GlobalContext} from '../containers/GlobalProvider';
 import {SubheadingText, VerticalFlexBox}from '../ReusableStyles';
 
 const Title = styled.div`

@@ -1,10 +1,8 @@
 import React, {
-  useState,
   FunctionComponent,
   useContext,
   useCallback,
 } from "react";
-import { getRequest } from "../lib/HTTP";
 import styled from "styled-components";
 import CollapsibleNav from "./reusable/CollapsibleNav";
 import { GlobalContext } from "./containers/GlobalProvider";

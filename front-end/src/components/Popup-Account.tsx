@@ -1,11 +1,9 @@
-import React, {useState, useEffect, useRef, useContext, useCallback} from 'react';
-import Header from './Header';
-import LargePopup from './reusable/LargePopup';
+import React from 'react';
 import styled from 'styled-components';
 import { logout, auth} from './App';
 import { useAuthState } from "react-firebase-hooks/auth";
 // import {StyledContext} from './containers/StyledProvider';
-import {PopupInner, TransparentButton, FilledButton, H3,VerticalFlexBox, H1} from './ReusableStyles';
+import {PopupInner, FilledButton, H3,VerticalFlexBox, H1} from './ReusableStyles';
 
 const PopupInnerContainer = styled.div`${PopupInner}`;
 const LogoutButton = styled.button`

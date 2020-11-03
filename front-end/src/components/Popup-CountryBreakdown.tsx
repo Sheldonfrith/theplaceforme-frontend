@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useContext, useCallback } from "react";
+import React, { useState, useContext, useCallback } from "react";
 import styled from "styled-components";
 import {
   PopupInner,
   HorizontalFlexBox,
   H3,
-  TransparentButton,
   FilledButton,
   VerticalFlexBox,
   ParagraphText,
@@ -15,7 +14,7 @@ import {
   CountryMetadata,
 } from "./containers/GlobalProvider";
 import useMyEffect from "../lib/Hooks/useMyEffect";
-import { PieChart, Pie, Sector, ResponsiveContainer } from "recharts";
+import { Sector } from "recharts";
 import Flag from "react-world-flags";
 import Map from "./reusable/Map";
 import Table from "./reusable/Table";

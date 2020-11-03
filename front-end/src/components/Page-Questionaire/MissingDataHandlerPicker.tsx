@@ -1,5 +1,5 @@
-import { Info } from '@material-ui/icons';
-import React, {useState, useEffect, useContext, useCallback} from 'react';
+
+import React, {useState, useContext} from 'react';
 import styled from 'styled-components';
 import { GlobalContext } from '../containers/GlobalProvider';
 import InfoPopup from './InfoPopup';

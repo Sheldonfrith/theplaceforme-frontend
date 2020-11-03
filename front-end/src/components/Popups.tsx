@@ -1,12 +1,17 @@
-import React, {useState, useEffect, useRef, useContext, useCallback} from 'react';
-import Header from './Header';
+import React, { useContext, useCallback, Suspense} from 'react';
 import LargePopup from './reusable/LargePopup';
-import AccountPopup from './Popup-Account';
-import CountryBreakdownPopup from './Popup-CountryBreakdown';
-import LoginPopup from './Popup-Login';
+// import AccountPopup from './Popup-Account';
+
+// import CountryBreakdownPopup from './Popup-CountryBreakdown';
+// import LoginPopup from './Popup-Login';
 import { GlobalContext } from './containers/GlobalProvider';
-import styled from 'styled-components';
-import ChangeDefaultsPopup from './Popups-ChangeDefaults';
+import LoadingPopup from './Popup-Loading';
+// import ChangeDefaultsPopup from './Popups-ChangeDefaults';
+const AccountPopup = React.lazy(()=>import('./Popup-Account'));
+const CountryBreakdownPopup =React.lazy(()=>import('./Popup-CountryBreakdown'));
+const LoginPopup = React.lazy(()=>import('./Popup-Login'));
+const ChangeDefaultsPopup = React.lazy(()=>import('./Popups-ChangeDefaults'));
+
 // import {StyledContext} from './containers/StyledProvider';
 
 //this page should allow for:
@@ -20,6 +25,9 @@ interface PopupsProps{
 const Popups: React.FunctionComponent<PopupsProps>=({}) =>{
     const gc = useContext(GlobalContext);
     const closePopup = ()=>gc.setCurrentPopup(null);
+    const fallback = ()=>{
+        return <LoadingPopup/>;
+    }
 if (gc.currentPopup){
 return (
 <LargePopup
@@ -32,10 +40,10 @@ return (
     closeButtonColor={null}
     containerStyle={null}
 >
-{gc.currentPopup==='login'?<LoginPopup  closePopup={closePopup}/>:<></>}
-{gc.currentPopup==='account'?<AccountPopup  closePopup={closePopup}/>:<></>}
-{gc.currentPopup==='countryBreakdown'?<CountryBreakdownPopup closePopup={closePopup}/>:<></>}
-{gc.currentPopup==='changeDefaults'?<ChangeDefaultsPopup closePopup={closePopup}/>:<></>}
+{gc.currentPopup==='login'?<Suspense fallback={fallback()}><LoginPopup  closePopup={closePopup}/></Suspense>:<></>}
+{gc.currentPopup==='account'?<Suspense fallback={fallback()}><AccountPopup  closePopup={closePopup}/></Suspense>:<></>}
+{gc.currentPopup==='countryBreakdown'?<Suspense fallback={fallback()}><CountryBreakdownPopup closePopup={closePopup}/></Suspense>:<></>}
+{gc.currentPopup==='changeDefaults'?<Suspense fallback={fallback()}><ChangeDefaultsPopup closePopup={closePopup}/></Suspense>:<></>}
 </LargePopup>
 );
 } else {

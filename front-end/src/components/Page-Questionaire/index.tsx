@@ -1,6 +1,6 @@
-import React, {useState, useEffect, useContext, useCallback, useRef} from 'react';
+import React, {useState, useContext, useCallback} from 'react';
 import Header from '../Header';
-import styled, {css, keyframes, ThemeContext} from 'styled-components';
+import styled, { keyframes, ThemeContext} from 'styled-components';
 import CategorySwiper from './CategorySwiper';
 import IdealValuePicker from './IdealValuePicker';
 import NormalizationPicker from './NormalizationPicker';

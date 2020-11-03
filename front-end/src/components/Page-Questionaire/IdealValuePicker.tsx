@@ -1,7 +1,6 @@
-import React, {useState, useEffect, useContext, useCallback} from 'react';
-import styled from 'styled-components';
-import DataInputContainer, {DisabledOverlay} from './DataInputContainer';
-import {Dataset, GlobalContext}from '../containers/GlobalProvider';
+import React from 'react';
+import {Dataset}from '../containers/GlobalProvider';
+import DataInputContainer from './DataInputContainer';
 
 interface IdealValuePickerProps{
     dataset: Dataset

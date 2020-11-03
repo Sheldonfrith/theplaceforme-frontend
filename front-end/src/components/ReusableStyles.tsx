@@ -1,4 +1,5 @@
-import styled, { css, keyframes} from 'styled-components';
+import React from 'react';
+import styled, {keyframes, css} from 'styled-components';
 
   export const FilledButtonClickAnimation = (props:any) => keyframes`
     0%{

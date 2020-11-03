@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useContext, useCallback } from "react";
+import React, { useState, useContext, useCallback } from "react";
 import { GlobalContext } from "./containers/GlobalProvider";
 import Header from "./Header";
 import styled, { ThemeContext } from "styled-components";
 import {
   PageContainer,
-  TransparentButton,
   FilledButton,
   H1,
   HorizontalFlexBox,

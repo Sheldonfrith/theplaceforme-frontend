@@ -10,7 +10,6 @@ import styled from 'styled-components';
 
 const TableContainer = styled.div`
     width: 100%;
-    height: 100%;
     overflow-x:auto;
 `;
 
@@ -57,7 +56,7 @@ if (columns && !rows){
     if (!Array.isArray(columns[0])) throw new Error('error in Table component, columns[0] is not an array'+columns[0]);
     rows = columns[0].map((_, rowIndex) => columns!.map(col => col[rowIndex]));
 }
-const numberOfColumns = columns?columns.length:rows![0].length;
+// const numberOfColumns = columns?columns.length:rows![0].length;
 
     return (
         <TableContainer>

@@ -1,8 +1,6 @@
-import React, {useState, useEffect, useRef, useContext, useCallback} from 'react';
-import Header from './Header';
-import LargePopup from './reusable/LargePopup';
+import React, { useContext} from 'react';
 import styled from 'styled-components';
-import {PopupInner, TransparentButton, FilledButton, H3,VerticalFlexBox, H1} from './ReusableStyles';
+import {PopupInner, FilledButton, H3,VerticalFlexBox, H1} from './ReusableStyles';
 import Select from './reusable/Select';
 import {GlobalContext} from './containers/GlobalProvider';
 

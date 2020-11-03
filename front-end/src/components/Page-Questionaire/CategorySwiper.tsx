@@ -1,5 +1,5 @@
 
-import React, {useState, useEffect, useContext, useCallback, useRef} from 'react';
+import React, {useState, useContext, useRef} from 'react';
 import styled from 'styled-components';
 import { GlobalContext } from '../containers/GlobalProvider';
 import Swipe from 'react-easy-swipe';

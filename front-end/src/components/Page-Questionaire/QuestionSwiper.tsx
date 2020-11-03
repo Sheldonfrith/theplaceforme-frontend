@@ -1,6 +1,5 @@
-import React, {useState, useEffect, useContext, useCallback} from 'react';
+import React, { useContext} from 'react';
 import styled, {ThemeContext} from 'styled-components';
-import Swipe from 'react-easy-swipe';
 
 const Triangle = styled.div`
     width: 0;

@@ -1,13 +1,17 @@
-import React, { useState, useCallback, useEffect, useContext } from "react";
+import React, { useState, useContext, Suspense, useCallback } from "react";
 import firebase from "firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import WelcomePage from "./Page-Welcome";
-import QuestionairePage from "./Page-Questionaire/"; 
-import ResultsPage from "./Page-Results";
+// import QuestionairePage from "./Page-Questionaire/"; 
+// import ResultsPage from "./Page-Results";
 import styled from 'styled-components';
 import Popups from "./Popups";
 import { GlobalContext } from "./containers/GlobalProvider";
 import {VerticalFlexBox} from './ReusableStyles';
+import LoadingPage from './Page-Loading';
+// const Popups = React.lazy(()=>import("./Popups"));
+const QuestionairePage = React.lazy(()=>import("./Page-Questionaire"));
+const ResultsPage = React.lazy(()=>import("./Page-Results"));
 
 
 export const firebaseConfig = {
@@ -49,7 +53,9 @@ function App() {
   const [user, loading, error] = useAuthState(firebase.auth());
   const gc = useContext(GlobalContext);
   const [bgTrio, setbgTrio] = useState<Array<string>>(['white','white','white']);
-
+  const fallback = useCallback(()=>{
+    return <LoadingPage/>;
+  },[]);
   //App is primarily a container, handles simple global things like
   //what view should be displaying
   return (
@@ -60,8 +66,8 @@ function App() {
     >
       <Popups/>
       {gc.currentPage==='welcome'?<WelcomePage/>:<></>}
-      {gc.currentPage==='questionaire'?<QuestionairePage setbgTrio={setbgTrio} />:<></>}
-      {gc.currentPage==='results'?<ResultsPage />:<></>}
+      {gc.currentPage==='questionaire'?<Suspense fallback={fallback()}><QuestionairePage setbgTrio={setbgTrio} /></Suspense>:<></>}
+      {gc.currentPage==='results'?<Suspense fallback={fallback()}><ResultsPage /></Suspense>:<></>}
     </AppContainer>
   );
 }

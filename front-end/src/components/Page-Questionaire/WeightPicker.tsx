@@ -1,7 +1,5 @@
-import React, {useState, useEffect, useContext, useCallback} from 'react';
-import styled from 'styled-components';
+import React from 'react';
 import DataInputContainer from './DataInputContainer';
-import {Dataset}from '../containers/GlobalProvider';
 
 
 interface WeightPickerProps{

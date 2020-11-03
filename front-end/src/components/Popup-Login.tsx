@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext, useCallback} from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import {auth} from './App';
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";

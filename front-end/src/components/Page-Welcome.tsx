@@ -1,11 +1,9 @@
-import React, { useState, useEffect, useContext, useCallback } from "react";
+import React, { useContext } from "react";
 import styled from "styled-components";
 import { GlobalContext } from "./containers/GlobalProvider";
-import getThemeColors from "../lib/UI-Constants/themeColors";
 import {
   FilledButton,
   HorizontalFlexBox,
-  VerticalFlexBox,
   ParagraphText,
   PageContainer,
   TransparentButton,

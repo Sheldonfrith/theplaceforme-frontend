@@ -1,5 +1,5 @@
-import React, {useState, useEffect, useContext, useCallback, useRef} from 'react';
-import styled, {keyframes} from 'styled-components';
+import React, { useRef} from 'react';
+import styled from 'styled-components';
 import useMyEffect from '../../lib/Hooks/useMyEffect';
 
 const Container = styled.div<{animation: any}>`

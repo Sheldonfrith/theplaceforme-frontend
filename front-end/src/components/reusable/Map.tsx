@@ -1,8 +1,5 @@
-import React, {useState, useEffect, useContext, useCallback, useRef} from 'react';
-import styled from 'styled-components';
+import React, {useState} from 'react';
 import GoogleMapReact from 'google-map-react';
-import {Loader, LoaderOptions} from 'google-maps';
-import { mapState } from 'xstate';
 import useMyEffect from '../../lib/Hooks/useMyEffect';
 import Geocode from "react-geocode";
 

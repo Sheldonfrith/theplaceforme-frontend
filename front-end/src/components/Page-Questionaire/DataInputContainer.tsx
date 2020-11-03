@@ -1,9 +1,8 @@
-import React, {useState, useEffect, useContext, useCallback, useRef} from 'react';
+import React, {useState, useContext, useCallback} from 'react';
 import styled, {ThemeContext} from 'styled-components';
-import {Info} from '@material-ui/icons';
 import InfoPopup from './InfoPopup';
 import {
-    AreaChart, ResponsiveContainer, Area, XAxis, YAxis, CartesianGrid, Tooltip,
+    AreaChart, ResponsiveContainer, Area,
   } from 'recharts';
   import useMyEffect from '../../lib/Hooks/useMyEffect';
 
