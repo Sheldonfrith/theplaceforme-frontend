@@ -87,6 +87,18 @@ const LoadingContainer = styled.div`
     height: 100%;
 `;
 
+export interface QuestionInput{
+    id: string,
+    category: string,
+    weight: number,
+    idealValue: number,
+    customScoreFunction: null ,
+    missingDataHandlerMethod: string,
+    missingDataHandlerInput: number | null,
+    normalizationPercentage: number,
+};
+export  type FormData = Array<QuestionInput>;
+
 interface QuestionairePageProps {
     setbgTrio: any
 }
@@ -98,27 +110,10 @@ const QuestionairePage :React.FunctionComponent<QuestionairePageProps> = ({setbg
     //! states
     const gc = useContext(GlobalContext);
     const theme = useContext(ThemeContext);
-    interface QuestionInput{
-        id: string,
-        category: string,
-        weight: number,
-        idealValue: number,
-        customScoreFunction: null ,
-        missingDataHandlerMethod: string,
-        missingDataHandlerInput: number | null,
-        normalizationPercentage: number,
-    }
-    type FormData = Array<QuestionInput>
-    const [allFormData, setAllFormData] =useState<FormData|null>(null);
-
-    const getFormDataIndexFromID = useCallback((id: string): number=>{
-        if (!allFormData || allFormData instanceof FormData) throw new Error('cant find index, allFormData not initialized yet or not correct type... '+allFormData);
-        let i: number =0;
-        const found = allFormData.some((element,index) => {i = index; return element.id == id;});
-        if (!found)throw new Error('error could not find form index for the given id: '+id);
-        return i;
-
-    },[allFormData]);
+    
+   const allFormData = gc.allFormData;
+   const setAllFormData = gc.setAllFormData;
+    
     const [currentCategory, setCurrentCategory] = useState<string|null>(null);
     const [currentCategoryIndex, setCurrentCategoryIndex] = useState<number|null>(null);
     const [currentQuestion, setCurrentQuestion] =useState<string|null>(null);//dataset id
@@ -138,40 +133,16 @@ const QuestionairePage :React.FunctionComponent<QuestionairePageProps> = ({setbg
     }
     const [bottomButtonText, setBottomButtonText]= useState<string[]>(getBottomButtonText());//[0] is back button, [1] is forward button
 
+    const getFormDataIndexFromID = useCallback((id: string): number=>{
+        if (!allFormData || allFormData instanceof FormData) throw new Error('cant find index, allFormData not initialized yet or not correct type... '+allFormData);
+        let i: number =0;
+        console.log(allFormData);
+        const found = allFormData.some((element,index) => {i = index; return element.id == id;});
+        if (!found)throw new Error('error could not find form index for the given id: '+id);
+        return i;
 
+    },[allFormData]);
     //!USE EFFECTS
-    //initialize the form data
-    useMyEffect([gc.datasets],()=>{
-        if (!gc.datasets || allFormData) return;
-        //check if form data already exists in local storage
-        const localVersion = localStorage.getItem(getAllFormDataStorageLocation());
-        if (localVersion) {
-            console.log('getting formdata from local storage, not initializing');
-            //local storage already has a version of form data, use that instead
-            //TODO validate the local storage form data to make sure it is not corrupted
-            setAllFormData(JSON.parse(localVersion));
-            return;
-        }
-        //no local storage, proceed
-        console.log('no local storage formdata available, initializing');
-        const newFormObject: FormData = Object.keys(gc.datasets).map((datasetID: string): QuestionInput =>{
-            const thisDataset = gc.datasets![datasetID];
-            const max = thisDataset.max_value;
-            const min = thisDataset.min_value;
-            return {
-                id: datasetID,
-                category: thisDataset.category,
-                weight: gc.defaultWeight!,
-                idealValue: (max && min)?(max+(0.5*(min-max))):0,
-                customScoreFunction: null,
-                missingDataHandlerMethod: gc.defaultMissingDataHandlerMethod!,
-                missingDataHandlerInput: gc.defaultMissingDataHandlerInput!,
-                normalizationPercentage: gc.defaultNormalizationPercentage!,
-            };
-        });
-        console.log('setting new formdata object',newFormObject);
-        setAllFormData(newFormObject);
-    },[gc.datasets, setAllFormData]);
 
     //initialize the first category
     useMyEffect([gc.categories],():void=>{
@@ -356,7 +327,6 @@ const QuestionairePage :React.FunctionComponent<QuestionairePageProps> = ({setbg
     const getResults = useCallback(async ()=>{
         //validate the form data object
         gc.setCurrentPage('results');
-
         // console.log('sending this to /scores ',allFormData);
         const results = await postRequest('/scores',allFormData);
         // console.log('received this from /scores ', results);    

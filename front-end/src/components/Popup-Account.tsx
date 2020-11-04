@@ -1,9 +1,10 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import styled from 'styled-components';
 import { logout, auth} from './App';
 import { useAuthState } from "react-firebase-hooks/auth";
 // import {StyledContext} from './containers/StyledProvider';
-import {PopupInner, FilledButton, H3,VerticalFlexBox, H1} from './ReusableStyles';
+import {PopupInner, FilledButton, H3,VerticalFlexBox, HorizontalFlexBox, TransparentButton, H1} from './ReusableStyles';
+import {GlobalContext, SavedQuestionaireMetadata} from './containers/GlobalProvider';
 
 const PopupInnerContainer = styled.div`${PopupInner}`;
 const LogoutButton = styled.button`
@@ -14,7 +15,22 @@ const AccountInfo = styled.div`
 ${VerticalFlexBox}
 align-items: flex-start;
 `;
+const QuestionaireContainer = styled.div`
+    ${HorizontalFlexBox};
+    font-size: ${props=>props.theme.font4};
+`;
+const QuestionairesContainer = styled.div`
+    ${VerticalFlexBox};
+    overflow: auto;
+    box-shadow: inset 0 2px 5px 1px black;
+    padding: 0.5rem 2rem;
+    background: ${props=>props.theme.whiteOverlay};
 
+`;
+const LoadButton = styled.button`
+    ${FilledButton};
+    font-size: ${props=>props.theme.font4};
+`;
 const Title = styled.div`${H1}`;
 const InfoText = styled.div`font-size:200%;`;
 //this page should allow for:
@@ -36,7 +52,9 @@ const AccountPopup: React.FunctionComponent<AccountPopupProps>=({closePopup}) =>
 // 
 // `;
 const [user, loading, error] = useAuthState(auth());
-const savedQuestionaires = null; //TODO implement this feature
+const gc = useContext(GlobalContext);
+
+
 if (user) { return (
 <PopupInnerContainer>
     <Title>Account</Title>
@@ -47,20 +65,25 @@ if (user) { return (
     </AccountInfo>
     <LogoutButton onClick={()=>logout()}>Logout</LogoutButton>
     <Subtitle>Saved Questionaires</Subtitle>
-    {/* {savedQuestionaires?
-    <VerticalFlexBox>
-        {savedQuestionaires.map((save)=>{
+    {gc.savedQuestionaires?
+    <QuestionairesContainer>
+        {gc.savedQuestionaires.map((metadata: SavedQuestionaireMetadata)=>{
+            // console.log(metadata);
             return (
-                <HorizontalFlexBox>
-                    {save.name}
-                    <TransparentButton>
+                <QuestionaireContainer key={metadata.id}>
+                    {metadata.name}
+                    <LoadButton 
+                        onClick={()=>{
+                            gc.loadQuestionaire(metadata.id);
+                        }}
+                    >
                         LOAD
-                    </TransparentButton>
-                </HorizontalFlexBox>
+                    </LoadButton>
+                </QuestionaireContainer>
             );
         })}
-    </VerticalFlexBox>
-    :<></>} */}
+    </QuestionairesContainer>
+    :<></>}
 </PopupInnerContainer>
 );
 } else {

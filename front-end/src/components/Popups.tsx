@@ -6,6 +6,7 @@ import LargePopup from './reusable/LargePopup';
 // import LoginPopup from './Popup-Login';
 import { GlobalContext } from './containers/GlobalProvider';
 import LoadingPopup from './Popup-Loading';
+import SaveQuestionairePopup from './Popup-SaveQuestionaire';
 // import ChangeDefaultsPopup from './Popups-ChangeDefaults';
 const AccountPopup = React.lazy(()=>import('./Popup-Account'));
 const CountryBreakdownPopup =React.lazy(()=>import('./Popup-CountryBreakdown'));
@@ -44,6 +45,7 @@ return (
 {gc.currentPopup==='account'?<Suspense fallback={fallback()}><AccountPopup  closePopup={closePopup}/></Suspense>:<></>}
 {gc.currentPopup==='countryBreakdown'?<Suspense fallback={fallback()}><CountryBreakdownPopup closePopup={closePopup}/></Suspense>:<></>}
 {gc.currentPopup==='changeDefaults'?<Suspense fallback={fallback()}><ChangeDefaultsPopup closePopup={closePopup}/></Suspense>:<></>}
+{gc.currentPopup==='saveQuestionaire'?<Suspense fallback={fallback()}><SaveQuestionairePopup closePopup={closePopup}/></Suspense>:<></>}
 </LargePopup>
 );
 } else {

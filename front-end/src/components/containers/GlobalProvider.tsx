@@ -5,6 +5,12 @@ import getColorByCategory from '../../lib/UI-Constants/categoryColors';
 import getIndexByCategory from '../../lib/UI-Constants/categoryOrder';
 import {ThemeProvider} from 'styled-components';
 import getThemeColors from '../../lib/UI-Constants/themeColors';
+import {postRequest} from '../../lib/HTTP';
+import getAllFormDataStorageLocation from '../../lib/APP-Constants/localStorage';
+import {FormData, QuestionInput} from '../Page-Questionaire/index';
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth} from '../App';
+
 
 //define our types outside the component so they can be used by both the context and provider components
 export interface Dataset{
@@ -19,7 +25,7 @@ export interface Dataset{
     unit_description:string,
     notes?:string|null,
     category:string,
-    distribution_map:string,
+    distribution_map:number[],
     missing_data_percentage:number,
 }
 interface Datasets {
@@ -43,7 +49,7 @@ export interface MissingDataHandlerMethods {
     [methodName: string]: MissingDataHandlerObject // key is the camelCase name of the method
 }
 type CurrentPageType = 'welcome'|'questionaire'|'results';
-type CurrentPopupType = 'account'|'login'|'countryBreakdown'|'changeDefaults';
+type CurrentPopupType = 'account'|'login'|'countryBreakdown'|'changeDefaults'|'saveQuestionaire';
 
 interface CountryBreakdown {
     score: number,
@@ -81,8 +87,15 @@ export interface CountryMetadata {
 interface Countries {
     [alpha_three_code: string]: CountryMetadata
 }
-
-
+export interface SavedQuestionaireMetadata {
+    id: number,
+    created_at: any,
+    domain: string,
+    name: string | null,
+    description: string | null,
+    user_id: string | null,
+}
+type SavedQuestionaires = Array<SavedQuestionaireMetadata>;
 
 //define the types for the GlobalContext component here
 interface GlobalContextProps {
@@ -102,7 +115,7 @@ interface GlobalContextProps {
     setDefaultWeight: any,
     defaultMissingDataHandlerMethod: string,
     setDefaultMissingDataHandlerMethod: any,
-    defaultMissingDataHandlerInput: number,
+    defaultMissingDataHandlerInput: number | null,
     setDefaultMissingDataHandlerInput: any,
     defaultNormalizationPercentage: number,
     setDefaultNormalizationPercentage: any,
@@ -110,6 +123,14 @@ interface GlobalContextProps {
     shouldResetFormData: boolean,
     setShouldResetFormData: any,
     countries: Countries,
+    saveQuestionaire: any,
+    loadQuestionaire: any,
+    loadQuestionaires: any,
+    convertDatasetsToFormData: any,
+    savedQuestionaires: SavedQuestionaires | null,
+    allFormData: FormData | null,
+    setAllFormData: any,
+    user: any,
 }
 //create the context here
 export const GlobalContext = React.createContext<Partial<GlobalContextProps>>({});
@@ -117,9 +138,10 @@ export const GlobalContext = React.createContext<Partial<GlobalContextProps>>({}
 const GlobalProvider: React.FunctionComponent =({children}) =>{
 
     //! DEFINE ALL STATE VARIABLES HERE
+    const [user, loading, error] = useAuthState(auth());
     const [defaultWeight, setDefaultWeight] = useState<number>(0);
     const [defaultMissingDataHandlerMethod, setDefaultMissingDataHandlerMethod] = useState<string>('average');
-    const [defaultMissingDataHandlerInput, setDefaultMissingDataHandlerInput] = useState<number|undefined>(undefined);
+    const [defaultMissingDataHandlerInput, setDefaultMissingDataHandlerInput] = useState<number|null>(null);
     const [defaultNormalizationPercentage, setDefaultNormalizationPercentage] = useState<number>(0);
     const [shouldResetFormData, setShouldResetFormData] = useState<boolean>(false);
     const [currentCountry, setCurrentCountry] = useState<string|null>(null); // used to show detailed results for each country, one at a time
@@ -130,6 +152,11 @@ const GlobalProvider: React.FunctionComponent =({children}) =>{
     const [currentPopup, setCurrentPopup] = useState<CurrentPopupType|null>(null);
     const [results, setResults] = useState<Results|undefined>(undefined);
     const [countries, setCountries] = useState<Countries|undefined>(undefined);
+    const [savedQuestionaires, setSavedQuestionaires] = useState<SavedQuestionaires|null>(null);
+    const [allFormData, setAllFormData] =useState<FormData|null>(null);
+
+    
+
     interface Theme {
         [key: string]: string
     }
@@ -223,12 +250,94 @@ const GlobalProvider: React.FunctionComponent =({children}) =>{
         //initiliaze the ordered categories list
 
     },[currentPage]);
+    
+
     //! METHODS AND CALLBACKS
+    const convertDatasetsToFormData = useCallback((datasets: Datasets): FormData =>{
+        const newFormObject: FormData = Object.keys(datasets).map((datasetID: string): QuestionInput =>{
+            const thisDataset = datasets![datasetID];
+            const max = thisDataset.max_value;
+            const min = thisDataset.min_value;
+            return {
+                id: datasetID,
+                category: thisDataset.category,
+                weight: defaultWeight,
+                idealValue: (max && min)?(max+(0.5*(min-max))):0,
+                customScoreFunction: null,
+                missingDataHandlerMethod: defaultMissingDataHandlerMethod,
+                missingDataHandlerInput: defaultMissingDataHandlerInput,
+                normalizationPercentage: defaultNormalizationPercentage,
+            };
+        });
+        return newFormObject;
+    },[])
     
     const getCategoryByIndex = useCallback((index: number): string | null=>{
         if (!categories) return null;
         return Object.keys(categories).filter((categoryCode: string)=>categories[categoryCode].index ===index)[0];
     },[categories]);
+
+    const loadQuestionaires = useCallback(async ()=>{
+        if (!user) throw new Error('error, cannot load saved Questionaires if no user is logged in');
+        const results: SavedQuestionaires = await getRequest(`/scores?user_id=${user.uid}`);
+        setSavedQuestionaires(results || null);
+    }, [user, setSavedQuestionaires]);
+
+    //saves questionaire using /scores POST api method with empty_response= true query param
+    const saveQuestionaire = useCallback(async (formDataToSave, name, description)=>{
+        if (!user) throw new Error('error, cannot save Questionaires if no user is logged in');
+        const results = await postRequest(`/scores?empty_response=true&name=${name}&description=${description}&user_id=${user.uid}`,formDataToSave);
+        //make the current savedQuestionaires reload to reflect the newly added questionaire
+        setTimeout(()=>loadQuestionaires(),1000);
+    },[user]);
+
+    const loadQuestionaire = useCallback(async (id)=>{
+        if (!user) throw new Error('error, cannot load saved Questionaires if no user is logged in');
+        const noScores = (currentPage==='results')?false:true; //dont get scores unless on results page, cause they will be recalculated anyways
+        console.log('noScores = ',noScores);
+        const results = await getRequest(`/scores?no_scores=${noScores}&id=${id}`);
+        //set this to the current allFormData, and results if on results page
+        if (!noScores){
+            console.log('updating results with loaded questionaires data');
+            setResults(results[2]);
+        }
+        // reset form data by clearing localstorage and then repopulating localstorage, and then 
+        //triggering resete of allFormData which will detect the localstorage data and pull from there
+        console.log('setting all form data to this... ', results);
+        localStorage.removeItem(getAllFormDataStorageLocation());
+        localStorage.setItem(getAllFormDataStorageLocation(), JSON.stringify(results[1]));
+        setAllFormData(results[1]);
+    },[convertDatasetsToFormData, setShouldResetFormData, currentPage, user, setAllFormData]);
+
+    
+
+    //! use effects that rely on methods above
+
+    //whenever user changes, and is not null, then load their saved questionaires
+    useMyEffect([user],()=>{
+        if (!user) return;
+        loadQuestionaires();
+    },[user, loadQuestionaires]);
+
+     //initialize the form data
+     useMyEffect([datasets],()=>{
+        if (!datasets || allFormData) return;
+        //check if form data already exists in local storage
+        const localVersion = localStorage.getItem(getAllFormDataStorageLocation());
+        if (localVersion) {
+            // console.log('getting formdata from local storage, not initializing');
+            //local storage already has a version of form data, use that instead
+            //TODO validate the local storage form data to make sure it is not corrupted
+            setAllFormData(JSON.parse(localVersion));
+            return;
+        }
+        //no local storage, proceed
+        // console.log('no local storage formdata available, initializing');
+        const newFormObject = convertDatasetsToFormData(datasets);
+        // console.log('setting new formdata object',newFormObject);
+        setAllFormData(newFormObject);
+    },[datasets, setAllFormData, convertDatasetsToFormData]);
+
     return (
         <GlobalContext.Provider value={{
             categories: categories,
@@ -254,6 +363,14 @@ const GlobalProvider: React.FunctionComponent =({children}) =>{
             shouldResetFormData: shouldResetFormData,
             setShouldResetFormData: setShouldResetFormData,
             countries: countries,
+            convertDatasetsToFormData: convertDatasetsToFormData,
+            saveQuestionaire: saveQuestionaire,
+            loadQuestionaire: loadQuestionaire,
+            loadQuestionaires: loadQuestionaires,
+            savedQuestionaires: savedQuestionaires,
+            allFormData: allFormData,
+            setAllFormData: setAllFormData,
+            user: user,
             }}>
             <ThemeProvider theme={theme}>
             {children}

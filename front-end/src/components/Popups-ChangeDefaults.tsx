@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import {PopupInner, FilledButton, H3,VerticalFlexBox, H1} from './ReusableStyles';
 import Select from './reusable/Select';
 import {GlobalContext} from './containers/GlobalProvider';
+import TextInput from './reusable/TextInput';
 
 //styled components
 const PopupInnerContainer = styled.div`${PopupInner}`;
@@ -30,21 +31,31 @@ return (
     <Title>Change Question Defaults</Title>
     {gc.missingDataHandlerMethods?(
     <>
-    <SubTitle>Default Weight:</SubTitle>
-    <input type="text" placeholder={'0'} onChange={(e)=>gc.setDefaultWeight(e.target.value)} value={gc.defaultWeight}></input>
+    <TextInput 
+        label="Default Weight:"
+        placeholder="default is 0"
+        onChange={(e:any)=>gc.setDefaultWeight(e.target.value)}
+        value={gc.defaultWeight}
+    />
     <SubTitle>Default Missing Data Handler Method:</SubTitle>
     <Select
         optionsList={Object.keys(gc.missingDataHandlerMethods).map(key=>gc.missingDataHandlerMethods![key].formattedName)}
         onChange={(e:any)=>gc.setDefaultMissingDataHandlerMethod(e.target.value)}
     />
     {['worseThanPercentage', 'betterThanPercentage','specificScore','specificValue'].includes(gc.defaultMissingDataHandlerMethod!)?
-    <>
-    <SubTitle>Default Missing Data Handler Input:</SubTitle>
-    <input type="text" placeholder={'Input for above method...'} onChange={(e)=>gc.setDefaultMissingDataHandlerInput(e.target.value)} value={gc.defaultMissingDataHandlerInput}></input>
-    </>
+    <TextInput 
+    label="Default Missing Data Handler Input"
+    placeholder={'Input for above method...'} 
+    onChange={(e:any)=>gc.setDefaultMissingDataHandlerInput(e.target.value)} 
+    value={gc.defaultMissingDataHandlerInput || ''}
+    />
     :<></>}
-    <SubTitle>Default Normalization Percentage:</SubTitle>
-    <input type="text" placeholder={'0'} onChange={(e)=>gc.setDefaultNormalizationPercentage(e.target.value)} value={gc.defaultNormalizationPercentage}></input>
+    <TextInput 
+        label="Default Normalization Percentage"
+        placeholder={'0'} 
+        onChange={(e:any)=>gc.setDefaultNormalizationPercentage(e.target.value)} 
+        value={gc.defaultNormalizationPercentage}
+    />
     <ResetButton onClick={()=>gc.setShouldResetFormData(true)}>Save Defaults and Reset Questionaire</ResetButton>
     </>
     )

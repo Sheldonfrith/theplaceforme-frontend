@@ -208,7 +208,15 @@ const ResultsPage: React.FunctionComponent<ResultsPageProps> = () => {
           Share
         </BottomButton>
         <BottomButton
-          onClick={() => window.alert("Save feature coming soon...")}
+          onClick={() => {
+            //if not logged in prompt to log in before being able to save
+            if (!gc.user) {
+              window.alert('You must log in before you can save.');
+              return;
+            } else {
+              gc.setCurrentPopup('saveQuestionaire');
+            }
+          }}
         >
           Save
         </BottomButton>

@@ -13,7 +13,7 @@ const IdealValuePicker: React.FunctionComponent<IdealValuePickerProps>= ({datase
 return (
     <>
     <DataInputContainer
-        distributionMap={JSON.parse(dataset.distribution_map)}
+        distributionMap={dataset.distribution_map}
         topRightNumber={dataset.missing_data_percentage}
         topLeftString={'Ideal Value'}
         min={dataset.min_value||0}
