@@ -2,7 +2,27 @@
 const fetch = require('node-fetch')
 exports.handler = async function(event, context) {
   try {
-    const url = event.queryStringParameters.url;
+    const queryParamNames = Object.keys(event.queryStringParameters);
+    const queryParamsCount = queryParamNames.length;
+    let url = '';
+    if (queryParamsCount>1){
+      //there are query params that need to be dealt with
+      url = queryParamNames.map((paramName,index)=>{
+        if (paramName==='url'){
+          //url query param generally includes the first query param, so add an & behind it
+          return event.queryStringParameters.url+'&';
+        } else if (index === (queryParamsCount-1)) {
+          //last query param, do not put an &
+          return event.queryStringParameters[paramName];
+         } else { 
+           //regular query param
+          return event.queryStringParameters[paramName]+'&';
+        }
+      }).join('');
+    } else {
+      //there are no query params to deal with
+      url = event.queryStringParameters.url;
+    }
     const method = event.httpMethod;
     const body = event.body;
     const authorization = event.headers.authorization;
