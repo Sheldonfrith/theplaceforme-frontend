@@ -7,16 +7,16 @@ exports.handler = async function(event, context) {
     let url = '';
     if (queryParamsCount>1){
       //there are query params that need to be dealt with
-      url = queryParamNames.map((paramName,index)=>{
+      url = event.queryStringParameters.url+'&'+queryParamNames.map((paramName,index)=>{
         if (paramName==='url'){
           //url query param generally includes the first query param, so add an & behind it
-          return event.queryStringParameters.url+'&';
+          return '';
         } else if (index === (queryParamsCount-1)) {
           //last query param, do not put an &
-          return event.queryStringParameters[paramName];
+          return paramName+'='+event.queryStringParameters[paramName];
          } else { 
            //regular query param
-          return event.queryStringParameters[paramName]+'&';
+          return paramName+'='+event.queryStringParameters[paramName]+'&';
         }
       }).join('');
     } else {
