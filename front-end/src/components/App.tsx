@@ -10,8 +10,6 @@ import { GlobalContext } from "./containers/GlobalProvider";
 import {VerticalFlexBox} from './ReusableStyles';
 import LoadingPage from './Page-Loading';
 // const Popups = React.lazy(()=>import("./Popups"));
-const QuestionairePage = React.lazy(()=>import("./Page-Questionaire"));
-const ResultsPage = React.lazy(()=>import("./Page-Results"));
 import {
   BrowserRouter as Router,
   Switch,
@@ -20,6 +18,8 @@ import {
   useRouteMatch,
   useParams
 } from "react-router-dom";
+const QuestionairePage = React.lazy(()=>import("./Page-Questionaire"));
+const ResultsPage = React.lazy(()=>import("./Page-Results"));
 
 
 export const firebaseConfig = {
@@ -67,29 +67,27 @@ function App() {
   //App is primarily a container, handles simple global things like
   //what view should be displaying
   return (
-    <Router>
     <AppContainer
     bgleft={bgTrio[0]}
     bgmid={bgTrio[1]}
     bgright={bgTrio[2]}
     >
       <Popups/>
-      <Switch>
-        <Route path="/">
+      {/* <Switch> */}
+        {/* <Route path="/"> */}
           {gc.currentPage==='welcome'?<WelcomePage/>:<></>}
-        </Route>
-        <Route path="/questionaire">
+        {/* </Route> */}
+        {/* <Route path="/questionaire"> */}
           {gc.currentPage==='questionaire'?<Suspense fallback={fallback()}><QuestionairePage setbgTrio={setbgTrio} /></Suspense>:<></>}
 
-        </Route>
-        <Route path="/results">
+        {/* </Route> */}
+        {/* <Route path="/results"> */}
             {gc.currentPage==='results'?<Suspense fallback={fallback()}><ResultsPage /></Suspense>:<></>}
 
-        </Route>
+        {/* </Route> */}
 
-      </Switch>
+      {/* </Switch> */}
     </AppContainer>
-    </Router>
   );
 }
 

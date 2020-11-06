@@ -10,6 +10,7 @@ import getAllFormDataStorageLocation from '../../lib/APP-Constants/localStorage'
 import {FormData, QuestionInput} from '../Page-Questionaire/index';
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth} from '../App';
+import validateObject, {Schema} from '../../lib/ValidateObject';
 
 
 //define our types outside the component so they can be used by both the context and provider components
@@ -323,13 +324,46 @@ const GlobalProvider: React.FunctionComponent =({children}) =>{
      useMyEffect([datasets],()=>{
         if (!datasets || allFormData) return;
         //check if form data already exists in local storage
-        const localVersion = localStorage.getItem(getAllFormDataStorageLocation());
-        if (localVersion) {
+        const localVersion = JSON.parse(localStorage.getItem(getAllFormDataStorageLocation())||'');
+        if (localVersion && Array.isArray(localVersion) && localVersion.length >0) {//make sure there is actually a valid localversion
             // console.log('getting formdata from local storage, not initializing');
-            //local storage already has a version of form data, use that instead
-            //TODO validate the local storage form data to make sure it is not corrupted
-            setAllFormData(JSON.parse(localVersion));
-            return;
+            //local storage already has a version of form data, use that instead, if its valid...
+
+            //validation of local storage data...
+
+            const allFormDataValidatorInnerSchema: Schema = {
+                id: (value: number)=> (value !==null && value !== undefined && typeof value === 'number'),
+                category: (value: string) => (value && typeof value === 'string'),
+                weight: (value: number) => (value !==null && value !== undefined && typeof value === 'number'),
+                idealValue: (value: number) => (value !==null && value !==undefined && typeof value=== 'number'),
+                customScoreFunction: (value: any) => true,//can have any value or be missing, not implemented yet
+                missingDataHandlerMethod: (value: string) => (value && typeof value === 'string'),
+                missingDataHandlerInput: (value: any) => (!value || typeof value === 'string'), // can be null or a number
+                normalizationPercentage: (value: number) => (value !== null && value !==undefined && typeof value ==='number'),
+            };
+            const validationResults = localVersion.map((innerObject: any) =>{
+                validateObject(innerObject, allFormDataValidatorInnerSchema);
+            }); // returns list for each object in the local storage object, with boolean true if it IS valid and error messages otherwise
+            let isValid: boolean = !validationResults.every((item: any) => item===true);
+            //also check that the length of the array and the ids correspond with the actual
+            //databases from the API currently
+            const allCurrentDatasetIDs: string[] = Object.keys(datasets);// simple array with all the dataset ids that SHOULD be present
+            //get the dataset ids held in the local storage object as a simple array:
+            const allLocalDatasetIDs: number[] = localVersion.map(object => object['id']);
+            //sort them both and then do a deep stringified compare to make sure they are identical
+            const correctVersion: string = JSON.stringify(allCurrentDatasetIDs.sort((a: any,b:any)=> a - b));
+            const compareVersion: string = JSON.stringify(allLocalDatasetIDs.sort((a: any,b: any)=>a - b));
+            if (correctVersion !== compareVersion) {
+                isValid = false;
+            }
+            if (isValid){
+                //LOCAL DATA IS VALID, use it
+                setAllFormData(localVersion);
+                return;
+            } else {
+                //LOCAL DATA NOT VALID
+                console.log ('local storage version of allFormData is invalid, replacing...');
+            }
         }
         //no local storage, proceed
         // console.log('no local storage formdata available, initializing');
