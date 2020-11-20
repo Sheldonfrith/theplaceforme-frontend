@@ -324,7 +324,8 @@ const GlobalProvider: React.FunctionComponent =({children}) =>{
      useMyEffect([datasets],()=>{
         if (!datasets || allFormData) return;
         //check if form data already exists in local storage
-        const localVersion = JSON.parse(localStorage.getItem(getAllFormDataStorageLocation())||'');
+        const formDataFromLocalStorage = localStorage.getItem(getAllFormDataStorageLocation());
+        const localVersion = formDataFromLocalStorage?JSON.parse(formDataFromLocalStorage):null;
         if (localVersion && Array.isArray(localVersion) && localVersion.length >0) {//make sure there is actually a valid localversion
             // console.log('getting formdata from local storage, not initializing');
             //local storage already has a version of form data, use that instead, if its valid...
