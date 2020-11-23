@@ -3,7 +3,7 @@ import React, {useState, useContext, useRef} from 'react';
 import styled from 'styled-components';
 import { GlobalContext } from '../containers/GlobalProvider';
 import Swipe from 'react-easy-swipe';
-import useMyEffect from '../../lib/Hooks/useMyEffect';
+import useMyEffect from '../../hooks/useMyEffect';
 
 
 const Category = styled.div<{color:string}>`

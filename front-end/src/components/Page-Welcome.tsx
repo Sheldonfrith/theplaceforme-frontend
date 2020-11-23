@@ -8,21 +8,18 @@ import {
   PageContainer,
   TransparentButton,
   SubheadingText,
-} from "./ReusableStyles";
+} from "../reusable-styles";
 import { logout, auth } from "./App";
 import { useAuthState } from "react-firebase-hooks/auth";
-//this won't do too much
-//primary purpose is to prevent the API from being querried on every single page load
-//allows for oauth login, or not
-//brief description of the app and sales pitch, why its awesome
-//large obvious button that leads to the questionaire page
+import { getWelcomeBlurb } from '../app-constants';
+
+const welcomeBlurb = getWelcomeBlurb();
 
 const WelcomeContainer = styled.div`
   ${PageContainer};
   height: 100%;
   padding: 0 3rem;
 `;
-
 const WelcomeTitle = styled.h1`
   font-size: ${(props) => props.theme.font7};
   font-family: ${(props) => props.theme.fontFamHeader};
@@ -31,8 +28,8 @@ const WelcomeBlurb = styled.p`
   ${ParagraphText};
   font-size: ${(props) => props.theme.font7};
   width: 90%;
-  @media (max-width: ${props=>props.theme.primaryBreakpoint}px){
-    font-size: ${props=> props.theme.font5};
+  @media (max-width: ${props => props.theme.primaryBreakpoint}px){
+    font-size: ${props => props.theme.font5};
   }
 `;
 const PrimaryActionButton = styled.button`
@@ -46,7 +43,7 @@ const LoginButton = styled.button`
 const SecondaryButtonArea = styled.div`
   ${HorizontalFlexBox};
   width: 85%;
-  @media (max-width: ${props=>props.theme.primaryBreakpoint}px){
+  @media (max-width: ${props => props.theme.primaryBreakpoint}px){
         flex-direction: column;
     }
 `;
@@ -58,9 +55,9 @@ const WelcomeGreeting = styled.div`
   ${SubheadingText};
 `;
 
-interface WelcomePageProps {}
+interface WelcomePageProps { }
 
-const WelcomePage: React.FunctionComponent<WelcomePageProps> = ({}) => {
+const WelcomePage: React.FunctionComponent<WelcomePageProps> = ({ }) => {
   const gc = useContext(GlobalContext);
   const [user, loading, error] = useAuthState(auth());
 
@@ -68,55 +65,33 @@ const WelcomePage: React.FunctionComponent<WelcomePageProps> = ({}) => {
     <WelcomeContainer>
       <WelcomeTitle>ThePlaceFor.Me</WelcomeTitle>
       <WelcomeBlurb>
-        There’s a place for everyone! Find the best country in the world for{" "}
-        <i>YOU</i> using real data. This is the best tool available to help you
-        decide where to move to.
+        {welcomeBlurb}
       </WelcomeBlurb>
       <PrimaryActionButton onClick={(e) => gc.setCurrentPage("questionaire")}>
         Start Questionaire
       </PrimaryActionButton>
-      {user ? (
-        <>
-          <WelcomeGreeting>
-            Welcome {user.displayName?.toUpperCase()}!
+      {user ?
+        <WelcomeGreeting>
+          Welcome {user.displayName?.toUpperCase()}!
           </WelcomeGreeting>
-          <SecondaryButtonArea>
-            <LoginButton onClick={() => logout()}>Logout</LoginButton>
-            <SecondaryButton
-              onClick={()=>{
-                window.open('https://www.patreon.com/sheldonfrith_web');
-              }}
-            >Donate</SecondaryButton>
-            <SecondaryButton
-              onClick={() =>
-                window.open(
-                  "https://github.com/Sheldonfrith/theplaceforme-frontend"
-                )
-              }
-            >
-              Github
+        : <></>}
+      <SecondaryButtonArea>
+        <LoginButton onClick={() => user ? logout() : gc.setCurrentPopup('login')}>{user ? 'Logout' : 'Login'}</LoginButton>
+        <SecondaryButton
+          onClick={() => {
+            window.open('https://www.patreon.com/sheldonfrith_web');
+          }}
+        >Donate</SecondaryButton>
+        <SecondaryButton
+          onClick={() =>
+            window.open(
+              "https://github.com/Sheldonfrith/theplaceforme-frontend"
+            )
+          }
+        >
+          Github
             </SecondaryButton>
-          </SecondaryButtonArea>
-        </>
-      ) : (
-        <>
-          <SecondaryButtonArea>
-            <LoginButton onClick={(e) => gc.setCurrentPopup("login")}>
-              Login
-            </LoginButton>
-            <SecondaryButton>Donate</SecondaryButton>
-            <SecondaryButton
-              onClick={() =>
-                window.open(
-                  "https://github.com/Sheldonfrith/theplaceforme-frontend"
-                )
-              }
-            >
-              Github
-            </SecondaryButton>
-          </SecondaryButtonArea>
-        </>
-      )}
+      </SecondaryButtonArea>
     </WelcomeContainer>
   );
 };

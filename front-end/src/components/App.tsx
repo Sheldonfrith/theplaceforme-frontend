@@ -1,27 +1,16 @@
 import React, { useState, useContext, Suspense, useCallback } from "react";
 import firebase from "firebase";
-import { useAuthState } from "react-firebase-hooks/auth";
 import WelcomePage from "./Page-Welcome";
-// import QuestionairePage from "./Page-Questionaire/"; 
-// import ResultsPage from "./Page-Results";
 import styled from 'styled-components';
 import Popups from "./Popups";
 import { GlobalContext } from "./containers/GlobalProvider";
-import {VerticalFlexBox} from './ReusableStyles';
+import {VerticalFlexBox} from '../reusable-styles';
 import LoadingPage from './Page-Loading';
-// const Popups = React.lazy(()=>import("./Popups"));
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Link,
-  useRouteMatch,
-  useParams
-} from "react-router-dom";
+
 const QuestionairePage = React.lazy(()=>import("./Page-Questionaire"));
 const ResultsPage = React.lazy(()=>import("./Page-Results"));
 
-
+//FIREBASE AUTH SETUP
 export const firebaseConfig = {
   apiKey: "AIzaSyAJ-kNCFTlJZ943avU3KxvI9RXDJJYfUZk",
   authDomain: "theplaceforme-bc9bb.firebaseapp.com",
@@ -33,14 +22,12 @@ export const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 export const auth = firebase.auth;
-
 //logout callback
 export const logout = () => {
   firebase.auth().signOut();
 };
 
-
-const AppContainer = styled.div<{bgleft:string,bgmid:string,bgright:string}>`
+const AppContainer = styled.div`
   font-family: ${props=>props.theme.fontFamBody};
   font-size: ${props=>props.theme.font2};
   ${VerticalFlexBox}
@@ -58,35 +45,16 @@ const AppContainer = styled.div<{bgleft:string,bgmid:string,bgright:string}>`
 `;
 
 function App() {
-  const [user, loading, error] = useAuthState(firebase.auth());
   const gc = useContext(GlobalContext);
-  const [bgTrio, setbgTrio] = useState<Array<string>>(['white','white','white']);
   const fallback = useCallback(()=>{
     return <LoadingPage/>;
   },[]);
-  //App is primarily a container, handles simple global things like
-  //what view should be displaying
   return (
-    <AppContainer
-    bgleft={bgTrio[0]}
-    bgmid={bgTrio[1]}
-    bgright={bgTrio[2]}
-    >
+    <AppContainer>
       <Popups/>
-      {/* <Switch> */}
-        {/* <Route path="/"> */}
           {gc.currentPage==='welcome'?<WelcomePage/>:<></>}
-        {/* </Route> */}
-        {/* <Route path="/questionaire"> */}
-          {gc.currentPage==='questionaire'?<Suspense fallback={fallback()}><QuestionairePage setbgTrio={setbgTrio} /></Suspense>:<></>}
-
-        {/* </Route> */}
-        {/* <Route path="/results"> */}
-            {gc.currentPage==='results'?<Suspense fallback={fallback()}><ResultsPage /></Suspense>:<></>}
-
-        {/* </Route> */}
-
-      {/* </Switch> */}
+          {gc.currentPage==='questionaire'?<Suspense fallback={fallback()}><QuestionairePage/></Suspense>:<></>}
+          {gc.currentPage==='results'?<Suspense fallback={fallback()}><ResultsPage /></Suspense>:<></>}
     </AppContainer>
   );
 }

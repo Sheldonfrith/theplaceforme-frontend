@@ -1,4 +1,4 @@
-import React, {useState, useContext, useCallback} from 'react';
+import React, {useState, useContext, useCallback, useEffect} from 'react';
 import Header from '../Header';
 import styled, { keyframes, ThemeContext} from 'styled-components';
 import CategorySwiper from './CategorySwiper';
@@ -8,74 +8,23 @@ import QuestionContainer from './QuestionContainer';
 import QuestionSwiper from './QuestionSwiper';
 import WeightPicker from './WeightPicker';
 import MissingDataHandlerPicker from './MissingDataHandlerPicker';
-import { GlobalContext, Dataset } from '../containers/GlobalProvider';
-import useMyEffect from '../../lib/Hooks/useMyEffect';
+import { GlobalContext} from '../containers/GlobalProvider';
+import {CategoriesContext, Category, Categories} from '../containers/CategoriesProvider';
+import {DatasetsContext, Dataset} from '../containers/DatasetsProvider';
 import {postRequest} from '../../lib/HTTP';
-import getCategoryColor from '../../lib/UI-Constants/categoryColors';
-import getAllFormDataStorageLocation from '../../lib/APP-Constants/localStorage';
-import {TransparentButton, H3, VerticalFlexBox} from '../ReusableStyles';
+import {getColorByCategory} from '../../ui-constants';
+import {getAllFormDataStorageLocation} from '../../app-constants';
 import {Ring} from 'react-spinners-css';
 import DatasetNotes from './DatasetNotes';
-
-const slideOutLeft = keyframes`
-    0% {
-        left: 0;
-        right: 0;
-    }
-    100% {
-        left: -1000px;
-        right: 1000px;
-    }
-`;
-const slideOutRight = keyframes`
-    0% {
-        left: 0;
-        right: 0;
-    }
-    100% {
-        left: 1000px;
-        right: -1000px;
-    }
-`;
-const slideInLeft = keyframes`
-    0% {
-        left: -1000px;
-        right: 1000px;
-    }
-    100% {
-        left: 0;
-        right: 0;
-    }
-`;
-const slideInRight = keyframes`
-    0% {
-        left: 1000px;
-        right: -1000px;
-    }
-    100% {
-        left: 0;
-        right: 0;
-    }
-`;
+import {slideInLeft, slideInRight, slideOutLeft, slideOutRight, TransparentButton, H3, VerticalFlexBox, HorizontalFlexBox}from '../../reusable-styles';
+import {useConditionalEffect} from '../../hooks';
+import {convertToJSON} from '../../lib/Utils';
 const QuestionText = styled.h3`
     font-size: ${props=>props.theme.font4};
     font-family: ${props=>props.theme.fontFamHeader};
     padding: 0 3rem;
 `;
 
-const BottomButtonContainer = styled.div`
-    display:flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-evenly;
-    width: 100%;
-    padding: 1rem;
-    margin: 1rem;
-`;
-const BottomButton = styled.button`
-   ${TransparentButton}
-   font-family: ${props=>props.theme.fontFamHeader};
-`;
 const AdvancedOptionsTitle = styled.h4`
     ${H3};
     margin: 1rem;
@@ -100,21 +49,23 @@ export interface QuestionInput{
 export  type FormData = Array<QuestionInput>;
 
 interface QuestionairePageProps {
-    setbgTrio: any
 }
 
-let prevCategoryIndex = 0; //used for detecting which way slide animations should move
 
-const QuestionairePage :React.FunctionComponent<QuestionairePageProps> = ({setbgTrio}) =>{
+const QuestionairePage :React.FunctionComponent<QuestionairePageProps> = () =>{
 
     //! states
     const gc = useContext(GlobalContext);
+    const cc = useContext(CategoriesContext);
+    const dc = useContext(DatasetsContext);
+    const datasets = dc.datasets;
+    const getCategoryNameByIndex: (index: number)=> string = cc.getCategoryNameByIndex;
+
+    const categories = cc.categories;
     const theme = useContext(ThemeContext);
-    
-   const allFormData = gc.allFormData;
+   const allFormData = gc.allFormData; 
    const setAllFormData = gc.setAllFormData;
-    
-    const [currentCategory, setCurrentCategory] = useState<string|null>(null);
+    const [prevCategoryIndex, setPrevCategoryIndex] = useState<number>(0);
     const [currentCategoryIndex, setCurrentCategoryIndex] = useState<number|null>(null);
     const [currentQuestion, setCurrentQuestion] =useState<string|null>(null);//dataset id
     const [currentDataset, setCurrentDataset] = useState<Dataset|null>(null);
@@ -122,98 +73,70 @@ const QuestionairePage :React.FunctionComponent<QuestionairePageProps> = ({setbg
     const [zeroWeight, setZeroWeight]= useState<boolean>(true);
     const [questionAnimation, setQuestionAnimation] = useState<any>(`slideInRight`);
     const [categoryChangeQueu, setCategoryChangeQueu] = useState<number>(0); //hack for sending info down to the category swiper
-    const getBottomButtonText = (): string[] =>{
-        //based on media query make bottom buttons either <> or prev/next
-        var width = window.matchMedia(`(max-width: ${theme.primaryBreakpoint}px)`);
-        if (width.matches){
-            return ['<', '>'];
-        } else {
-            return ['Previous', 'Next'];
-        }
-    }
-    const [bottomButtonText, setBottomButtonText]= useState<string[]>(getBottomButtonText());//[0] is back button, [1] is forward button
-
-    const getFormDataIndexFromID = useCallback((id: string): number=>{
-        if (!allFormData || allFormData instanceof FormData) throw new Error('cant find index, allFormData not initialized yet or not correct type... '+allFormData);
-        let i: number =0;
-        console.log(allFormData);
-        const found = allFormData.some((element,index) => {i = index; return element.id == id;});
-        if (!found)throw new Error('error could not find form index for the given id: '+id);
-        return i;
-
+    
+    const getFormDataIndexFromID = useCallback((id: string, thisFormData: FormData): number=>{
+        return thisFormData.findIndex(element => element.id == id);
     },[allFormData]);
-    //!USE EFFECTS
 
-    //initialize the first category
-    useMyEffect([gc.categories],():void=>{
-        if (!gc.categories || !gc.getCategoryByIndex) return;
-        const firstCategory: string|null = gc.getCategoryByIndex(0);
-        if (!firstCategory) return;
-        setCurrentCategory(firstCategory);//set to the first category found
+    //initialize the first category[0]
+    useConditionalEffect([categories],():void=>{
+        if (!categories) return;
         setCurrentCategoryIndex(0);
-        // console.log('initialized currentCategory', firstCategory);
-    },[gc.categories, gc.getCategoryByIndex, setCurrentCategory]);
-
+    });
     
 
-    //whenever the category index changes
-    //update the category
-    useMyEffect([currentCategoryIndex],()=>{
-        if(!gc.getCategoryByIndex || currentCategoryIndex===null ) return;
-        setCurrentCategory(gc.getCategoryByIndex(currentCategoryIndex));
-    },[currentCategoryIndex])
+    //whenever the category changes set the current question to the first dataset+ in that category
+    useConditionalEffect([currentCategory], ()=>{
+        if (!currentCategory|| !categories || !getCategoryNameByIndex || currentCategoryIndex===null) return;
+       
+        const nextCategoryIsToTheRight: boolean = (prevCategoryIndex > currentCategoryIndex);
+        const getProperOutAnimation = ()=> nextCategoryIsToTheRight?slideOutLeft:slideOutRight;
+        const getProperInAnimation = ()=>nextCategoryIsToTheRight?slideInRight:slideInLeft;
+        const removePreviousQuestionContainer = () =>{
+            setQuestionAnimation(getProperOutAnimation());
+        }
+        const addNewQuestionContainer = ()=>{
+            if (currentQuestionIndex===0){
+                if (!datasets) return;
+                const newQuestion =gc.categories![currentCategoryName].datasets[currentQuestionIndex];
+                const newDataset = gc.datasets[newQuestion];
+                setCurrentQuestion(newQuestion);
+                setCurrentDataset(newDataset);
+            }
+            setCurrentQuestionIndex(0);
 
-    //whenever the category changes set the current question to the first question in that category
-    // and update the backgroundcolors
-    useMyEffect([currentCategory],()=>{
-        if (!currentCategory|| !gc.categories || !gc.getCategoryByIndex || currentCategoryIndex===null) return;
+            setQuestionAnimation(getProperInAnimation());
+        }
         //first make the existing question exit the screen 
         //detect whether the current category is before or after the previous category
-        let slideFromRight: boolean = (prevCategoryIndex>currentCategoryIndex)?false:true;
-        setQuestionAnimation(slideFromRight?slideOutLeft:slideOutRight);
+
         //wait for the animation to finish before doing the rest
         setTimeout(()=>{
             setQuestionAnimation(slideFromRight?slideInRight:slideInLeft);
             //if the current question index is zero our next useeffect to update the question
             //will not trigger because there will be no change to current question index
             //so must mannually trigger here
-            if (currentQuestionIndex===0){
-                if (!gc.datasets) return;
-                const newQuestion =gc.categories![currentCategory].datasets[currentQuestionIndex];
-                const newDataset = gc.datasets[newQuestion];
-                setCurrentQuestion(newQuestion);
-                setCurrentDataset(newDataset);
-            }
-
-            setCurrentQuestionIndex(0);
             
             // console.log('current cat changed...', currentCategory);
         },50);
-        //set the colors immediately so the transition looks smoother
-        const currentCatIndex = gc.categories![currentCategory].index;
-            setbgTrio([
-                getCategoryColor(gc.getCategoryByIndex!(currentCatIndex-1)||'demographics'),
-                getCategoryColor(currentCategory),
-                getCategoryColor(gc.getCategoryByIndex!(currentCatIndex+1)||'demographics')
-
-            ]);
-        prevCategoryIndex = currentCategoryIndex;
-    },[currentCategory, gc.categories, setCurrentQuestion, setCurrentCategoryIndex]);
+        const BottomButtonArea = gc.categories![currentCategoryName].index;
+        setPrevCategoryIndex(currentCategoryIndex);
+    });
 
     //whenever the current question index changes, update the current question and current dataset
-    useMyEffect([currentQuestionIndex],():void=>{
+    useConditionalEffect([currentQuestionIndex],():void=>{
         // console.log(currentQuestionIndex);
-        if (currentQuestionIndex===null || !gc.datasets|| !gc.categories || !currentCategory) return;
+        if (currentQuestionIndex===null || !gc.datasets|| !gc.categories || !currentCategoryName) return;
         // console.log('got past conditions?');
-        const newQuestion =gc.categories[currentCategory].datasets[currentQuestionIndex];
+        const newQuestion =gc.categories[currentCategoryName].datasets[currentQuestionIndex];
         const newDataset = gc.datasets[newQuestion];
         // console.log('updating current question and dataset', newQuestion, newDataset);
         setCurrentQuestion(newQuestion);
         setCurrentDataset(newDataset);
-    },[currentQuestionIndex, currentCategory, setCurrentQuestion, gc.categories, gc.datasets, setCurrentDataset]);
+    });
 
     //whenever the current dataset, or formdata changes update the zeroWeight boolean and localStorage value
-    useMyEffect([true],()=>{
+    useConditionalEffect([currentDataset, allFormData],()=>{
         // console.log('waiting for condition');
         if (!allFormData || currentDataset==null) return;
         const weight =allFormData[getFormDataIndexFromID(currentDataset.id)].weight;
@@ -223,10 +146,10 @@ const QuestionairePage :React.FunctionComponent<QuestionairePageProps> = ({setbg
         } else {
             setZeroWeight(false);
         }
-    },[currentDataset,allFormData, setZeroWeight, getFormDataIndexFromID])
+    })
 
     //whenever the formdata changes, update the localstorage value
-    useMyEffect([true],()=>{
+    useEffect(()=>{
         if (!allFormData) return;
         // console.log('saving to local storage', getAllFormDataStorageLocation(), allFormData);
         localStorage.setItem(getAllFormDataStorageLocation(),JSON.stringify(allFormData));
@@ -263,11 +186,11 @@ const QuestionairePage :React.FunctionComponent<QuestionairePageProps> = ({setbg
         localStorage.removeItem(getAllFormDataStorageLocation());
     },[ setAllFormData, gc.datasets, gc.defaultMissingDataHandlerInput, gc.defaultMissingDataHandlerMethod, gc.defaultNormalizationPercentage, gc.defaultWeight]);
     //used by components in separate scope to tell the questionaire to reset via the global context
-    useMyEffect([gc.shouldResetFormData],()=>{
+    useConditionalEffect([gc.shouldResetFormData],()=>{
         if (!gc.shouldResetFormData) return;
         resetFormData();
         gc.setShouldResetFormData(false);
-    },[gc.shouldResetFormData, gc.setShouldResetFormData, resetFormData]);
+    });
 
     
     const prevCategory =useCallback( ():void =>{
@@ -309,9 +232,9 @@ const QuestionairePage :React.FunctionComponent<QuestionairePageProps> = ({setbg
     },[currentQuestionIndex, prevCategory, setCurrentQuestionIndex, setQuestionAnimation]);
 
     const nextQuestion = useCallback(():void=>{
-        if (currentQuestionIndex ===null || !gc.categories || !currentCategory) return;
+        if (currentQuestionIndex ===null || !gc.categories || !currentCategoryName) return;
          //if at last question go to next category
-         if (currentQuestionIndex>=gc.categories[currentCategory].datasets.length-1){
+         if (currentQuestionIndex>=gc.categories[currentCategoryName].datasets.length-1){
             nextCategory();
             return;
          }
@@ -321,14 +244,14 @@ const QuestionairePage :React.FunctionComponent<QuestionairePageProps> = ({setbg
             setQuestionAnimation(slideInRight);
             setCurrentQuestionIndex(prev => prev!+1);
          },100)
-    },[currentQuestionIndex, gc.categories, setQuestionAnimation, nextCategory, setCurrentQuestionIndex, currentCategory]);
+    },[currentQuestionIndex, gc.categories, setQuestionAnimation, nextCategory, setCurrentQuestionIndex, currentCategoryName]);
 
     //!submit form to api
     const getResults = useCallback(async ()=>{
         //validate the form data object
         gc.setCurrentPage('results');
         // console.log('sending this to /scores ',allFormData);
-        const results = await postRequest('/scores',allFormData);
+        const results = await postRequest('/scores', convertToJSON(allFormData));
         // console.log('received this from /scores ', results);    
         gc.setResults(results);
     },[allFormData, gc, gc.setCurrentPage, gc.setResults]);
@@ -340,7 +263,7 @@ return (
     <CategorySwiper
     prevCategory={prevCategory}
     nextCategory={nextCategory}
-    currentCategory={currentCategory}
+    currentCategory={currentCategoryName}
     currentCategoryIndex={currentCategoryIndex||0}
     setCurrentCategoryIndex={setCurrentCategoryIndex}
     categoryChangeQueu={categoryChangeQueu}
@@ -349,7 +272,7 @@ return (
     <QuestionSwiper 
         prevQuestion={prevQuestion}
         nextQuestion={nextQuestion}
-        backgroundColor={currentCategory?getCategoryColor(currentCategory):theme.primaryGradient}
+        backgroundColor={currentCategoryName?getColorByCategory(currentCategoryName):theme.primaryGradient}
         >
         {(currentDataset && currentDataset.id && allFormData)?
             <QuestionContainer animation={questionAnimation}>
@@ -405,7 +328,6 @@ return (
                 }}
                 normalization={allFormData[getFormDataIndexFromID(currentDataset.id!)].normalizationPercentage||0}
                 />
-                {/* {(!currentDataset.source_link && !currentDataset.source_description && !currentDataset.notes)? */}
                 <DatasetNotes 
                 text={
                     'Data Source: '+currentDataset.source_link || 
@@ -413,15 +335,10 @@ return (
                     'Notes For This Dataset: '+currentDataset.notes || 
                     'Nothing to display.'}
                 />
-                {/* :<></>} */}
             </QuestionContainer>
         :<LoadingContainer><Ring color={theme.white} size={80}/></LoadingContainer>}
     </QuestionSwiper>
-    <BottomButtonContainer>
-        <BottomButton onClick={(e)=>prevQuestion()}>{bottomButtonText[0]}</BottomButton>
-        <BottomButton onClick={(e)=>nextQuestion()}>{bottomButtonText[1]}</BottomButton>
-        <BottomButton onClick={(e)=>getResults()}>Submit Now</BottomButton>
-    </BottomButtonContainer>
+    <BottomButtonArea/>
 </>
 );
 }

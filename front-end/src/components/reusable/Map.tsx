@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import GoogleMapReact from 'google-map-react';
-import useMyEffect from '../../lib/Hooks/useMyEffect';
+import useMyEffect from '../../hooks/useMyEffect';
 import Geocode from "react-geocode";
 
 Geocode.setApiKey("AIzaSyBoePpl0ehHkrlOpougG15kis84opPXd9c");

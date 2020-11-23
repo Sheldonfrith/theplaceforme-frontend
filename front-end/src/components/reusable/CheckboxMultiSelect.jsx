@@ -1,5 +1,5 @@
 import React from 'react';
-import useMyState from '../../lib/Hooks/useMyState'
+import useMyState from '../../hooks/useMyState'
 
 export default function CheckboxMultiSelect({optionsList, setStateList}) {
     const [checkedList, setCheckedList] = useMyState(optionsList.map(item=>false),'array');

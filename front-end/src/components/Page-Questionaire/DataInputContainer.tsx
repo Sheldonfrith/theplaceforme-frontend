@@ -4,7 +4,7 @@ import InfoPopup from './InfoPopup';
 import {
     AreaChart, ResponsiveContainer, Area,
   } from 'recharts';
-  import useMyEffect from '../../lib/Hooks/useMyEffect';
+  import useMyEffect from '../../hooks/useMyEffect';
 
 export const DisabledOverlay = styled.div<{display: string}>`
     display: ${props=> props.display};

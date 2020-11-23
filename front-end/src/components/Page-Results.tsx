@@ -9,10 +9,10 @@ import {
   HorizontalFlexBox,
   VerticalFlexBox,
 } from "./ReusableStyles";
-import getColorFromPercentile from "../lib/UI-Constants/rankColors";
+import getColorFromPercentile from "../ui-constants/rankColors";
 import { toTitleCase } from "../lib/Utils";
 import { Help } from "@material-ui/icons";
-import useMyEffect from "../lib/Hooks/useMyEffect";
+import useMyEffect from "../hooks/useMyEffect";
 import { Ring } from "react-spinners-css";
 
 const Container = styled.div`

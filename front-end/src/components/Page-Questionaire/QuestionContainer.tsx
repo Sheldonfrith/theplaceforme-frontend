@@ -1,6 +1,6 @@
 import React, { useRef} from 'react';
 import styled from 'styled-components';
-import useMyEffect from '../../lib/Hooks/useMyEffect';
+import useMyEffect from '../../hooks/useMyEffect';
 
 const Container = styled.div<{animation: any}>`
     position: relative;
@@ -30,7 +30,6 @@ interface QuestionContainerProps{
     
 }
 const QuestionContainer: React.FunctionComponent<QuestionContainerProps> =({children, animation})=> {
-    // useMyEffect([animation],()=>{console.log('animation changed',animation)},[animation])
 
 //whenever the question changes, scroll to the top of the question container
 const scrollTopRef = useRef<HTMLDivElement>(null);
@@ -43,7 +42,7 @@ useMyEffect([true],()=>{
 return (
 
 <Container animation={animation} ref={scrollTopRef}>
-{children}
+    {children}
 </Container>
 );
 }

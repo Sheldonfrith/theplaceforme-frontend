@@ -13,7 +13,7 @@ import {
   CountryResult,
   CountryMetadata,
 } from "./containers/GlobalProvider";
-import useMyEffect from "../lib/Hooks/useMyEffect";
+import useMyEffect from "../hooks/useMyEffect";
 import { Sector } from "recharts";
 import Flag from "react-world-flags";
 import Map from "./reusable/Map";

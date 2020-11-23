@@ -1,6 +1,6 @@
 import React, {useState,useRef} from 'react';
 import styled from 'styled-components';
-import useOnClickOutside from '../../lib/Hooks/useOnClickOutside';
+import useOnClickOutside from '../../hooks/useOnClickOutside';
 import {Info} from '@material-ui/icons';
 
 const Container = styled.div`

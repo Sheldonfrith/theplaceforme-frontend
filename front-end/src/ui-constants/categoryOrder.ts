@@ -15,10 +15,10 @@ const indexesByCategories: string[] = [
     'uncategorized',
 ];
 
-const getIndexByCategory =(category: string): number =>{
+const getPreferredCategoryIndex =(category: string): number |null =>{
     const result = indexesByCategories.indexOf(category);
-    if (result <0) throw new Error('error, category ('+category+') given to getIndexByCategory could not be found');
+    if (result <0) return null;
     return result;
 }
 
-export default getIndexByCategory;
+export default getPrefferedCategoryIndex;
