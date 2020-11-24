@@ -4,7 +4,7 @@ import {GlobalContext}from './GlobalProvider';
 import { DatasetsContext } from "./DatasetsProvider";
 import {MissingDataHandlerMethodsContext  } from "./MissingDataHandlerMethodsProvider";
 import { CountriesContext } from "./CountriesProvider";
-
+import requestWithValidation from '../../lib/HTTP';
 
 interface CountryBreakdown {
     score: number,
@@ -49,6 +49,12 @@ const ResultsProvider: React.FunctionComponent =({children}) =>{
     const fc = useContext(FormDataContext);
     const [results, setResults] = useState<Results|undefined>(undefined);
     const [currentCountry, setCurrentCountry] = useState<string|null>(null); // used to show detailed results for each country, one at a time
+
+    const getResults = async (): Promise<Results> =>{
+        const countriesResponse: Results = await requestWithValidation<Results>('POST','/scores',allFormData);
+        return countriesResponse;
+    }
+
 
 return (
 <ResultsContext.Provider

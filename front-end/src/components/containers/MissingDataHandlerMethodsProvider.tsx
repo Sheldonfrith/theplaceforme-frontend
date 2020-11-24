@@ -2,7 +2,7 @@ import React, {useState, useEffect, useCallback, useContext} from 'react';
 import { useConditionalEffect } from '../../hooks';
 import { DatasetsContext } from './DatasetsProvider';
 import { GlobalContext } from './GlobalProvider';
-import { getRequest } from "../../lib/HTTP";
+import requestWithValidation  from "../../lib/HTTP";
 
 
 interface MissingDataHandlerObject {
@@ -31,11 +31,7 @@ const MissingDataHandlerMethodsProvider: React.FunctionComponent =({children}) =
 
     useConditionalEffect([currentPage], async ()=>{
         if (currentPage !== 'questionaire') return;
-        const missingDHMethodsResponse = await <MissingDataHandlerMethods|null><unknown>getRequest("/missing-data-handler-methods");
-        if (!missingDHMethodsResponse) {
-            console.warn('ERROR: could not get missing data handler methods from API');
-            return;
-        }
+        const missingDHMethodsResponse = await requestWithValidation<MissingDataHandlerMethods>('GET','/missing-data-handler-methods');
         setMissingDataHandlerMethods(missingDHMethodsResponse);
     });
 

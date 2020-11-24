@@ -19,7 +19,7 @@ export default function useHasChanged (val: any) {
     return JSON.stringify(prevVal) !== JSON.stringify(val);
 }
 
-const usePrevious = (value) => {
+export const usePrevious = (value: any) => {
     const ref = useRef();
     useEffect(() => {
       ref.current = value;

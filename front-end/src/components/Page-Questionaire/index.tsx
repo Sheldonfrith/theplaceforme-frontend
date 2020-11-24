@@ -17,7 +17,7 @@ import {getAllFormDataStorageLocation} from '../../app-constants';
 import {Ring} from 'react-spinners-css';
 import DatasetNotes from './DatasetNotes';
 import {slideInLeft, slideInRight, slideOutLeft, slideOutRight, TransparentButton, H3, VerticalFlexBox, HorizontalFlexBox}from '../../reusable-styles';
-import {useConditionalEffect} from '../../hooks';
+import {useConditionalEffect,usePrevious} from '../../hooks';
 import {convertToJSON} from '../../lib/Utils';
 const QuestionText = styled.h3`
     font-size: ${props=>props.theme.font4};
@@ -59,13 +59,13 @@ const QuestionairePage :React.FunctionComponent<QuestionairePageProps> = () =>{
     const cc = useContext(CategoriesContext);
     const dc = useContext(DatasetsContext);
     const datasets = dc.datasets;
-    const getCategoryNameByIndex: (index: number)=> string = cc.getCategoryNameByIndex;
-
     const categories = cc.categories;
+    const getCategoryNameByIndex = cc.getCategoryNameByIndex;
+    const getCategoryFieldByIndex = cc.getCategoryFieldByIndex;
     const theme = useContext(ThemeContext);
    const allFormData = gc.allFormData; 
    const setAllFormData = gc.setAllFormData;
-    const [prevCategoryIndex, setPrevCategoryIndex] = useState<number>(0);
+    // const [prevCategoryIndex, setPrevCategoryIndex] = useState<number>(0);
     const [currentCategoryIndex, setCurrentCategoryIndex] = useState<number|null>(null);
     const [currentQuestion, setCurrentQuestion] =useState<string|null>(null);//dataset id
     const [currentDataset, setCurrentDataset] = useState<Dataset|null>(null);
@@ -84,43 +84,39 @@ const QuestionairePage :React.FunctionComponent<QuestionairePageProps> = () =>{
         setCurrentCategoryIndex(0);
     });
     
-
+        const nextCategoryIsToTheRight = (prevIndex:number, currIndex: number)=>(prevIndex > currIndex);
+        const getProperAnimation = (inOrOut: 'in'|'out')=>{
+            const prevIndex = usePrevious(currentCategoryIndex) ?? 0;
+            if (nextCategoryIsToTheRight(prevIndex, currentCategoryIndex ?? 1)){
+                return inOrOut==='out'?slideOutLeft:slideInRight;
+            } else {
+                return inOrOut==='in'?slideOutRight:slideInLeft;
+            }
+        }
     //whenever the category changes set the current question to the first dataset+ in that category
-    useConditionalEffect([currentCategory], ()=>{
-        if (!currentCategory|| !categories || !getCategoryNameByIndex || currentCategoryIndex===null) return;
-       
-        const nextCategoryIsToTheRight: boolean = (prevCategoryIndex > currentCategoryIndex);
-        const getProperOutAnimation = ()=> nextCategoryIsToTheRight?slideOutLeft:slideOutRight;
-        const getProperInAnimation = ()=>nextCategoryIsToTheRight?slideInRight:slideInLeft;
-        const removePreviousQuestionContainer = () =>{
-            setQuestionAnimation(getProperOutAnimation());
+    useConditionalEffect([currentCategoryIndex], ()=>{
+        if (!datasets|| !categories || !getCategoryNameByIndex || currentCategoryIndex===null) return;
+        const removePreviousQuestionContainer = async () =>{
+            setQuestionAnimation(getProperAnimation('out'));
         }
         const addNewQuestionContainer = ()=>{
             if (currentQuestionIndex===0){
-                if (!datasets) return;
-                const newQuestion =gc.categories![currentCategoryName].datasets[currentQuestionIndex];
-                const newDataset = gc.datasets[newQuestion];
-                setCurrentQuestion(newQuestion);
-                setCurrentDataset(newDataset);
+                const currentCategoryDatasets = getCategoryFieldByIndex!(currentCategoryIndex, 'datasets') as string[];
+                const newDatasetID = currentCategoryDatasets[currentQuestionIndex];
+                setCurrentQuestion(newDatasetID);
+                setCurrentDataset(datasets[newDatasetID]);
             }
             setCurrentQuestionIndex(0);
-
-            setQuestionAnimation(getProperInAnimation());
+            setQuestionAnimation(getProperAnimation('in'));
         }
-        //first make the existing question exit the screen 
-        //detect whether the current category is before or after the previous category
 
-        //wait for the animation to finish before doing the rest
+        //set current question to first dataset in that category
+        removePreviousQuestionContainer();
+        //wait 50 milliseconds, for removal animation to finish, before doing any more
         setTimeout(()=>{
-            setQuestionAnimation(slideFromRight?slideInRight:slideInLeft);
-            //if the current question index is zero our next useeffect to update the question
-            //will not trigger because there will be no change to current question index
-            //so must mannually trigger here
-            
-            // console.log('current cat changed...', currentCategory);
-        },50);
-        const BottomButtonArea = gc.categories![currentCategoryName].index;
-        setPrevCategoryIndex(currentCategoryIndex);
+         addNewQuestionContainer();
+        //  setPrevCategoryIndex(currentCategoryIndex);
+         },50);
     });
 
     //whenever the current question index changes, update the current question and current dataset
@@ -157,41 +153,7 @@ const QuestionairePage :React.FunctionComponent<QuestionairePageProps> = () =>{
 
     //!methods
     
-    //actual reset form data method
-    const resetFormData = useCallback(()=>{
-        //first make sure the user wants to do this 
-        const shouldReset = window.confirm('Are you sure you want to reset all answers to all questions?');
-        // console.log('reset info', shouldReset, gc.datasets);
-        if (!shouldReset) return;
-        if (!gc.datasets) return;
-        // console.log('initializing form data reset');
-        const newFormObject: FormData = Object.keys(gc.datasets).map((datasetID: string): QuestionInput =>{
-            const thisDataset = gc.datasets![datasetID];
-            const max = thisDataset.max_value;
-            const min = thisDataset.min_value;
-            return {
-                id: datasetID,
-                category: thisDataset.category,
-                weight: gc.defaultWeight!,
-                idealValue: (max && min)?(max+(0.5*(min-max))):0,
-                customScoreFunction: null,
-                missingDataHandlerMethod: gc.defaultMissingDataHandlerMethod!,
-                missingDataHandlerInput: gc.defaultMissingDataHandlerInput!,
-                normalizationPercentage: gc.defaultNormalizationPercentage!,
-            };
-        });
-        // console.log('resetting all form data and clearing local storage', newFormObject, getAllFormDataStorageLocation());
-        setAllFormData(newFormObject);
-        //now clear local storage
-        localStorage.removeItem(getAllFormDataStorageLocation());
-    },[ setAllFormData, gc.datasets, gc.defaultMissingDataHandlerInput, gc.defaultMissingDataHandlerMethod, gc.defaultNormalizationPercentage, gc.defaultWeight]);
-    //used by components in separate scope to tell the questionaire to reset via the global context
-    useConditionalEffect([gc.shouldResetFormData],()=>{
-        if (!gc.shouldResetFormData) return;
-        resetFormData();
-        gc.setShouldResetFormData(false);
-    });
-
+    
     
     const prevCategory =useCallback( ():void =>{
         if (currentCategoryIndex === null) return;

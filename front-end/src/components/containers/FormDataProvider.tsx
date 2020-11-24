@@ -158,6 +158,42 @@ const FormDataProvider: React.FunctionComponent =({children}) =>{
         // console.log('setting new formdata object',newFormObject);
         setAllFormData(newFormObject);
     });
+
+    //actual reset form data method
+    const resetFormData = useCallback(()=>{
+        //first make sure the user wants to do this 
+        const shouldReset = window.confirm('Are you sure you want to reset all answers to all questions?');
+        // console.log('reset info', shouldReset, gc.datasets);
+        if (!shouldReset) return;
+        if (!gc.datasets) return;
+        // console.log('initializing form data reset');
+        const newFormObject: FormData = Object.keys(gc.datasets).map((datasetID: string): QuestionInput =>{
+            const thisDataset = gc.datasets![datasetID];
+            const max = thisDataset.max_value;
+            const min = thisDataset.min_value;
+            return {
+                id: datasetID,
+                category: thisDataset.category,
+                weight: gc.defaultWeight!,
+                idealValue: (max && min)?(max+(0.5*(min-max))):0,
+                customScoreFunction: null,
+                missingDataHandlerMethod: gc.defaultMissingDataHandlerMethod!,
+                missingDataHandlerInput: gc.defaultMissingDataHandlerInput!,
+                normalizationPercentage: gc.defaultNormalizationPercentage!,
+            };
+        });
+        // console.log('resetting all form data and clearing local storage', newFormObject, getAllFormDataStorageLocation());
+        setAllFormData(newFormObject);
+        //now clear local storage
+        localStorage.removeItem(getAllFormDataStorageLocation());
+    },[ setAllFormData, gc.datasets, gc.defaultMissingDataHandlerInput, gc.defaultMissingDataHandlerMethod, gc.defaultNormalizationPercentage, gc.defaultWeight]);
+    //used by components in separate scope to tell the questionaire to reset via the global context
+    useConditionalEffect([gc.shouldResetFormData],()=>{
+        if (!gc.shouldResetFormData) return;
+        resetFormData();
+        gc.setShouldResetFormData(false);
+    });
+
     
 return (
 <FormDataContext.Provider

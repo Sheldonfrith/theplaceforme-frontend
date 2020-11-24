@@ -3,7 +3,7 @@ import {MissingDataHandlerMethodsContext} from './MissingDataHandlerMethodsProvi
 import {GlobalContext}from './GlobalProvider';
 import { DatasetsContext } from "./DatasetsProvider";
 import { useConditionalEffect } from "../../hooks";
-import {getRequest}from '../../lib/HTTP';
+import requestWithValidation from '../../lib/HTTP';
 
 export interface CountryMetadata {
     id: number,
@@ -43,11 +43,7 @@ const CountriesProvider: React.FunctionComponent =({children}) =>{
     }
     useConditionalEffect([currentPage],async ()=>{
         if (currentPage !== 'questionaire') return;
-        const countriesResponse = await <CountriesResponse|null><unknown>getRequest('/countries');
-        if (!countriesResponse) {
-            console.warn('Error: could not load Countries from API');
-            return;
-        }
+        const countriesResponse = await requestWithValidation<CountriesResponse>('GET','/countries');
         const countriesFormatted: Countries = formatCountriesResponse(countriesResponse);
         setCountries(countriesFormatted);
     });

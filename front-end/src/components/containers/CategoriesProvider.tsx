@@ -12,6 +12,8 @@ export interface Category {
     color: string,
     datasets: Array<string>, // list of dataset ids associated with each category
 }
+type CategoryKeys = 'index' | 'formattedName' | 'color' | 'datasets';
+type CategoryFieldTypes = number | string | Array<string>;
 export interface Categories {
     [categoryName: string]: Category
 }
@@ -20,6 +22,7 @@ export interface Categories {
 interface CategoriesContextProps {
     categories: Categories | null,
     getCategoryNameByIndex: (index:number)=>string|null,
+    getCategoryFieldByIndex: (index: number, fieldName: CategoryKeys) => string | number | string[] | null
 }
 
 //initialize state structure here
@@ -90,11 +93,20 @@ const CategoriesProvider: React.FunctionComponent = ({ children }) => {
         setCategories(newCategories);
     },[]);
 
+    const getCategoryFieldByIndex = (index: number, fieldName: CategoryKeys) => {
+        if (!categories) return null;
+        const thisCategory = getCategoryNameByIndex(index);
+        if (!thisCategory) throw new Error('Error: could not find category associated with index '+index);
+        const fieldValue =  categories[thisCategory][fieldName];
+        return fieldValue;
+    }
+
     return (
         <CategoriesContext.Provider
             value={{
                 categories: categories,
                 getCategoryNameByIndex: getCategoryNameByIndex,
+                getCategoryFieldByIndex: getCategoryFieldByIndex,
             }}
         >
             {children}

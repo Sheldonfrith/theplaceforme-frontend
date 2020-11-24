@@ -2,7 +2,7 @@
 import React, {useState, useEffect, useCallback, useContext} from 'react';
 import { GlobalContext } from './GlobalProvider';
 import { useConditionalEffect } from "../../hooks";
-import {getRequest}from '../../lib/HTTP';
+import requestWithValidation from '../../lib/HTTP';
 
 export interface Dataset{
     id: string,
@@ -47,11 +47,7 @@ const apiDatasetsToFormattedDatasets = (apiDatasets: DatasetsEndpointResponse)=>
 }
 
 const setDatasetsFromAPI = async (): Promise<void> =>{
-    let datasetsResponse =  await <DatasetsEndpointResponse|null><unknown>getRequest("/datasets");
-    if (!datasetsResponse) {
-        console.warn('ERROR: did not receive valid response from the api, cannot load datasets');
-        return;
-    }
+    const datasetsResponse: DatasetsEndpointResponse = await requestWithValidation<DatasetsEndpointResponse>('GET','/datasets');
     const newDatasetsObject :Datasets = apiDatasetsToFormattedDatasets(datasetsResponse);
     setDatasets(newDatasetsObject);
 };
@@ -62,8 +58,6 @@ useConditionalEffect([currentPage],async ()=>{
     if (datasets) return;
     setDatasetsFromAPI();
 });
-
-
 
 return (
 <DatasetsContext.Provider
