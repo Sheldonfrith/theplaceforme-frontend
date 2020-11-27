@@ -1,10 +1,10 @@
 
 import React, {useState, useEffect, useContext, useCallback, useRef} from 'react';
 import styled from 'styled-components';
-import {PopupInner, FilledButton} from './ReusableStyles';
+import {PopupInner, FilledButton} from '../reusable-styles';
 import TextInput from './reusable/TextInput';
 import {GlobalContext} from './containers/GlobalProvider';
-
+import { AnswersContext } from "./containers/AnswersProvider";
 const PopupInnerContainer = styled.div`${PopupInner}`;
 const SaveButton = styled.button`
     ${FilledButton};
@@ -16,12 +16,12 @@ interface SaveQuestionairePopupProps{
 const SaveQuestionairePopup: React.FunctionComponent<SaveQuestionairePopupProps> =({closePopup})=> {
     const [name, setName] = useState<string>('');
     const [description, setDescription] = useState<string|null>('');
-    const gc = useContext(GlobalContext);
+    const ac = useContext(AnswersContext);
 
     const saveHandler = useCallback(()=>{
-        gc.saveQuestionaire(gc.allFormData,name,description);
+        ac.saveQuestionaire!(ac.currentAnswers,name,description);
         closePopup();
-    },[closePopup, gc.saveQuestionaire, gc.allFormData,name,description]);
+    },[closePopup, ac.saveQuestionaire, ac.currentAnswers,name,description]);
 return (
 <PopupInnerContainer>
     <TextInput 

@@ -1,5 +1,5 @@
-const getAllFormDataStorageLocation = ()=>{
-    return 'the_place_for_me_all_form_data';
+const getAnswersStorageLocation = ()=>{
+    return 'the_place_for_me_answers';
 }
 
-export default getAllFormDataStorageLocation;
+export default getAnswersStorageLocation;

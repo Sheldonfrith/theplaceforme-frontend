@@ -1,22 +1,16 @@
-import {useDeltaArray, useConditionalEffect} from 'react-delta';
+import React, {useState}from 'react';
+import {useDelta, useConditionalEffect} from 'react-delta';
 
 // simple call to react-delta but with an automatic async wrapper
 
-export default function customUseEffect (triggerVariables: any[], callback: (... args: any[]) => void){
-    const delta: any[] = useDeltaArray(triggerVariables, true);
-    let triggerVariablesHaveChanged: boolean = false;    
-    delta.forEach(obj => {
-        if (!obj) return;
-        if (obj.prev !== obj.curr){
-            triggerVariablesHaveChanged = true;
-        }
-        });
+export default function useCustomEffect (triggerVariables: any[], callback: (...args: any[]) => void, cleanupCallback?: (...args: any[]) => void){
+    const delta: any = useDelta(JSON.stringify(triggerVariables), {deep: true});
     useConditionalEffect(()=>{
         const asyncWrapper = async ()=>{
             const cleanup: any = await callback();
             if (cleanup) return cleanup;
         }
-        const cleanup =  asyncWrapper();
-        if (cleanup) return cleanup;
-    }, triggerVariablesHaveChanged);
+        asyncWrapper().then(returnVal=>returnVal);
+        if (cleanupCallback) return cleanupCallback;
+    }, !!delta);
 };

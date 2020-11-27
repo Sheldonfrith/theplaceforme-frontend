@@ -1,7 +1,8 @@
 import React, {useState, useEffect, useContext, useCallback, useRef} from 'react';
-import styled from 'styled-components';
+import styled, { ThemeContext } from 'styled-components';
 
 import {slideInLeft, slideInRight, slideOutLeft, slideOutRight, TransparentButton, H3, VerticalFlexBox, HorizontalFlexBox}from '../../reusable-styles';
+import { QuestionaireLogicContext } from './QuestionaireLogicProvider';
 
 const BottomButtonContainer = styled.div`
     ${HorizontalFlexBox}
@@ -17,7 +18,9 @@ const BottomButton = styled.button`
 interface BottomButtonAreaProps{
 
 }
-const BottomButtonArea: React.FunctionComponent<BottomButtonAreaProps> =({})=> {
+const BottomButtonArea: React.FunctionComponent<BottomButtonAreaProps> =()=> {
+    const theme = useContext(ThemeContext);
+    const qc = useContext(QuestionaireLogicContext);
     const getBottomButtonText = (): string[] =>{
         //based on media query make bottom buttons either <> or prev/next
         var width = window.matchMedia(`(max-width: ${theme.primaryBreakpoint}px)`);
@@ -31,9 +34,9 @@ const BottomButtonArea: React.FunctionComponent<BottomButtonAreaProps> =({})=> {
 
 return (
 <BottomButtonContainer>
-        <BottomButton onClick={(e)=>prevQuestion()}>{bottomButtonText[0]}</BottomButton>
-        <BottomButton onClick={(e)=>nextQuestion()}>{bottomButtonText[1]}</BottomButton>
-        <BottomButton onClick={(e)=>getResults()}>Submit Now</BottomButton>
+        <BottomButton onClick={(e)=>qc.prevQuestion!()}>{bottomButtonText[0]}</BottomButton>
+        <BottomButton onClick={(e)=>qc.nextQuestion!()}>{bottomButtonText[1]}</BottomButton>
+        <BottomButton onClick={(e)=>qc.finishQuestionaire!()}>Submit Now</BottomButton>
     </BottomButtonContainer>
 );
 }

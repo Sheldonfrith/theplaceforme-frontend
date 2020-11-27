@@ -1,14 +1,11 @@
-import React, { useRef} from 'react';
-import styled from 'styled-components';
-import useMyEffect from '../../hooks/useMyEffect';
-
-const Container = styled.div<{animation: any}>`
+import React, { useContext, useRef, useEffect} from 'react';
+import styled , {Keyframes} from 'styled-components';
+import { QuestionaireLogicContext } from './QuestionaireLogicProvider';
+import { VerticalFlexBox } from "../../reusable-styles";
+const Container = styled.div<{animation: Keyframes}>`
     position: relative;
     background-color: ${props=>props.theme.white};
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
+    ${VerticalFlexBox}
     color: ${props=>props.theme.black};
     margin: auto;
     height: 100%;
@@ -26,18 +23,19 @@ const Container = styled.div<{animation: any}>`
 `;
 
 interface QuestionContainerProps{
-    animation: string,
     
 }
-const QuestionContainer: React.FunctionComponent<QuestionContainerProps> =({children, animation})=> {
+const QuestionContainer: React.FunctionComponent<QuestionContainerProps> =({children})=> {
+    const qc = useContext(QuestionaireLogicContext);
+    const animation = qc.questionAnimation!;
 
 //whenever the question changes, scroll to the top of the question container
 const scrollTopRef = useRef<HTMLDivElement>(null);
-useMyEffect([true],()=>{
+useEffect(()=>{
     if (!scrollTopRef || !scrollTopRef.current) return;
     // @ts-ignore
     scrollTopRef.current.scrollTo(0,0);
-},[animation, scrollTopRef])
+},[animation, scrollTopRef]);
 
 return (
 

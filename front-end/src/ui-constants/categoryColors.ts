@@ -1,4 +1,4 @@
-import {getSingleColor} from "./themeColors";
+import {getThemeColor} from "./themeColors";
 
 const colorsByCategories: {[key: string]:string} = {
     geography:'yellow',
@@ -18,7 +18,7 @@ const colorsByCategories: {[key: string]:string} = {
 }
 
 const getColorByCategory =(category: string): string=>{
-    return getSingleColor('primaryGradient');
+    return getThemeColor('primaryGradient');
     // return getSingleColor(colorsByCategories[category]);
 }
 

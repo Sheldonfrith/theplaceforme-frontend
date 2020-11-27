@@ -1,11 +1,9 @@
 import { auth } from "../components/App";
-import isType from './TSMValidator';
-type MethodNames = 'POST' | 'GET' | 'PUT' | 'DELETE' | 'OPTIONS';
+export type MethodNames = 'POST' | 'GET' | 'PUT' | 'DELETE' | 'OPTIONS';
 
-export default async function requestWithValidation<T>(method: MethodNames,endpoint: string, body?: JSON = undefined): Promise<T> {
-    let response =  await <unknown>basicRequest(method, endpoint, body);
-    if (!isType<T>(response))console.error('ERROR: did not receive valid HTTP response from '+endpoint);
-    return response as T;
+export const basicRequest = async (method: MethodNames, endpoint: string, body?: JSON): Promise<JSON|null> =>{
+    if (needNetlifyFunction()) return await netlifyRequest(method, endpoint, getBaseURL(), body);
+    return await localRequest(method, endpoint, getBaseURL(), body);
 }
 const getAuthorizationHeader = async (): Promise<string>=>{
     const token = await auth().currentUser ? await auth().currentUser!.getIdToken() : 'not logged in';
@@ -45,7 +43,7 @@ const localRequest = async (method: MethodNames, endpoint: string, baseURL: stri
 }
 
 const getBaseURL = () => {
-    if (window.location.host.includes('localhost')) return 'http://localhost:8000';
+    // if (window.location.host.includes('localhost')) return 'http://localhost:8000';
     return 'http://api.theplacefor.me';
 }
 const needNetlifyFunction = () => {
@@ -53,9 +51,6 @@ const needNetlifyFunction = () => {
     return true;
 }
 
-const basicRequest = async (method: MethodNames, endpoint: string, body?: JSON = undefined): Promise<JSON|null>{
-    if (needNetlifyFunction()) return await netlifyRequest(method, endpoint, getBaseURL(), body);
-    return await localRequest(method, endpoint, getBaseURL(), body);
-}
+
 
 

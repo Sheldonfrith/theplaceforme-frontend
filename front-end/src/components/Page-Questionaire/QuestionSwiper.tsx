@@ -1,5 +1,33 @@
-import React, { useContext } from 'react';
-import styled, { ThemeContext } from 'styled-components';
+import React, { useState, useContext, useCallback, useEffect } from 'react';
+import styled, { keyframes, ThemeContext } from 'styled-components';
+import IdealValuePicker from './IdealValuePicker';
+import NormalizationPicker from './NormalizationPicker';
+import QuestionContainer from './QuestionContainer';
+import WeightPicker from './WeightPicker';
+import MissingDataHandlerPicker from './MissingDataHandlerPicker';
+import { Ring } from 'react-spinners-css';
+import DatasetNotes from './DatasetNotes';
+import QuestionaireLogicProvider, { QuestionaireLogicContext } from './QuestionaireLogicProvider';
+import { AnswersContext } from '../containers/AnswersProvider';
+import { VerticalFlexBox, H3, HorizontalFlexBox } from "../../reusable-styles";
+
+const QuestionText = styled.h3`
+    font-size: ${props => props.theme.font4};
+    font-family: ${props => props.theme.fontFamHeader};
+    padding: 0 3rem;
+`;
+
+const AdvancedOptionsTitle = styled.h4`
+    ${H3};
+    margin: 1rem;
+    font-family: ${props => props.theme.fontFamHeader};
+`;
+const LoadingContainer = styled.div`
+    ${VerticalFlexBox};
+    width: 100%;
+    height: 100%;
+`;
+
 
 const Triangle = styled.div`
     width: 0;
@@ -17,13 +45,9 @@ const Triangle = styled.div`
 
 `;
 
-const SwiperContainer = styled.div<{ color: string }>`
-    display: flex;
-    flex-direction: row;
-    position: relative;
-    align-items: center;
-    justify-content: space-between;
-    background: ${props => props.color};
+const SwiperContainer = styled.div`
+    ${HorizontalFlexBox}
+    background: ${props => props.theme.primaryGradient};
     height: 60vh;
     margin-top: 6rem;
     width: 100%;
@@ -37,24 +61,29 @@ position: relative;
 `;
 
 interface QuestionSwiperProps {
-    prevQuestion: any,
-    nextQuestion: any,
-    backgroundColor: string,
 }
-const QuestionSwiper: React.FunctionComponent<QuestionSwiperProps> = ({ children, backgroundColor, prevQuestion, nextQuestion }) => {
+const QuestionSwiper: React.FunctionComponent<QuestionSwiperProps> = () => {
     const theme = useContext(ThemeContext);
-    const handleSwipeLeft = () => {
-        prevQuestion();
-    }
-    const handleSwipeRight = () => {
-        nextQuestion();
-    }
+    const qc = useContext(QuestionaireLogicContext);
+    const currentDataset = qc.currentDataset;
+    const fc = useContext(AnswersContext);
+    const allAnswers = fc.currentAnswers;
+
     return (
-        <SwiperContainer color={backgroundColor || theme.red}>
+        <SwiperContainer>
             <Triangle color={theme.primaryAccent} />
             <InnerContainer>
-
-                {children}
+                {(currentDataset && currentDataset.id && allAnswers) ?
+                    <QuestionContainer>
+                        <QuestionText>What <b>{currentDataset.long_name}</b> would you like your country to have?</QuestionText>
+                        <IdealValuePicker />
+                        <WeightPicker />
+                        <AdvancedOptionsTitle>Advanced Options</AdvancedOptionsTitle>
+                        <MissingDataHandlerPicker />
+                        <NormalizationPicker />
+                        <DatasetNotes />
+                    </QuestionContainer>
+                    : <LoadingContainer><Ring color={theme.white} size={80} /></LoadingContainer>}
             </InnerContainer>
         </SwiperContainer>
     );

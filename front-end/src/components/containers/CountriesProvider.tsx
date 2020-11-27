@@ -3,8 +3,7 @@ import {MissingDataHandlerMethodsContext} from './MissingDataHandlerMethodsProvi
 import {GlobalContext}from './GlobalProvider';
 import { DatasetsContext } from "./DatasetsProvider";
 import { useConditionalEffect } from "../../hooks";
-import requestWithValidation from '../../lib/HTTP';
-
+import { APIContext } from "./APIProvider";
 export interface CountryMetadata {
     id: number,
     updated_at: any,
@@ -35,6 +34,8 @@ const CountriesProvider: React.FunctionComponent =({children}) =>{
     const mc = useContext(MissingDataHandlerMethodsContext);
     const currentPage = gc.currentPage;
     const [countries, setCountries] = useState<Countries|undefined>(undefined);
+    const api = useContext(APIContext);
+    const requestWithValidation = api.requestWithValidation!;
 
     const formatCountriesResponse = (countriesResponse: CountriesResponse): Countries =>{
         const countriesFormatted: Countries = {};
@@ -43,7 +44,7 @@ const CountriesProvider: React.FunctionComponent =({children}) =>{
     }
     useConditionalEffect([currentPage],async ()=>{
         if (currentPage !== 'questionaire') return;
-        const countriesResponse = await requestWithValidation<CountriesResponse>('GET','/countries');
+        const countriesResponse = await requestWithValidation('GET','/countries','CountriesResponse') as CountriesResponse;
         const countriesFormatted: Countries = formatCountriesResponse(countriesResponse);
         setCountries(countriesFormatted);
     });

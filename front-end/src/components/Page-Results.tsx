@@ -1,4 +1,4 @@
-import React, { useState, useContext, useCallback } from "react";
+import React, { useEffect, useState, useContext, useCallback } from "react";
 import { GlobalContext } from "./containers/GlobalProvider";
 import Header from "./Header";
 import styled, { ThemeContext } from "styled-components";
@@ -8,13 +8,13 @@ import {
   H1,
   HorizontalFlexBox,
   VerticalFlexBox,
-} from "./ReusableStyles";
+} from "../reusable-styles";
 import getColorFromPercentile from "../ui-constants/rankColors";
 import { toTitleCase } from "../lib/Utils";
 import { Help } from "@material-ui/icons";
-import useMyEffect from "../hooks/useMyEffect";
 import { Ring } from "react-spinners-css";
-
+import { ResultsContext, Results } from "./containers/ResultsProvider";
+import { useConditionalEffect } from "../hooks";
 const Container = styled.div`
   ${PageContainer};
   background-image: ${(props) => props.theme.primaryLightBackground};
@@ -98,105 +98,100 @@ const HelpContainer = styled.div`
   margin: 1rem;
 `;
 
-interface ResultsPageProps {}
+interface ResultsPageProps { }
 
 const ResultsPage: React.FunctionComponent<ResultsPageProps> = () => {
+  const rc = useContext(ResultsContext);
   const gc = useContext(GlobalContext);
+  const results = rc.results;
   const theme = useContext(ThemeContext);
   const [scoreRange, setScoreRange] = useState<Array<number> | null>(null); // index 0 is min score, index 1 is max score
-    const [retryScoreRangeCount, setRetryScoreRangeCount] = useState<number>(5);
+  const [retryScoreRangeCount, setRetryScoreRangeCount] = useState<number>(5);
+  const [countryResultsJSX, setCountryResultsJSX] = useState<JSX.Element[] | null>(null);
 
-    const updateScoreRange = useCallback(()=>{
-        if (!gc.results) return;
-        let min = Infinity;
-        let max = 0;
-        Object.keys(gc.results).forEach((countryCode) => {
-          const thisScore = gc.results![countryCode].totalScore;
-          if (thisScore > max) {
-            max = thisScore;
-          }
-          if (thisScore < min) {
-            min = thisScore;
-          }
-        });
-        setScoreRange([min, max]);
-    },[gc.results, setScoreRange])
+  const updateScoreRange = (results: Results) => {
+    let min = Infinity;
+    let max = 0;
+    Object.keys(results).forEach((countryCode) => {
+      const thisScore = results![countryCode].totalScore;
+      if (thisScore > max) {
+        max = thisScore;
+      }
+      if (thisScore < min) {
+        min = thisScore;
+      }
+    });
+    return [min, max];
+  }
 
-  //update score range whenever gc.results change
-  useMyEffect(
-    [true],
-    () => {
-     updateScoreRange();
-    },
-    [updateScoreRange]
-  );
+
 
   const getSortedCountryIDs = () =>
-    gc.results
-      ? Object.keys(gc.results).sort(
-          (a, b) => gc.results![a].rank - gc.results![b].rank
-        )
+    results
+      ? Object.keys(results).sort(
+        (a, b) => results![a].rank - results![b].rank
+      )
       : null;
+
+  const getCountryResultsJSX = (scoreRange: Array<number>): JSX.Element[] | null => {
+    return getSortedCountryIDs()!.map((countryCode) => {
+      const country = results![countryCode];
+      const scorePercentile =
+        ((country.totalScore - scoreRange![0]) /
+          (scoreRange![1] - scoreRange![0])) *
+        100.0;
+      const color = getColorFromPercentile(scorePercentile);
+      const primaryName = toTitleCase(country.primary_name);
+      return (
+        <CountryResult
+          key={country.primary_name}
+          style={{ borderColor: color }}
+          onClick={() => {
+            rc.setCurrentSelectedCountry!(countryCode);
+            gc.setCurrentPopup("countryBreakdown");
+          }}
+        >
+          <CountryResultNumber
+            style={{
+              background: color,
+              boxShadow: `0 0 2px 2px ${color}`,
+            }}
+          >
+            {country.rank}.
+              </CountryResultNumber>
+          <CountryName>{primaryName}</CountryName>
+          <HelpContainer>
+            <Help fontSize={"inherit"} />
+          </HelpContainer>
+        </CountryResult>
+      );
+    });
+  }
+
+  //update score range  and JSX whenever results change
+  useConditionalEffect([results],
+    () => {
+      if (!results) return;
+      const newScoreRange = updateScoreRange(results);
+      setScoreRange(newScoreRange);
+      setCountryResultsJSX(getCountryResultsJSX(newScoreRange));
+    });
+
 
   return (
     <Container>
       <Header textColor={theme.black} />
       <SubTitle>RESULTS</SubTitle>
       <ResultsContainer>
-        {gc.results && getSortedCountryIDs() && scoreRange ? (
-          getSortedCountryIDs()!.map((countryCode) => {
-            const country = gc.results![countryCode];
-            const scorePercentile =
-              ((country.totalScore - scoreRange![0]) /
-                (scoreRange![1] - scoreRange![0])) *
-              100.0;
-            if (scorePercentile > 100 || scorePercentile < 0)
-            {
-                if (retryScoreRangeCount ===0){
-                    throw new Error(
-                      "score percentile out of the 0-100 range... percentile..." +
-                        scorePercentile +
-                        " countryscore... " +
-                        country.totalScore +
-                        " scorerange... " +
-                        scoreRange
-                    );
-                } else {
-                    //update scoreRange and try again
-                    updateScoreRange();
-                    setRetryScoreRangeCount(prev=>prev-1);
-                }
-            }
-            const color = getColorFromPercentile(scorePercentile);
-            return (
-              <CountryResult
-                key={country.primary_name}
-                style={{ borderColor: color }}
-                onClick={() => {
-                  gc.setCurrentCountry(countryCode);
-                  gc.setCurrentPopup("countryBreakdown");
-                }}
-              >
-                <CountryResultNumber
-                  style={{
-                    background: color,
-                    boxShadow: `0 0 2px 2px ${color}`,
-                  }}
-                >
-                  {country.rank}.
-                </CountryResultNumber>
-                <CountryName>{toTitleCase(country.primary_name)}</CountryName>
-                <HelpContainer>
-                  <Help fontSize={"inherit"} />
-                </HelpContainer>
-              </CountryResult>
-            );
-          })
-        ) : (
-          <LoadingContainer>
-            <Ring color={theme.white} size={80} />
-          </LoadingContainer>
-        )}
+        {countryResultsJSX ?
+        <div>
+          { countryResultsJSX }
+        </div>
+          : (
+            <LoadingContainer>
+              <Ring color={theme.white} size={80} />
+            </LoadingContainer>
+          )}
       </ResultsContainer>
       <BottomButtonsContainer>
         <BottomButton onClick={(e) => gc.setCurrentPage("questionaire")}>

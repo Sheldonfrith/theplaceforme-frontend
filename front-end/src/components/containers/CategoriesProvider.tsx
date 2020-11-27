@@ -33,7 +33,7 @@ const CategoriesProvider: React.FunctionComponent = ({ children }) => {
     const dc = useContext(DatasetsContext);
     const datasets = dc.datasets;
     const [categories, setCategories] = useState<Categories | null>(null);
-
+    
     //whenever Datasets changes, update the Categories
     useConditionalEffect([datasets], () => {
         if (!datasets) return;
@@ -51,14 +51,14 @@ const CategoriesProvider: React.FunctionComponent = ({ children }) => {
         const categoriesWithoutIndexes: Categories = {};
         const initializeCategory = (category: string): void => {
             const index = getPreferredCategoryIndex(category);
-            const newCategory = {
-                index: index,
+            const newCategory: Category = {
+                index: index??0,
                 formattedName: toTitleCase(category),
                 color: getColorByCategory(category),
                 datasets: []
             }
-            if (index) newCategories[category] = newCategory;
-            if (!index) categoriesWithoutIndexes[category] = newCategory;
+            if (index || index === 0) newCategories[category] = newCategory;
+            if (!index && index !==0) categoriesWithoutIndexes[category] = newCategory;
         }
         const mergeCategoriesWithoutIndexes = (): void => {
             const nextIndex: number = Object.keys(newCategories).length;

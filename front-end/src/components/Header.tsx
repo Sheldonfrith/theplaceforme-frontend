@@ -10,7 +10,7 @@ import { auth } from "./App";
 import { useAuthState } from "react-firebase-hooks/auth";
 // import {StyledContext}from'./containers/StyledProvider';
 import { ThemeContext } from "styled-components";
-import { HorizontalFlexBox } from "./ReusableStyles";
+import { HorizontalFlexBox } from "../reusable-styles";
 
 const HeaderContainer = styled.div<{ textColor: string }>`
   display: flex;

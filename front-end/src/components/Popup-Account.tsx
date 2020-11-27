@@ -3,8 +3,9 @@ import styled from 'styled-components';
 import { logout, auth} from './App';
 import { useAuthState } from "react-firebase-hooks/auth";
 // import {StyledContext} from './containers/StyledProvider';
-import {PopupInner, FilledButton, H3,VerticalFlexBox, HorizontalFlexBox, TransparentButton, H1} from './ReusableStyles';
-import {GlobalContext, SavedQuestionaireMetadata} from './containers/GlobalProvider';
+import {PopupInner, FilledButton, H3,VerticalFlexBox, HorizontalFlexBox, TransparentButton, H1} from '../reusable-styles';
+import { AnswersContext, SavedQuestionaireMetadata } from "./containers/AnswersProvider";
+
 
 const PopupInnerContainer = styled.div`${PopupInner}`;
 const LogoutButton = styled.button`
@@ -52,7 +53,7 @@ const AccountPopup: React.FunctionComponent<AccountPopupProps>=({closePopup}) =>
 // 
 // `;
 const [user, loading, error] = useAuthState(auth());
-const gc = useContext(GlobalContext);
+const ac = useContext(AnswersContext);
 
 
 if (user) { return (
@@ -65,16 +66,16 @@ if (user) { return (
     </AccountInfo>
     <LogoutButton onClick={()=>logout()}>Logout</LogoutButton>
     <Subtitle>Saved Questionaires</Subtitle>
-    {gc.savedQuestionaires?
+    {ac.savedQuestionaires?
     <QuestionairesContainer>
-        {gc.savedQuestionaires.map((metadata: SavedQuestionaireMetadata)=>{
+        {ac.savedQuestionaires.map((metadata: SavedQuestionaireMetadata)=>{
             // console.log(metadata);
             return (
                 <QuestionaireContainer key={metadata.id}>
                     {metadata.name}
                     <LoadButton 
                         onClick={()=>{
-                            gc.loadQuestionaire(metadata.id);
+                            ac.loadQuestionaire!(metadata.id);
                         }}
                     >
                         LOAD

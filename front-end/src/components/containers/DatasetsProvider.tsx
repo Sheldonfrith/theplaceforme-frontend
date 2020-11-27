@@ -2,10 +2,10 @@
 import React, {useState, useEffect, useCallback, useContext} from 'react';
 import { GlobalContext } from './GlobalProvider';
 import { useConditionalEffect } from "../../hooks";
-import requestWithValidation from '../../lib/HTTP';
+import { APIContext } from "./APIProvider";
 
 export interface Dataset{
-    id: string,
+    id: number,
     updated_at: any,
     long_name: string,
     data_type:string,
@@ -37,7 +37,8 @@ export const DatasetsContext = React.createContext<Partial<DatasetsContextProps>
 const DatasetsProvider: React.FunctionComponent =({children}) =>{
  const gc = useContext(GlobalContext);
  const currentPage = gc.currentPage;
-
+ const api = useContext(APIContext);
+ const requestWithValidation = api.requestWithValidation!;
  const [datasets, setDatasets] =useState<Datasets|null>(null);
 
 const apiDatasetsToFormattedDatasets = (apiDatasets: DatasetsEndpointResponse)=>{
@@ -47,7 +48,7 @@ const apiDatasetsToFormattedDatasets = (apiDatasets: DatasetsEndpointResponse)=>
 }
 
 const setDatasetsFromAPI = async (): Promise<void> =>{
-    const datasetsResponse: DatasetsEndpointResponse = await requestWithValidation<DatasetsEndpointResponse>('GET','/datasets');
+    const datasetsResponse: DatasetsEndpointResponse = await requestWithValidation('GET','/datasets','DatasetsEndpointResponse') as DatasetsEndpointResponse;
     const newDatasetsObject :Datasets = apiDatasetsToFormattedDatasets(datasetsResponse);
     setDatasets(newDatasetsObject);
 };

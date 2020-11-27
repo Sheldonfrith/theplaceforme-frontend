@@ -1,10 +1,10 @@
 
 import React, { useState, useContext, useRef } from 'react';
 import styled from 'styled-components';
-import { GlobalContext } from '../containers/GlobalProvider';
 import Swipe from 'react-easy-swipe';
-import { CategoriesContext } from '../containers/CategoriesProvider';
+import { CategoriesContext, Categories } from '../containers/CategoriesProvider';
 import { useConditionalEffect } from "../../hooks";
+import { QuestionaireLogicContext } from './QuestionaireLogicProvider';
 
 const Category = styled.div<{ color: string }>`
     background: ${props => props.color};
@@ -36,20 +36,26 @@ const categoryItemWidth = 15.75;
 const zeroPosition = categoryItemWidth / 2;
 
 interface CategorySwiperProps {
-    prevCategory: any,
-    nextCategory: any,
-    currentCategory: string | null,
-    currentCategoryIndex: number,
-    setCurrentCategoryIndex: any,
-    categoryChangeQueu: number,
-    setCategoryChangeQueu: any,
 }
-const CategorySwiper: React.FunctionComponent<CategorySwiperProps> = ({ prevCategory, setCategoryChangeQueu, categoryChangeQueu, setCurrentCategoryIndex, currentCategoryIndex, nextCategory, currentCategory }) => {
+const CategorySwiper: React.FunctionComponent<CategorySwiperProps> = () => {
+    const qc = useContext(QuestionaireLogicContext);
+    const currentCategoryIndex = qc.currentCategoryIndex ?? 0;
+    const setCurrentCategoryIndex = qc.setCurrentCategoryIndex;
     const cc = useContext(CategoriesContext);
     const categories = cc.categories;
     const getLeftPositionFromIndex = (index: number): number => {
         return (index * categoryItemWidth) + zeroPosition;
     };
+
+    const [categoriesJSX, setCategoriesJSX] = useState<JSX.Element[] | null>(null);
+    const [userIsSwiping, setUserIsSwiping] = useState<boolean>(false);
+    const initializePositionLeft = () => {
+        return (currentCategoryIndex !== null) ? getLeftPositionFromIndex(currentCategoryIndex) : zeroPosition;
+    }
+    const [positionLeft, setPositionLeft] = useState<number>(initializePositionLeft());
+    const [extraPositionLeft, setExtraPositionLeft] = useState<number>(0);
+
+
     const getIndexFromLeftPosition = (leftPosition: number): number => {
         if (!categories) return 0;
         const numberOfCategories = Object.keys(categories).length;
@@ -59,25 +65,17 @@ const CategorySwiper: React.FunctionComponent<CategorySwiperProps> = ({ prevCate
         if (newCatIndex > (numberOfCategories - 1)) newCatIndex = numberOfCategories - 1;
         return newCatIndex;
     }
-    const [positionLeft, setPositionLeft] = useState<number>((currentCategoryIndex !== null) ? getLeftPositionFromIndex(currentCategoryIndex) : zeroPosition);
-    const [extraPositionLeft, setExtraPositionLeft] = useState<number>(0);
-    
-    //set category based on position, not the other way around
+
+    //set category based on position while userIsSwiping
     useConditionalEffect([positionLeft], () => {
-        const newCatIndex = getIndexFromLeftPosition(positionLeft);
-        if (newCatIndex === currentCategoryIndex) return;
-        setCurrentCategoryIndex(newCatIndex);
+        setCategoryBasedOnPositionLeft(positionLeft);
     });
 
-    //when categoryChangeQueu changes, means parent component has changed category and 
-    //swiper needs to update position
-    useConditionalEffect([categoryChangeQueu], () => {
-        if (!categoryChangeQueu) return;
-        const newLeftPosition = getLeftPositionFromIndex(currentCategoryIndex + categoryChangeQueu);
-        console.log('dealing with category change queu', newLeftPosition);
-        setPositionLeft(newLeftPosition);
-        setCategoryChangeQueu(0);
-    });
+    const setCategoryBasedOnPositionLeft = (positionLeft: number) => {
+        const newCatIndex = getIndexFromLeftPosition(positionLeft);
+        if (newCatIndex === currentCategoryIndex) return;
+        setCurrentCategoryIndex!(newCatIndex);
+    }
 
     const handleSwipeLeft = () => {
         setPositionLeft(getLeftPositionFromIndex(currentCategoryIndex + 1));
@@ -86,48 +84,62 @@ const CategorySwiper: React.FunctionComponent<CategorySwiperProps> = ({ prevCate
         setPositionLeft(getLeftPositionFromIndex(currentCategoryIndex - 1));
     }
     const handleSwipeMove = (position: any, event: any) => {
+        setUserIsSwiping(true);
         let xPosition = position.x / 10; // divide by 10 to account for rems (specific to current style)
         const newPositionLeft = -xPosition;
         setExtraPositionLeft(newPositionLeft);
         //update the categories while moving, since the useeffect wont fire while dragging
-        const newCatIndex = getIndexFromLeftPosition(positionLeft + newPositionLeft);
-        if (newCatIndex === currentCategoryIndex) return;
-        setCurrentCategoryIndex(newCatIndex);
-        //give visuals of moving the category items around
-        //but do not change the categories in reality
+        setCategoryBasedOnPositionLeft(positionLeft);
         return true;//!what does this return do?
     }
-    const snapToNearestIndex = () => {
-        const indexAtEnd = currentCategoryIndex;
+    const snapToIndex = (index: number) => {
         setExtraPositionLeft(0);
-        setPositionLeft(getLeftPositionFromIndex(indexAtEnd));
+        setPositionLeft(getLeftPositionFromIndex(index));
     }
+
+    //keep categoriesJSX up to date with actual categories object
+    useConditionalEffect([categories], () => {
+        if (!categories) return;
+        updateCategoriesJSX(categories);
+    });
+
+    const updateCategoriesJSX = (newCategories: Categories): void => {
+        const newCategoriesJSX = Object.keys(newCategories).map((i, index) => {
+            const categoryName = Object.keys(newCategories).filter(j => newCategories[j].index === index)[0];
+            const category = newCategories[categoryName];
+            return <Category
+                onClick={(e) => setPositionLeft(getLeftPositionFromIndex(index))}
+                key={categoryName}
+                color={category.color}
+            >{category.formattedName}</Category>;
+        });
+        setCategoriesJSX(newCategoriesJSX);
+    }
+
+    const handleSwipeEnd = () => {
+        setUserIsSwiping(false);
+        snapToIndex(currentCategoryIndex ?? 0);
+    }
+    //visual category position will always match the index, but not while user is swiping
+    useConditionalEffect([currentCategoryIndex], () => {
+        if (userIsSwiping) return;
+        const newLeftPosition = getLeftPositionFromIndex(currentCategoryIndex ?? 0);
+        setPositionLeft(newLeftPosition);
+    });
 
     return (
         <Swipe
             onSwipeLeft={handleSwipeLeft}
             onSwipeRight={handleSwipeRight}
             onSwipeMove={handleSwipeMove}
-            onSwipeEnd={snapToNearestIndex}
+            onSwipeEnd={handleSwipeEnd}
             tolerance={5}
             allowMouseEvents
             innerRef={() => null}
             style={{ position: 'relative' }}
         >
-            <SwipeSubcontainer
-                positionLeft={positionLeft + extraPositionLeft}
-            >
-                {categories ?
-                    Object.keys(categories).map((i, index) => {
-                        const categoryToGet = Object.keys(categories!).filter(j => categories![j].index === index)[0];
-                        const category = categories![categoryToGet];
-                        return <Category 
-                                    onClick={(e) => setPositionLeft(getLeftPositionFromIndex(index))} 
-                                    key={categoryToGet} 
-                                    color={category.color}
-                                >{category.formattedName}</Category>;
-                    })
-                    : <></>}
+            <SwipeSubcontainer positionLeft={positionLeft + extraPositionLeft}>
+                {categoriesJSX ? categoriesJSX : <></>}
             </SwipeSubcontainer>
         </Swipe>
     );

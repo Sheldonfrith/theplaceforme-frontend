@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import {auth} from './App';
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
 // import {StyledContext}from './containers/StyledProvider';
-import {PopupInner} from './ReusableStyles';
+import {PopupInner} from '../reusable-styles';
 
 const PopupInnerContainer = styled.div`${PopupInner}`;
 

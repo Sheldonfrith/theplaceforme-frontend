@@ -4,18 +4,19 @@ import ReactDOM from 'react-dom';
 // import "slick-carousel/slick/slick-theme.css";
 // import 'react-perfect-scrollbar/dist/css/styles.css';
 import "./styles/index.css";
-
+import ErrorBoundary from './components/ErrorBoundary';
 import App from './components/App';
 import GlobalProvider from './components/containers/GlobalProvider';
 import MissingDataHandlerMethodsProvider from './components/containers/MissingDataHandlerMethodsProvider';
 import CountriesProvider from './components/containers/CountriesProvider';
-import FormDataProvider from './components/containers/FormDataProvider';
+import FormDataProvider from './components/containers/AnswersProvider';
 import ResultsProvider from './components/containers/ResultsProvider';
 import DatasetsProvider from './components/containers/DatasetsProvider';
 import CategoriesProvider from "./components/containers/CategoriesProvider";
 import { Integrations } from "@sentry/tracing";
 import { CaptureConsole } from '@sentry/integrations';
 import * as Sentry from "@sentry/react";
+import APIProvider from './components/containers/APIProvider';
 
 Sentry.init({
   dsn: "https://3db5c5a2202f43728777df0cabb5923c@o481327.ingest.sentry.io/5529747",
@@ -36,7 +37,9 @@ Sentry.init({
 
 ReactDOM.render(
   <React.StrictMode>
+    <ErrorBoundary>
     <GlobalProvider>
+      <APIProvider>
       <DatasetsProvider>
         <CategoriesProvider>
         <MissingDataHandlerMethodsProvider>
@@ -50,7 +53,9 @@ ReactDOM.render(
         </MissingDataHandlerMethodsProvider>
         </CategoriesProvider>
       </DatasetsProvider>
+    </APIProvider>
     </GlobalProvider>
+    </ErrorBoundary>
   </React.StrictMode>,
   document.getElementById('root')
 );

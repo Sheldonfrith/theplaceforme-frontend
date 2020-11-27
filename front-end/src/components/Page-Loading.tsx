@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useContext, useCallback, useRef} from 'react';
 import styled, {ThemeContext} from 'styled-components';
 import {Ring} from 'react-spinners-css';
-import {PageContainer} from './ReusableStyles';
+import {PageContainer} from '../reusable-styles';
 
 const Container = styled.div`
     ${PageContainer};
@@ -11,7 +11,7 @@ const Container = styled.div`
 interface LoadingPageProps{
 
 }
-const LoadingPage: React.FunctionComponent<LoadingPageProps> =({})=> {
+const LoadingPage: React.FunctionComponent<LoadingPageProps> =()=> {
     const theme = useContext(ThemeContext);
 
 return (

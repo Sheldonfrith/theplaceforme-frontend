@@ -21,4 +21,4 @@ const getPreferredCategoryIndex =(category: string): number |null =>{
     return result;
 }
 
-export default getPrefferedCategoryIndex;
+export default getPreferredCategoryIndex;

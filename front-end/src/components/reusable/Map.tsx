@@ -1,7 +1,7 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import GoogleMapReact from 'google-map-react';
-import useMyEffect from '../../hooks/useMyEffect';
 import Geocode from "react-geocode";
+import { useConditionalEffect } from "../../hooks";
 
 Geocode.setApiKey("AIzaSyBoePpl0ehHkrlOpougG15kis84opPXd9c");
 Geocode.enableDebug();
@@ -26,7 +26,7 @@ const Map: React.FunctionComponent<MapProps> =({locationName})=> {
         );
 };
 //initialize the geocoder and set the location
-useMyEffect([true],()=>{
+useEffect(()=>{
     initGeocoder();
 },[]);
 
