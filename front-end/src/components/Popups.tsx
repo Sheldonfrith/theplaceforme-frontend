@@ -23,7 +23,7 @@ const ChangeDefaultsPopup = React.lazy(()=>import('./Popups-ChangeDefaults'));
 interface PopupsProps{
 
 }
-const Popups: React.FunctionComponent<PopupsProps>=({}) =>{
+const Popups: React.FunctionComponent<PopupsProps>=() =>{
     const gc = useContext(GlobalContext);
     const closePopup = ()=>gc.setCurrentPopup(null);
     const fallback = ()=>{

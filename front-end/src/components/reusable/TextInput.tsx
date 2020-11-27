@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useContext, useCallback} from 'react';
 import styled from 'styled-components';
-import {HorizontalFlexBox, SubheadingText} from '../ReusableStyles';
+import {HorizontalFlexBox, SubheadingText} from '../../reusable-styles';
 const Container = styled.div`
     ${HorizontalFlexBox};
 `;

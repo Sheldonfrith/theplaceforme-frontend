@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useContext, useCallback, useRef } from "react";
 import styled, {ThemeContext} from "styled-components";
 import ClosePopupButton from "./ClosePopupButton";
-import useOnClickOutside from '../../lib/Hooks/useOnClickOutside';
-import useMyEffect from '../../lib/Hooks/useMyEffect';
-
+import { useConditionalEffect, useOnClickOutside } from "../../hooks";
 let DefaultContainer = styled.div`
   display: ${(props) => props.display};
   background-color: ${(props) => props.backgroundColor};

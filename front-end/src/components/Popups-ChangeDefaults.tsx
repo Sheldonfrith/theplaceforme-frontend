@@ -1,10 +1,11 @@
 import React, { useContext} from 'react';
 import styled from 'styled-components';
-import {PopupInner, FilledButton, H3,VerticalFlexBox, H1} from './ReusableStyles';
+import {PopupInner, FilledButton, H3,VerticalFlexBox, H1} from '../reusable-styles';
 import Select from './reusable/Select';
 import {GlobalContext} from './containers/GlobalProvider';
 import TextInput from './reusable/TextInput';
-
+import { MissingDataHandlerMethodsContext } from './containers/MissingDataHandlerMethodsProvider';
+import { AnswersContext } from "./containers/AnswersProvider";
 //styled components
 const PopupInnerContainer = styled.div`${PopupInner}`;
 
@@ -22,41 +23,41 @@ interface ChangeDefaultsPopupProps{
     closePopup: any,
 }
 const ChangeDefaultsPopup: React.FunctionComponent<ChangeDefaultsPopupProps>=({closePopup}) =>{
-const gc = useContext(GlobalContext);
-
+const ac = useContext(AnswersContext);
+const mc = useContext(MissingDataHandlerMethodsContext);
 
 
 return (
 <PopupInnerContainer>
     <Title>Change Question Defaults</Title>
-    {gc.missingDataHandlerMethods?(
+    {mc.missingDataHandlerMethods?(
     <>
     <TextInput 
         label="Default Weight:"
         placeholder="default is 0"
-        onChange={(e:any)=>gc.setDefaultWeight(e.target.value)}
-        value={gc.defaultWeight}
+        onChange={(e:any)=>ac.setDefaultWeight!(e.target.value)}
+        value={ac.defaultWeight}
     />
     <SubTitle>Default Missing Data Handler Method:</SubTitle>
     <Select
-        optionsList={Object.keys(gc.missingDataHandlerMethods).map(key=>gc.missingDataHandlerMethods![key].formattedName)}
-        onChange={(e:any)=>gc.setDefaultMissingDataHandlerMethod(e.target.value)}
+        optionsList={Object.keys(mc.missingDataHandlerMethods).map(key=>mc.missingDataHandlerMethods![key].formattedName)}
+        onChange={(e:any)=>ac.setDefaultMissingDataHandlerMethod!(e.target.value)}
     />
-    {['worseThanPercentage', 'betterThanPercentage','specificScore','specificValue'].includes(gc.defaultMissingDataHandlerMethod!)?
+    {['worseThanPercentage', 'betterThanPercentage','specificScore','specificValue'].includes(ac.defaultMissingDataHandlerMethod!)?
     <TextInput 
     label="Default Missing Data Handler Input"
     placeholder={'Input for above method...'} 
-    onChange={(e:any)=>gc.setDefaultMissingDataHandlerInput(e.target.value)} 
-    value={gc.defaultMissingDataHandlerInput || ''}
+    onChange={(e:any)=>ac.setDefaultMissingDataHandlerInput!(e.target.value)} 
+    value={ac.defaultMissingDataHandlerInput || ''}
     />
     :<></>}
     <TextInput 
         label="Default Normalization Percentage"
         placeholder={'0'} 
-        onChange={(e:any)=>gc.setDefaultNormalizationPercentage(e.target.value)} 
-        value={gc.defaultNormalizationPercentage}
+        onChange={(e:any)=>ac.setDefaultNormalizationPercentage!(e.target.value)} 
+        value={ac.defaultNormalizationPercentage}
     />
-    <ResetButton onClick={()=>gc.setShouldResetFormData(true)}>Save Defaults and Reset Questionaire</ResetButton>
+    <ResetButton onClick={()=>ac.resetAnswers!()}>Save Defaults and Reset Questionaire</ResetButton>
     </>
     )
     :<div>Loading...</div>}

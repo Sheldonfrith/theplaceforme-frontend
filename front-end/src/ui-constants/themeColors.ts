@@ -40,7 +40,7 @@ const getThemeColors = ():Colors => {
     return colors;
 }
 
-export const getSingleColor=(colorName: string): string =>{
+export const getThemeColor=(colorName: string): string =>{
     const color = colors[colorName];
     if (!color) throw new Error('error, colorname not found in theme colors');
     return color;

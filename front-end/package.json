@@ -5,6 +5,9 @@
   "dependencies": {
     "@material-ui/core": "^4.11.0",
     "@material-ui/icons": "^4.9.1",
+    "@sentry/integrations": "^5.27.6",
+    "@sentry/react": "^5.27.6",
+    "@sentry/tracing": "^5.27.6",
     "@testing-library/jest-dom": "^4.2.4",
     "@types/color": "^3.0.1",
     "@types/google-map-react": "^2.1.0",
@@ -17,9 +20,13 @@
     "@types/recharts": "^1.8.16",
     "@types/styled-components": "^5.1.4",
     "firebase": "^7.24.0",
+    "fp-ts": "^2.9.0",
     "google-map-react": "^2.1.8",
+    "io-ts": "^2.2.13",
+    "joi": "^17.3.0",
     "lodash": "^4.17.20",
     "react": "^16.13.1",
+    "react-delta": "^1.1.0",
     "react-dom": "^16.13.1",
     "react-easy-swipe": "0.0.21",
     "react-firebase-hooks": "^2.2.0",
@@ -32,7 +39,9 @@
     "react-world-flags": "^1.4.0",
     "recharts": "^1.8.5",
     "styled-components": "^5.2.0",
-    "typescript": "^3.7.5"
+    "typecheck.macro": "^0.7.1",
+    "typescript": "^3.7.5",
+    "typescript-json-validator": "^2.4.2"
   },
   "scripts": {
     "start": "react-scripts start",

@@ -1,36 +1,52 @@
-import React from 'react';
-import {Dataset}from '../containers/GlobalProvider';
+import React, { useContext, useState } from 'react';
+import { useConditionalEffect } from '../../hooks';
+import { AnswersContext, Answers } from '../containers/AnswersProvider';
 import DataInputContainer from './DataInputContainer';
+import { QuestionaireLogicContext } from './QuestionaireLogicProvider';
+import {getInfoDiv} from '../../app-constants';
+const infoDiv = getInfoDiv('idealValue');
 
-interface IdealValuePickerProps{
-    dataset: Dataset
-    updateIdealValue: any,
-    idealValue: number,
-    disabled: boolean,
+interface IdealValuePickerProps {
 }
-const IdealValuePicker: React.FunctionComponent<IdealValuePickerProps>= ({dataset, disabled, updateIdealValue, idealValue})=> {
+const IdealValuePicker: React.FunctionComponent<IdealValuePickerProps> = () => {
+    const qc = useContext(QuestionaireLogicContext);
+    const disabled = qc.zeroWeight??true;
+    const ac = useContext(AnswersContext);
+    const currentDataset = qc.currentDataset;
+    const getIdealValueFromContext = (): number => {
+        const a: Answers = ac.currentAnswers!;
+        const thisQuestionInput = a[qc.getAnswersIndexFromID!(qc.currentDataset!.id, a)];
+        return thisQuestionInput.idealValue;
+    }
+    const [idealValue, setIdealValue] = useState<number | null>(getIdealValueFromContext);
+    const [currentDatasetID, setCurrentDatasetID] = useState<number>(-1);
 
-return (
-    <>
-    <DataInputContainer
-        distributionMap={dataset.distribution_map}
-        topRightNumber={dataset.missing_data_percentage}
-        topLeftString={'Ideal Value'}
-        min={dataset.min_value||0}
-        max={dataset.max_value||0}
-        mainText={dataset.unit_description}
-        sliderValue={idealValue}
-        sliderOnChange={updateIdealValue}
-        disabled={disabled}
-    >
-    <div>
-        Move the slider or input a value directly. Countries that are closer to the value you choose here
-        will get higher scores and be ranked higher in the final results. 
-        The graph above the slider show the distribution of countries within the dataset.
-        The number at the top right shows the percentage of countries that are missing data for this dataset.
-    </div>
-    </DataInputContainer>
-    </>
-);
+    //when current question changes send off the ideal value and get the new one
+    useConditionalEffect([qc.currentDataset], () => {
+        if (!qc.currentDataset) return;
+        ac.updateCurrentAnswers!(idealValue ?? 0, currentDatasetID, 'idealValue');
+        setCurrentDatasetID(qc.currentDataset.id);
+        setIdealValue(getIdealValueFromContext);
+    })
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => setIdealValue(e.target.valueAsNumber);
+    if (currentDataset) {
+        return (
+            <DataInputContainer
+                distributionMap={currentDataset.distribution_map}
+                topRightNumber={currentDataset.missing_data_percentage}
+                topLeftString={'Ideal Value'}
+                min={currentDataset.min_value || 0}
+                max={currentDataset.max_value || 0}
+                mainText={currentDataset.unit_description}
+                sliderValue={idealValue!}
+                sliderOnChange={handleChange}
+                disabled={disabled}
+                sliderValueSet={setIdealValue}
+            >
+            {infoDiv}
+            </DataInputContainer>
+        );
+    }
+    return <></>;
 }
 export default IdealValuePicker;

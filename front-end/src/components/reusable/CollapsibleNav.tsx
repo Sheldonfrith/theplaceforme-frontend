@@ -4,8 +4,8 @@ import React, {
   useRef,
 } from "react";
 import styled, { ThemeContext } from "styled-components";
-import useOnClickOutside from "../../lib/Hooks/useOnClickOutside";
-import { FilledButton, VerticalFlexBox, H4} from "../ReusableStyles";
+import useOnClickOutside from "../../hooks/useOnClickOutside";
+import { FilledButton, VerticalFlexBox, H4} from "../../reusable-styles";
 
 
 const PositionContainer = styled.div`
