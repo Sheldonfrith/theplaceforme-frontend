@@ -2,6 +2,9 @@ import React, { useContext, useRef, useEffect} from 'react';
 import styled , {Keyframes} from 'styled-components';
 import { QuestionaireLogicContext } from './QuestionaireLogicProvider';
 import { VerticalFlexBox } from "../../reusable-styles";
+import {Form}from 'react-bootstrap';
+
+
 const Container = styled.div<{animation: Keyframes}>`
     position: relative;
     background-color: ${props=>props.theme.white};

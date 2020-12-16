@@ -1,9 +1,15 @@
+import { Machine, interpret, assign } from "xstate";
+import { inspect } from "@xstate/inspect";
+import {service} from './state-machines/appMachine';
+
+
 import React from 'react';
 import ReactDOM from 'react-dom';
+import './styles/bootstrap.css';
 // import "slick-carousel/slick/slick.css"; 
 // import "slick-carousel/slick/slick-theme.css";
 // import 'react-perfect-scrollbar/dist/css/styles.css';
-import "./styles/index.css";
+// import "./styles/index.css";
 import ErrorBoundary from './components/ErrorBoundary';
 import App from './components/App';
 import GlobalProvider from './components/containers/GlobalProvider';
@@ -17,6 +23,15 @@ import { Integrations } from "@sentry/tracing";
 import { CaptureConsole } from '@sentry/integrations';
 import * as Sentry from "@sentry/react";
 import APIProvider from './components/containers/APIProvider';
+inspect({
+  url: "https://statecharts.io/inspect",
+  iframe: false
+});
+
+service.start();
+
+service.send("TOGGLE");
+service.send("TOGGLE");
 
 Sentry.init({
   dsn: "https://3db5c5a2202f43728777df0cabb5923c@o481327.ingest.sentry.io/5529747",

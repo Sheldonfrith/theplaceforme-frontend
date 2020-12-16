@@ -19,6 +19,8 @@
     "@types/react-world-flags": "^1.4.0",
     "@types/recharts": "^1.8.16",
     "@types/styled-components": "^5.1.4",
+    "@xstate/inspect": "^0.3.0",
+    "bootstrap": "^4.5.3",
     "firebase": "^7.24.0",
     "fp-ts": "^2.9.0",
     "google-map-react": "^2.1.8",
@@ -26,6 +28,7 @@
     "joi": "^17.3.0",
     "lodash": "^4.17.20",
     "react": "^16.13.1",
+    "react-bootstrap": "^1.4.0",
     "react-delta": "^1.1.0",
     "react-dom": "^16.13.1",
     "react-easy-swipe": "0.0.21",
@@ -41,7 +44,8 @@
     "styled-components": "^5.2.0",
     "typecheck.macro": "^0.7.1",
     "typescript": "^3.7.5",
-    "typescript-json-validator": "^2.4.2"
+    "typescript-json-validator": "^2.4.2",
+    "xstate": "^4.15.1"
   },
   "scripts": {
     "start": "react-scripts start",

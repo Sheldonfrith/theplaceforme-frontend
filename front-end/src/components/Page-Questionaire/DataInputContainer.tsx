@@ -3,7 +3,7 @@ import styled, { ThemeContext } from 'styled-components';
 import InfoPopup from './InfoPopup';
 import { VerticalFlexBox } from "../../reusable-styles";
 import DistributionGraph from './DistributionGraph';
-
+import {Form}from 'react-bootstrap';
 export const DisabledOverlay = styled.div<{ display: string }>`
     ${VerticalFlexBox}
     display: ${props => props.display};
@@ -145,7 +145,8 @@ const DataInputContainer: React.FunctionComponent<DataInputContainerProps> = ({
                 {topRightString ?
                     <TopRightNumber>{topRightString}</TopRightNumber>
                     : <></>}
-                <Slider
+                    <Form>
+                <Form.Control
                     type="range"
                     onChange={sliderOnChange}
                     min={min || 0}
@@ -153,6 +154,7 @@ const DataInputContainer: React.FunctionComponent<DataInputContainerProps> = ({
                     step={(max - min) / 100.0}
                     value={sliderValue}
                 />
+                </Form>
                 <PreciseValueArea
                     value={sliderValue.toString()}
                     onChange={sliderOnChange}

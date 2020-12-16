@@ -1,11 +1,12 @@
 import React, { useState, useContext, Suspense, useCallback } from "react";
 import firebase from "firebase";
-import WelcomePage from "./Page-Welcome";
+import WelcomePage from "./Page-Welcome.bootstrap";
 import styled from 'styled-components';
 import Popups from "./Popups";
 import { GlobalContext } from "./containers/GlobalProvider";
 import {VerticalFlexBox} from '../reusable-styles';
 import LoadingPage from './Page-Loading';
+import Container from 'react-bootstrap/Container';
 
 const QuestionairePage = React.lazy(()=>import("./Page-Questionaire"));
 const ResultsPage = React.lazy(()=>import("./Page-Results"));
@@ -50,12 +51,12 @@ function App() {
     return <LoadingPage/>;
   },[]);
   return (
-    <AppContainer>
+    <Container className="container">
       <Popups/>
           {gc.currentPage==='welcome'?<WelcomePage/>:<></>}
           {gc.currentPage==='questionaire'?<Suspense fallback={fallback()}><QuestionairePage/></Suspense>:<></>}
           {gc.currentPage==='results'?<Suspense fallback={fallback()}><ResultsPage /></Suspense>:<></>}
-    </AppContainer>
+    </Container>
   );
 }
 

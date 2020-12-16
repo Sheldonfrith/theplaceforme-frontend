@@ -10,6 +10,7 @@ import DatasetNotes from './DatasetNotes';
 import QuestionaireLogicProvider, { QuestionaireLogicContext } from './QuestionaireLogicProvider';
 import { AnswersContext } from '../containers/AnswersProvider';
 import { VerticalFlexBox, H3, HorizontalFlexBox } from "../../reusable-styles";
+import Container from 'react-bootstrap/Container';
 
 const QuestionText = styled.h3`
     font-size: ${props => props.theme.font4};
