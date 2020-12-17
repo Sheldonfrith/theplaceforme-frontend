@@ -1,6 +1,6 @@
 import { Machine, interpret, assign } from "xstate";
 import { inspect } from "@xstate/inspect";
-import {service} from './state-machines/appMachine';
+import {service} from './core/state-machines/App/machine';
 
 
 import React from 'react';

@@ -15,6 +15,8 @@ import { getWelcomeBlurb } from '../app-constants';
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 import Jumbotron from 'react-bootstrap/Jumbotron';
+import {useMachine} from '@xstate/react';
+import {appMachine} from '../core/state-machines/App/machine';
 
 const welcomeBlurb = getWelcomeBlurb();
 
@@ -63,6 +65,7 @@ interface WelcomePageProps { }
 const WelcomePage: React.FunctionComponent<WelcomePageProps> = ({ }) => {
   const gc = useContext(GlobalContext);
   const [user, loading, error] = useAuthState(auth());
+  const [state, send] = useMachine(appMachine);
 
   return (
     <Container className="container-fluid">

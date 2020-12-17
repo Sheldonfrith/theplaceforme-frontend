@@ -13,6 +13,7 @@ import { logout, auth } from "./App";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { getWelcomeBlurb } from '../app-constants';
 
+
 const welcomeBlurb = getWelcomeBlurb();
 
 const WelcomeContainer = styled.div`
@@ -60,6 +61,7 @@ interface WelcomePageProps { }
 const WelcomePage: React.FunctionComponent<WelcomePageProps> = ({ }) => {
   const gc = useContext(GlobalContext);
   const [user, loading, error] = useAuthState(auth());
+
 
   return (
     <WelcomeContainer>
