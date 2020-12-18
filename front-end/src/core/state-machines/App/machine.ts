@@ -6,18 +6,18 @@ import { Models, IModels } from '../../models/Models';
 import states from './states';
 import actions from './actions';
 
-//SUMMARY: This contains the highest level of abstraction in the application. This app gets user PREFS and 
+//SUMMARY: This contains the highest level of abstraction in the Application. This App gets user PREFS and 
 // then uses them to communicate compatability SCOREs to users for each LOC in LOCS. 
 
 //KEYWORDS:
-//Abbreviations specific to this application, to describe a concept very concisely and improve readability:
+//Abbreviations specific to this Application, to describe a concept very concisely and improve readability:
 
 //All keywords defined here are always separated from other characters by an underscore, but no 
 // underscore is used at the beginning or ending of a string... for example:
 // 'LOC_PREF_name', or 'thisIsThe_PREF_Object' or 'LOCS'
 
 // LOCS
-// The set of all physical locations this application evaluates for compatability with the
+// The set of all physical locations this Application evaluates for compatability with the
 // user defined preferences, for example all Countries on Earth
 
 // LOC
@@ -30,8 +30,13 @@ import actions from './actions';
 // SCORES
 // Used to refer to whatever information is communicated to the user to indicate the relative compatability 
 // of each LOC based on that user's defined PREF, could be a ranking, or a score, percentile, etc.
+export interface IUser {
+  name?: string,
+  email?:string,
+  OAuthSource?: string,
+}
 
-interface IGlobalContext {
+export interface IGlobalContext {
   user: any,
   models: IModels,
 }
@@ -41,9 +46,9 @@ const globalContext: IGlobalContext = {
   models: new Models({ models: [new LOCS(), new PREF(), new SCORES()] }),
 };
 
-export const appMachine = Machine<IGlobalContext>({
-  id: 'app',
-  initial: 'get_PREF',
+export const AppMachine = Machine<IGlobalContext>({
+  id: 'App',
+  initial: 'loadingApp',
   context: {
     ...globalContext
   },
@@ -57,9 +62,9 @@ export const appMachine = Machine<IGlobalContext>({
 
 
 // Edit your service(s) here
-export const service = interpret(appMachine, { devTools: true }).onTransition(
+export const service = interpret(AppMachine, { devTools: true }).onTransition(
   (state) => {
-    // console.log(state.value);
+    console.log(state.value);
   }
 );
 

@@ -1,29 +1,20 @@
-import { Machine, interpret, assign, spawn, sendParent} from "xstate";
 
+import { Machine, interpret, assign, spawn, sendParent } from 'xstate';
+import states from './states';
+import actions from './actions';
 
-const SCORES_GetterContext = {
+interface ISCORES_GetterContext {
+}
+
+const SCORES_GetterContext: ISCORES_GetterContext = {
 };
 
+export const SCORES_GetterMachine = Machine<ISCORES_GetterContext>({
+  id: 'SCORES_Getter',
+  initial: 'getting',
+  context: SCORES_GetterContext,
+  states: states,
+}, {
+  actions: actions,
+});
 
- export const SCORES_GetterMachine = Machine({
-   id: 'SCORES_GetterMachine',
-   initial: 'getting',
-   context: {
-     ...SCORES_GetterContext
-   },
-   states: {
-        getting: {
-            on: {
-                SUCCESS: 'success',
-                FAILURE: 'failure'
-            }
-        },
-        success: {
-            type: 'final',
-        },
-        failure: {
-            //RETRY
-            //AFTER CERTAIN NUMBER OF RETRIES SHOW ERROR TO USER AND GIVE OPTIONS
-        }
-   }
- })

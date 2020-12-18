@@ -7,26 +7,15 @@ import { GlobalContext } from "./containers/GlobalProvider";
 import {VerticalFlexBox} from '../reusable-styles';
 import LoadingPage from './Page-Loading';
 import Container from 'react-bootstrap/Container';
-
+import {getFirebaseConfig} from '../Secrets/FirebaseAuth';
 const QuestionairePage = React.lazy(()=>import("./Page-Questionaire"));
 const ResultsPage = React.lazy(()=>import("./Page-Results"));
 
 //FIREBASE AUTH SETUP
-export const firebaseConfig = {
-  apiKey: "AIzaSyAJ-kNCFTlJZ943avU3KxvI9RXDJJYfUZk",
-  authDomain: "theplaceforme-bc9bb.firebaseapp.com",
-  databaseURL: "https://theplaceforme-bc9bb.firebaseio.com",
-  projectId: "theplaceforme-bc9bb",
-  storageBucket: "theplaceforme-bc9bb.appspot.com",
-  messagingSenderId: "282721405524",
-  appId: "1:282721405524:web:3c593adcc9c5c1f08dfbc1",
-};
+export const firebaseConfig = getFirebaseConfig();
 firebase.initializeApp(firebaseConfig);
 export const auth = firebase.auth;
-//logout callback
-export const logout = () => {
-  firebase.auth().signOut();
-};
+
 
 const AppContainer = styled.div`
   font-family: ${props=>props.theme.fontFamBody};

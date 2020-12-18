@@ -42,3 +42,6 @@ getUserPreferences: {
     }
 }
 
+Idea for Xstate based package, to extend features:
+    -CLI tool that generates machines using the machine name as folder, and then three files for actions, machine, and states
+    -

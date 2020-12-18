@@ -1,0 +1,117 @@
+# arg 1 is option (-h for help), options are optional, if first arg is not an option then the rest of the args are shifted
+# arg 2 is name of the machine to create
+# arg 3 is the directory in which to create the new machine
+
+while getopts "h" opt; do 
+    case ${opt} in 
+    h ) echo "
+
+        make-x-machine:
+
+        parameters: 
+        1. option tag (optional), must start with a "-"
+        2. name of the machine to create
+        3. directory in which to create the machine
+
+        options:
+        -h : help
+
+    "
+    ;;
+    \? ) echo "Usage: bash make-x-machine [options] [machineName] [directory]"
+    ;;
+    esac
+done
+
+# remove options from parameters
+
+shift $((OPTIND -1))
+
+# actual code...
+
+# move to proper directory
+cd $2
+# create base folder
+mkdir $1
+cd $1
+# create machine file
+echo "
+import { Machine, interpret, assign, spawn, sendParent } from 'xstate';
+import states from './states';
+import actions from './actions';
+
+interface I$1Context {
+}
+
+const $1Context: I$1Context = {
+};
+
+export const $1Machine = Machine<I$1Context>({
+  id: '$1',
+  initial: 'initialState',
+  context: {
+    ...$1Context
+  },
+  states: {
+    ...states
+  }
+}, {
+  actions: { ...actions }
+});
+" > machine.ts
+# create states file
+echo "
+import { Machine, interpret, assign, spawn, sendParent } from 'xstate';
+
+// cross-state settings
+
+// USE THIS INTERFACE TO REMIND YOURSELF TO HANDLE ALL EVENTS IN ALL STATES
+// IF you want an event to not always be handled simply set its name to optional
+// here with '?'
+interface eventHandlers {
+    EXAMPLERequiredEvent: any,
+    EXAMPLEOptionalEvent?: any,
+}
+// define default actions to prevent repetition if multiple states will handle the same 
+// event in the same way
+const eventHandlerDefaults = {
+    EXAMPLERequiredEvent: {actions: 'EXAMLPEDefaultAction'},
+}
+
+// DEFINE ALL YOUR STATES HERE, FOLLOW THE EXAMLPE SYNTAX 
+// >> For each state you need an 'EventHandlers' object and 
+// >> the state object itself, with the EventHandlers injected
+// >> into the 'on' object of the state object
+
+const EXAMPLEStateEventHandlers: eventHandlers = {
+    ...eventHandlerDefaults,
+    // define how this state handles events here...
+}
+
+const EXAMPLEState = {
+    on: { ...EXAMPLEStateEventHandlers},
+    //other state functionality goes here (ex: 'invoke')
+}
+
+const states = {
+    EXAMPLE : {
+        ...EXAMPLEState
+    }
+}
+
+export default states;
+" > states.ts
+# create actions file
+echo "
+import { Machine, interpret, assign, spawn, sendParent } from 'xstate';
+
+const actions  = {
+    EXAMPLEAction: EXAMPLEAction
+}
+export default actions;
+
+function EXAMPLEAction (){
+    //do something
+}
+
+" > actions.ts

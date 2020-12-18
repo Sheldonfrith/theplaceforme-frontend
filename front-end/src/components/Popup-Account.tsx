@@ -1,6 +1,6 @@
 import React, {useContext} from 'react';
 import styled from 'styled-components';
-import { logout, auth} from './App';
+import { auth} from './App';
 import { useAuthState } from "react-firebase-hooks/auth";
 // import {StyledContext} from './containers/StyledProvider';
 import {PopupInner, FilledButton, H3,VerticalFlexBox, HorizontalFlexBox, TransparentButton, H1} from '../reusable-styles';
@@ -54,10 +54,10 @@ const AccountPopup: React.FunctionComponent<AccountPopupProps>=({closePopup}) =>
 // `;
 const [user, loading, error] = useAuthState(auth());
 const ac = useContext(AnswersContext);
-
+const logout = ()=>null;//TODO
 
 if (user) { return (
-<PopupInnerContainer>
+<PopupInnerContainer> 
     <Title>Account</Title>
     <AccountInfo>
         {user.displayName?<InfoText><b>Display Name:</b> {user.displayName}</InfoText>:<></>}
