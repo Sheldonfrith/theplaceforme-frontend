@@ -1,11 +1,13 @@
-import { Machine, interpret, assign, spawn, sendParent } from "xstate";
+import { Machine, interpret, assign, spawn, sendParent, Actor } from "xstate";
 import { PREF, I_PREF } from "../../models/PREF";
 import { SCORES, I_SCORES } from "../../models/SCORES";
 import { LOCS, I_LOCS } from '../../models/LOCS';
 import { Models, IModels } from '../../models/Models';
 import states from './states';
 import actions from './actions';
+import activateAndGetMachines from '../Initialize';
 
+export const activeMachines = activateAndGetMachines();
 //SUMMARY: This contains the highest level of abstraction in the Application. This App gets user PREFS and 
 // then uses them to communicate compatability SCOREs to users for each LOC in LOCS. 
 
@@ -30,20 +32,21 @@ import actions from './actions';
 // SCORES
 // Used to refer to whatever information is communicated to the user to indicate the relative compatability 
 // of each LOC based on that user's defined PREF, could be a ranking, or a score, percentile, etc.
-export interface IUser {
-  name?: string,
-  email?:string,
-  OAuthSource?: string,
-}
 
 export interface IGlobalContext {
   user: any,
   models: IModels,
+  PREF_DefinitionMachine: Actor | null,
+  SCORES_GetterMachine: Actor | null,
+  SCORES_CommunicationMachine: Actor | null,
 }
 
 const globalContext: IGlobalContext = {
   user: null,
   models: new Models({ models: [new LOCS(), new PREF(), new SCORES()] }),
+  PREF_DefinitionMachine: null,
+  SCORES_CommunicationMachine: null,
+  SCORES_GetterMachine: null,
 };
 
 export const AppMachine = Machine<IGlobalContext>({
@@ -58,14 +61,4 @@ export const AppMachine = Machine<IGlobalContext>({
 }, {
   actions: { ...actions }
 });
-
-
-
-// Edit your service(s) here
-export const service = interpret(AppMachine, { devTools: true }).onTransition(
-  (state) => {
-    console.log(state.value);
-  }
-);
-
 

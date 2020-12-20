@@ -27,14 +27,14 @@ function viewSourceCode(){
 function viewMethodology(){
     window.open("https://github.com/Sheldonfrith/theplaceforme-backend/wiki/Methodology");
 }
-const getCurrentUser = (context: IGlobalContext)=>{
+const updateCurrentUser = (context: IGlobalContext)=>{
     const user =  auth().currentUser;
     context.user = user;
 }
 const actions  = {
     login: loginUser,
     logout: logout,
-    getCurrentUser: getCurrentUser,
+    getCurrentUser: updateCurrentUser,
     donate: donate,
     handleError: handleError,
     contactAuthor: contactAuthor,

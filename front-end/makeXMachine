@@ -49,14 +49,10 @@ const $1Context: I$1Context = {
 export const $1Machine = Machine<I$1Context>({
   id: '$1',
   initial: 'initialState',
-  context: {
-    ...$1Context
-  },
-  states: {
-    ...states
-  }
+  context: {...$1Context},
+states: {...states}
 }, {
-  actions: { ...actions }
+actions: { ...actions }
 });
 " > machine.ts
 # create states file
@@ -74,7 +70,7 @@ interface eventHandlers {
 }
 // define default actions to prevent repetition if multiple states will handle the same 
 // event in the same way
-const eventHandlerDefaults = {
+const defaultEventHandlers = {
     EXAMPLERequiredEvent: {actions: 'EXAMLPEDefaultAction'},
 }
 
@@ -83,20 +79,18 @@ const eventHandlerDefaults = {
 // >> the state object itself, with the EventHandlers injected
 // >> into the 'on' object of the state object
 
-const EXAMPLEStateEventHandlers: eventHandlers = {
-    ...eventHandlerDefaults,
+const EXAMPLEEventHandlers: eventHandlers = {
+    ...defaultEventHandlers,
     // define how this state handles events here...
 }
 
 const EXAMPLEState = {
-    on: { ...EXAMPLEStateEventHandlers},
-    //other state functionality goes here (ex: 'invoke')
+    on: { ...EXAMPLEEventHandlers},
+    //other state functionality goes here (ex: 'invoke', 'entry', 'exit'...)
 }
 
 const states = {
-    EXAMPLE : {
-        ...EXAMPLEState
-    }
+    EXAMPLE : {...EXAMPLEState},
 }
 
 export default states;
@@ -105,13 +99,11 @@ export default states;
 echo "
 import { Machine, interpret, assign, spawn, sendParent } from 'xstate';
 
+const EXAMPLEAction =()=>{
+    //do something
+}
 const actions  = {
     EXAMPLEAction: EXAMPLEAction
 }
 export default actions;
-
-function EXAMPLEAction (){
-    //do something
-}
-
 " > actions.ts

@@ -1,5 +1,6 @@
 
 import { Machine, interpret, assign, spawn, sendParent, AnyEventObject } from 'xstate';
+import { PREF_FormMachine } from '../PREF_Form/machine';
 import {I_PREF_DefinitionContext}from'./machine';
 
 // cross-state settings
@@ -46,7 +47,9 @@ const FillingFormStateEventHandlers: eventHandlers = {
 }
 const FillingFormState = {
     activities: ['autoSaving'],
-    on: {...FillingFormStateEventHandlers}
+    on: {...FillingFormStateEventHandlers},
+    entry: assign({PREF_FormMachine: ()=>spawn(PREF_FormMachine)}),
+    exit: assign({PREF_FormMachine: ()=>null}),
 }
 
 const states = {

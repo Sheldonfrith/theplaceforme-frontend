@@ -42,6 +42,7 @@
     "react-spinners-css": "^1.2.2",
     "react-world-flags": "^1.4.0",
     "recharts": "^1.8.5",
+    "rxjs": "^6.6.3",
     "styled-components": "^5.2.0",
     "typecheck.macro": "^0.7.1",
     "typescript": "^3.7.5",

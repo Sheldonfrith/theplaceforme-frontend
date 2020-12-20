@@ -1,4 +1,4 @@
-import React, { useState, useContext, Suspense, useCallback } from "react";
+import React, { useEffect, useState, useContext, Suspense, useCallback } from "react";
 import firebase from "firebase";
 import WelcomePage from "./Page-Welcome.bootstrap";
 import styled from 'styled-components';
@@ -8,37 +8,24 @@ import {VerticalFlexBox} from '../reusable-styles';
 import LoadingPage from './Page-Loading';
 import Container from 'react-bootstrap/Container';
 import {getFirebaseConfig} from '../Secrets/FirebaseAuth';
+import {useMachine} from '@xstate/react';
+import {AppMachine} from '../core/state-machines/App/machine';
+
 const QuestionairePage = React.lazy(()=>import("./Page-Questionaire"));
 const ResultsPage = React.lazy(()=>import("./Page-Results"));
-
+ 
 //FIREBASE AUTH SETUP
 export const firebaseConfig = getFirebaseConfig();
 firebase.initializeApp(firebaseConfig);
 export const auth = firebase.auth;
-
-
-const AppContainer = styled.div`
-  font-family: ${props=>props.theme.fontFamBody};
-  font-size: ${props=>props.theme.font2};
-  ${VerticalFlexBox}
-  margin: auto;
-  width: 66%;
-  box-shadow: 3px 3px 12px 3px black;
-  height: 100vh;
-  overflow: hidden;
-  background-image: ${props =>props.theme.primaryLightBackground};
-  color: ${props=>props.theme.black};
-  position:relative;
-  @media (max-width: ${props=>props.theme.largerBreakpoint}px){
-    width: 100%;
-  }
-`;
 
 function App() {
   const gc = useContext(GlobalContext);
   const fallback = useCallback(()=>{
     return <LoadingPage/>;
   },[]);
+  const [returnTest, setReturnTest] = useState<any>(<div>none</div>);
+
   return (
     <Container className="container">
       <Popups/>

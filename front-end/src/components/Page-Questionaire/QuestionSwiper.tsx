@@ -11,6 +11,7 @@ import QuestionaireLogicProvider, { QuestionaireLogicContext } from './Questiona
 import { AnswersContext } from '../containers/AnswersProvider';
 import { VerticalFlexBox, H3, HorizontalFlexBox } from "../../reusable-styles";
 import Container from 'react-bootstrap/Container';
+import {Carousel}from 'react-bootstrap';
 
 const QuestionText = styled.h3`
     font-size: ${props => props.theme.font4};
@@ -45,7 +46,19 @@ const Triangle = styled.div`
     }
 
 `;
-
+const testContainer = styled.div`
+    background: white;
+    width: 100px;
+    margin: auto;
+    height: 200px;
+    overflow: auto;
+`;
+const testInnerContainer = styled.div`
+    margin: 1rem;
+    background: black;
+    min-width: 30px;
+    min-height: 1000px;
+`;
 const SwiperContainer = styled.div`
     ${HorizontalFlexBox}
     background: ${props => props.theme.primaryGradient};
@@ -71,8 +84,8 @@ const QuestionSwiper: React.FunctionComponent<QuestionSwiperProps> = () => {
     const allAnswers = fc.currentAnswers;
 
     return (
-        <SwiperContainer>
-            <Triangle color={theme.primaryAccent} />
+        <Carousel interval={null}>
+            {/* <Triangle color={theme.primaryAccent} />
             <InnerContainer>
                 {(currentDataset && currentDataset.id && allAnswers) ?
                     <QuestionContainer>
@@ -85,8 +98,19 @@ const QuestionSwiper: React.FunctionComponent<QuestionSwiperProps> = () => {
                         <DatasetNotes />
                     </QuestionContainer>
                     : <LoadingContainer><Ring color={theme.white} size={80} /></LoadingContainer>}
-            </InnerContainer>
-        </SwiperContainer>
+            </InnerContainer> */}
+            <Carousel.Item as={testContainer}>
+                <div style={{
+                    minHeight: "1000px",
+                    background: "black",
+                    margin: "1rem",
+                    minWidth: "100px"
+                }}>test 1</div>
+            </Carousel.Item>
+            <Carousel.Item as={testContainer}>
+                <div> 2 slide</div>
+            </Carousel.Item>
+        </Carousel>
     );
 }
 export default QuestionSwiper;

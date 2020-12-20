@@ -11,39 +11,12 @@ import { useAuthState } from "react-firebase-hooks/auth";
 // import {StyledContext}from'./containers/StyledProvider';
 import { ThemeContext } from "styled-components";
 import { HorizontalFlexBox } from "../reusable-styles";
-
-const HeaderContainer = styled.div<{ textColor: string }>`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-evenly;
-  width: 100%;
-  color: ${(props) => props.theme.white};
-  background: ${(props) => props.theme.darkPurple};
-  margin: 0 0 2rem 0;
-  position: relative;
-`;
-
-const Title = styled.h1`
-  cursor: pointer;
-  font-family: ${(props) => props.theme.fontFamHeader};
-`;
+import {Navbar, NavDropdown}from 'react-bootstrap';
 
 const Logo = styled.img`
   cursor: pointer;
   width: 2rem;
   margin: 1rem;
-`;
-const Signature = styled.a`
-  cursor: pointer;
-  font-style: italic;
-  font-size: ${props=>props.theme.font3};
-  margin: 1rem 1rem 0.5rem 1rem;
-  color: ${props => props.theme.white};
-`;
-
-const TitleContainer = styled.div`
-    ${HorizontalFlexBox};
 `;
 
 interface HeaderProps {
@@ -115,18 +88,20 @@ const Header: FunctionComponent<HeaderProps> = ({
       //no user
       menuItems.splice(0, 0, loginItem);
     }
-    return menuItems;
+    return menuItems.map(item=> <NavDropdown.Item eventKey={item.text} onClick={item.onClick}>{item.text}</NavDropdown.Item>);
   }, [user, error, loading, gc, resetHandler, gc.setCurrentPopup]);
 
   return (
-    <HeaderContainer textColor={textColor!}>
-        <TitleContainer>
-            <Logo src={'/images/logo.svg'} onClick={() => gc.setCurrentPage("welcome")}></Logo>
-            <Title onClick={() => gc.setCurrentPage("welcome")}>ThePlaceFor.Me</Title>
-            <Signature href={'https://sheldonfrith.com'}>by Sheldon Frith</Signature>
-        </TitleContainer>
-      {getMenuItems() ? <CollapsibleNav menuItems={getMenuItems()} /> : <></>}
-    </HeaderContainer>
+    <Navbar  expand="md" bg="dark">
+      <Navbar.Brand href="">
+        <Logo src={'/images/logo.svg'} onClick={() => gc.setCurrentPage("welcome")}></Logo>
+        ThePlaceFor.Me
+      </Navbar.Brand>
+      <Navbar.Text>
+            <a href={'https://sheldonfrith.com'}>by Sheldon Frith</a>
+      </Navbar.Text>
+      {getMenuItems() ? <NavDropdown id="mainMenu" menuRole="menu" title="menu">{getMenuItems()}</NavDropdown> : <></>}
+    </Navbar>
   );
 };
 export default Header;

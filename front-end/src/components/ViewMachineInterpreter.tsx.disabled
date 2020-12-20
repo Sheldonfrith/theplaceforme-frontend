@@ -1,0 +1,21 @@
+
+import React, {useState, useEffect, useContext, useCallback, useRef} from 'react';
+import styled from 'styled-components';
+import {GlobalContext} from './containers/GlobalProvider';
+interface ViewMachineInterpreterProps{
+
+}
+const ViewMachineInterpreter: React.FunctionComponent<ViewMachineInterpreterProps> =({})=> {
+const gc = useContext(GlobalContext);
+const state = gc.state;
+const send = gc.send;
+
+const mainPage = 
+
+return (
+<div>
+
+</div>
+);
+}
+export default ViewMachineInterpreter;

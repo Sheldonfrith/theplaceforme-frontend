@@ -1,7 +1,3 @@
-import { Machine, interpret, assign } from "xstate";
-import { inspect } from "@xstate/inspect";
-import {service} from './core/state-machines/App/machine';
-
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -11,7 +7,7 @@ import './styles/bootstrap.css';
 // import 'react-perfect-scrollbar/dist/css/styles.css';
 // import "./styles/index.css";
 import ErrorBoundary from './components/ErrorBoundary';
-import App from './components/App';
+// import App from './components2/Layout';
 import GlobalProvider from './components/containers/GlobalProvider';
 import MissingDataHandlerMethodsProvider from './components/containers/MissingDataHandlerMethodsProvider';
 import CountriesProvider from './components/containers/CountriesProvider';
@@ -23,15 +19,7 @@ import { Integrations } from "@sentry/tracing";
 import { CaptureConsole } from '@sentry/integrations';
 import * as Sentry from "@sentry/react";
 import APIProvider from './components/containers/APIProvider';
-inspect({
-  url: "https://statecharts.io/inspect",
-  iframe: false
-});
 
-service.start();
-
-service.send("TOGGLE");
-service.send("TOGGLE");
 
 Sentry.init({
   dsn: "https://3db5c5a2202f43728777df0cabb5923c@o481327.ingest.sentry.io/5529747",
@@ -61,7 +49,7 @@ ReactDOM.render(
           <CountriesProvider>
             <FormDataProvider>
               <ResultsProvider>
-                <App />
+                {/* <App /> */}
               </ResultsProvider>
             </FormDataProvider>
           </CountriesProvider>

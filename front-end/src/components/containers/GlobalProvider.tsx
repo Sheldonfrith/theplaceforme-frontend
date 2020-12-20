@@ -21,6 +21,8 @@ interface GlobalContextProps {
     setCurrentPage: any,
     setCurrentPopup: any,
     user: any,
+    state: any,
+    send: any,
 }
 //create the context here
 export const GlobalContext = React.createContext<Partial<GlobalContextProps>>({});
@@ -38,6 +40,8 @@ const GlobalProvider: React.FunctionComponent =({children}) =>{
             currentPopup: currentPopup,
             setCurrentPopup: setCurrentPopup,
             user: user,
+            state: state,
+            send: send,
             }}>
             <ThemeProvider theme={theme}>
             {children}

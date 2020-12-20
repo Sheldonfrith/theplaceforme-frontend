@@ -4,7 +4,6 @@ import CategorySwiper from './CategorySwiper';
 import QuestionSwiper from './QuestionSwiper';
 import QuestionaireLogicProvider from './QuestionaireLogicProvider';
 import BottomButtonArea from './BottomButtonArea';
-
 interface QuestionairePageProps {
 }
 

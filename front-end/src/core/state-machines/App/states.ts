@@ -4,20 +4,31 @@ import { PREF_DefinitionMachine } from '../PREF_Definition/machine';
 import { SCORES_GetterMachine } from '../SCORES_Getter/machine';
 
 // cross-state settings
-interface eventHandlers {
-    Login: any,
-    Logout: any,
-    Donate: any,
-    Error: any,
-    ContactAuthor: any,
-    ViewSourceCode: any,
-    ViewMethodology: any,
-    Submit_PREF?: any,
-    Update_PREF?: any,
-    ReturnToGet_PREF?: any,
-    always?: any,
-    AppLoaded?: any,
+const requiredEvents = [
+    'Login',
+    'Logout',
+    'Donate',
+    'Error',
+    'ContactAuthor',
+    'ViewSourceCode',
+    'ViewMethodology',
+    
+] as const 
+const optionalEvents = [
+    'Submit_PREF',
+    'Update_PREF',
+    'ReturnToGet_PREF',
+    'AppLoaded',
+] as const
+type requiredEventsKeys = typeof requiredEvents[number];
+type requiredEventsHandlers = {
+    [key in requiredEventsKeys]: any
 }
+type optionalEventsKeys = typeof optionalEvents[number];
+type optionalEventsHandlers = {
+    [key in optionalEventsKeys]?: any
+}
+type eventHandlers = requiredEventsHandlers & optionalEventsHandlers;
 
 const eventHandlerDefaults = {
     Login: { actions: 'login' },
@@ -35,7 +46,7 @@ const loadingAppEventHandlers: eventHandlers = {
     AppLoaded: {target:'get_PREF'},
 }
 const loadingAppState = {
-    exit: ['getCurrentUser'],
+    exit: ['updateCurrentUser'],
     entry: [()=>console.log('entered loadingApp state')],
     on: {...loadingAppEventHandlers},
 
@@ -51,10 +62,8 @@ const get_PREF_StateHandlers: eventHandlers = {
 }
 const get_PREF_State = {
     on: { ...get_PREF_StateHandlers },
-    invoke: {
-        src: PREF_DefinitionMachine,
-        id: 'PREF_DefinitionMachine',
-    }
+    entry: assign({PREF_DefinitionMachine: ()=> spawn(PREF_DefinitionMachine, 'PREF_DefinitionMachine')}),
+    exit: assign({PREF_DefinitionMachine: ()=>null}),
 }
 // get_SCORES
 const get_SCORES_StateHandlers: eventHandlers = {
@@ -62,11 +71,8 @@ const get_SCORES_StateHandlers: eventHandlers = {
 }
 const get_SCORES_State = {
     on: { ...get_SCORES_StateHandlers },
-    invoke: {
-        src: SCORES_GetterMachine,
-        id: 'SCORES_GetterMachine',
-        onDone: { target: 'communicate_SCORES' },
-    }
+    entry: assign({SCORES_GetterMachine: ()=>spawn(SCORES_GetterMachine)}),
+    exit: assign({SCORES_GetterMachine: ()=> null}),
 }
 
 // communicate_SCORES
@@ -76,10 +82,8 @@ const communicate_SCORES_StateHandlers: eventHandlers = {
 }
 const communicate_SCORES_State = {
     on: { ...communicate_SCORES_StateHandlers },
-    invoke: {
-        src: SCORES_CommunicationMachine,
-        id: 'SCORES_CommunicationMachine',
-    }
+    entry: assign({SCORES_CommunicationMachine: ()=>spawn(SCORES_CommunicationMachine)}),
+    exit: assign({SCORES_CommunicationMachine: ()=>null}),
 }
 
 const states = {

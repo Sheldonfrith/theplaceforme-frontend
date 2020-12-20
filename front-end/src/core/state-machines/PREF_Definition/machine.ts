@@ -6,11 +6,13 @@ import actions from './actions';
 export interface I_PREF_DefinitionContext {
   PREF: any
   autoSaveInterval: number
+  PREF_FormMachine: Actor | null,
 }
 
 const PREF_DefinitionContext: I_PREF_DefinitionContext = {
   PREF : null,
     autoSaveInterval: 5000,
+    PREF_FormMachine: null,
 };
 
 export const PREF_DefinitionMachine = Machine<I_PREF_DefinitionContext>({
