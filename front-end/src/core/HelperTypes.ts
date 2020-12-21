@@ -32,3 +32,38 @@ export type ActiveSMachine = Interpreter<any,any,any>;
 export type SMachine = StateMachine<any,any,any>;
 
 export type XStateAction = (context?: any, event?:any) => any;
+
+export type GenericMachineState = any;
+export type MainMachineState = {[key: string]:GenericMachineState};
+export type OnMainMachineStateChangedCallback = (mainState: MainMachineState)=> any;
+export type SendAdaptedViewState = (adaptedState: ViewState)=>any;
+export interface ViewState{};
+
+export type ListenerCallback = (listenerID: string, onChangeCallback: (state:ViewState)=>void)=>void;
+export type ObservableUpdate = (newState: any)=> void;
+
+export interface ViewStateObservable {
+  register: ListenerCallback;
+  update: ObservableUpdate;
+}
+
+export interface MachineStateObserver {
+  update: (machineName: string, newState: GenericMachineState)=>void,
+  
+}
+export interface QuestionModel<T> {
+  id: number;
+  text: string;
+  type: 'dataset'|'complex';
+  data: T;
+}
+export interface CategoryModel {
+  id: number,
+  text: string,
+  associatedQuestionIDs: number[],
+}
+export interface ButtonModel {
+  id: number,
+  text: string,
+  nameOfEventToSendOnClick: string,
+}

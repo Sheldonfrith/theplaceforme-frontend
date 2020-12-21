@@ -7,6 +7,8 @@ export interface PREF_DefinitionHeaderProps{
     categories: ViewObjectProps[],
     currentCategory: number,
     onChange: any,
+    loadSavedForms: any,
+    saveCurrentForm: any,
 }
 const PREF_DefinitionHeader: React.FunctionComponent<PREF_DefinitionHeaderProps> =({categories, currentCategory, onChange})=> {
 //ONLY SHOULD BE USED IF VIEWPORT WIDTH IS TOO NARROW FOR A SIDEBAR

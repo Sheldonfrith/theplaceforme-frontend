@@ -4,9 +4,8 @@ import {Modal} from 'react-bootstrap';
 export interface DefaultPopupContainerProps{
     title: string,
     content: JSX.Element,
-    footer: JSX.Element,
 }
-const DefaultPopupContainer: React.FunctionComponent<DefaultPopupContainerProps> =({content, title, footer})=> {
+const DefaultPopupContainer: React.FunctionComponent<DefaultPopupContainerProps> =({content, title,})=> {
 
 return (
 <Modal
@@ -20,9 +19,6 @@ return (
         <Modal.Body>
             {content}
         </Modal.Body>
-        <Modal.Footer>
-            {footer}
-        </Modal.Footer>
     </Modal.Header>
     {content}
 </Modal>

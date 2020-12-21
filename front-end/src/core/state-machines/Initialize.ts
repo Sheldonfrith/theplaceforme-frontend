@@ -5,7 +5,13 @@ import {LayoutMachine}from './Layout/machine';
 import {PageMachine} from './Page/machine';
 import { Machine, interpret, assign, spawn, sendParent, StateMachine, Interpreter } from "xstate";
 import * as t from '../HelperTypes';
+import StateMachineObserver from '../Controller/StateMachineObserver';
+import MachineToViewStateAdapter from '../Controller/MachineToViewStateAdapter';
+import ViewController, {ViewStateObservable, MachineStateObserver} from '../Controller';
 
+
+const stateMachineObserver = new StateMachineObserver(machineToViewStateAdapter.handleNewState);
+const viewController = new ViewController({});
 export interface IActiveMachines {
     app: t.ActiveSMachine,
     layout: t.ActiveSMachine,
@@ -25,13 +31,13 @@ const activateAndGetMachines = (): IActiveMachines=>{
 }
 export default activateAndGetMachines;
 
-const startAndReturnMachine = (machine: sMachine): activeSMachine=>{
+const startAndReturnMachine = (machine: t.SMachine): t.ActiveSMachine=>{
+    const name = machine.id;
     const newMachine = interpret(machine, {devTools: true}).onTransition(
         (state)=>{
-            console.log(state.value);
+            stateMachineObserver.update(name,state);
         }
     );
     newMachine.start();
     return newMachine;
-
 }

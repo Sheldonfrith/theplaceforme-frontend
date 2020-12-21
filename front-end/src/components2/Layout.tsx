@@ -9,6 +9,9 @@ import { inspect } from "@xstate/inspect";
 import * as c from './index';
 import IndividualQuestionSpecificHeader from "./Headers/IndividualQuestion";
 import DefaultHeader from "./Headers/Default";
+import {ObservableState}from '../core/Controller/ViewUpdater';
+
+const observableState = new ObservableState();//TODO needs to be passed to the controller as well
 
 inspect({
   url: "https://statecharts.io/inspect",
@@ -39,16 +42,20 @@ export interface ViewObjectProps {
 
 function Layout() {
 
-  const [state, send] = useMachine(LayoutMachine);
-  const {headers, popups, content, sidebarLeft, sidebarRight, footers} = state.context;
-  const [Components, setComponents]= useState(Controller.getAll);
+  const [state, setState] = useState(null);
 
+  useEffect(()=>{
+    //REGISTER to state change events
+    observableState.registerListener('Layout',setState);
+    //Now local 'state' will be synchronized with the state emitted by controller
+  },[]);
 
   return (
     <Container>
-      {Object.keys(Components).map(componentName => {
-        if (!Components[componentName.enabled]) return <></>;
-        return <c[componentName] {...Components[componentName].props, key: componentName}/>;
+      {Object.keys(state.components).map(componentName => {
+        if (!state.components[componentName.enabled]) return <></>;
+        return <c[componentName] {...stat.components
+          [componentName].props, key: componentName}/>;
       })}
     </Container>
   );

@@ -25,7 +25,7 @@ const components: typeof c = { ...c };
 
 const DefaultHeaderProps: props.DefaultHeaderProps = {
     menuItems: mq.getMainMenuItems(),
-    logo: mq.getHeaderLogo(),
+    logoURL: mq.getHeaderLogo(),
     title: mq.getHeaderTitle(),
     subtitle: mq.getHeaderSubtitle()
 }
@@ -46,7 +46,6 @@ const PREF_DefinitionFooterProps: props.PREF_DefinitionFooterProps = {
 const DefaultPopupContainerProps: props.DefaultPopupContainerProps = {
     title: mq.getCurrentPopupTitle(),
     content: mq.getCurrentPopupContent(),
-    footer: mq.getCurrentPopupFooter(),
 }
 const CategoriesSidebarProps: props.CategoriesSidebarProps = {
     categories: mq.getAllCategories(),
@@ -74,79 +73,3 @@ const WeightPickerLayoutContentProps: props.WeightPickerLayoutContentProps = {
     setWeight: mq.setCurrentQuestionWeight(),
 }
 
-
-const ComponentActor = Machine({
-    initial: 'disabled',
-    context: {
-        props: {}
-    },
-    states: {
-        disabled: {
-            on: {
-                Enable: 'enabled'
-            }
-        },
-        enabled: {
-            entry: sendParent((context)=>{type: ComponentEnabled, props: context.props}),
-            exit: sendParent((context)=>{type: ComponentDisabled, props: context.props}),
-            on: {
-                Disable: 'disabled'
-            }
-        }
-    }
-})
-
-
-const ComponentConditions: { [key in componentNamesType]: { enabled: any, props: any } } = {
-    DefaultHeader: {
-        enabled: sq.notInLandingPage(),
-        props: { ...DefaultHeaderProps },
-    },
-    IndividualQuestionSpecificHeader: {
-        enabled: sq.inSingleQuestionOf_PREF_Form(),
-        props: { ...IndividualQuestionSpecificHeaderProps }
-    },
-    PREF_DefinitionHeader: {
-        enabled: sq.in_PREF_Definition(),
-        props: { ...PREF_DefinitionHeaderProps },
-    },
-    PREF_DefinitionFooter: {
-        enabled: sq.in_PREF_Definition(),
-        props: { ...PREF_DefinitionFooterProps },
-    },
-    DefaultPopupContainer: {
-        enabled: sq.popupVisible(),
-        props: { ...DefaultPopupContainerProps },
-    },
-    CategoriesSidebar: {
-        enabled: (sq.viewWideEnoughForSideBar() && sq.in_PREF_Definition()),
-        props: { ...CategoriesSidebarProps },
-    },
-    LandingPageContent: {
-        enabled: !sq.notInLandingPage(),
-        props: { ...LandingPageContentProps },
-    },
-    CategoryOverviewContent: {
-        enabled: (sq.inCategoryOverviewOf_PREF_Form()),
-        props: { ...CategoryOverviewContentProps },
-    },
-    Loading_PREF_DefinitionContent: {
-        enabled: sq.inLoadingOf_PREF_Definition(),
-        props: { ...Loading_PREF_DefinitionContentProps },
-    },
-    ValuePickerAdvancedOptions: {
-        enabled: (sq.inValuePickerOf_PREF_Form() && sq.PREF_FormAdvancedOptionsEnabled()),
-        props: { ...ValuePickerAdvancedOptionsProps },
-    },
-    ValuePickerLayout: {
-        enabled: sq.inValuePickerOf_PREF_Form(),
-        props: { ...ValuePickerLayoutContentProps },
-    },
-    WeightPickerAdvanced: {
-        enabled: (sq.inWeightPickerOf_PREF_Form() && sq.PREF_FormAdvancedOptionsEnabled()),
-        props: { ...WeightAdvancedContentProps },
-    },
-    WeightPickerLayout: {
-        enabled: sq.inWeightPickerOf_PREF_Form(),
-        props: { ...WeightPickerLayoutContentProps },
-    }
