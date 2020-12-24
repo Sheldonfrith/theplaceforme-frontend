@@ -1,4 +1,4 @@
-import {CategoryModel, SendAdaptedViewState, ViewObjectProps, MainMachineState, ViewState, QuestionModel, ButtonModel} from '../HelperTypes';
+import {CategoryModel, SendAdaptedViewState, ViewObjectProps, MainMachineState, ViewState, QuestionModel, ButtonModel} from '../../src/core/HelperTypes';
 
 export default class MachineToViewStateAdapter {
     protected sendAdaptedViewState: SendAdaptedViewState;

@@ -1,4 +1,4 @@
-import {ViewStateObservable as IViewStateObservable, ViewState, ListenerCallback} from '../../HelperTypes';
+import {ViewStateObservable as IViewStateObservable, ViewState, ListenerCallback} from '../../../src/core/HelperTypes';
 
 // view layer can register with this ObservableState to be notified whenever state changes they care about occur
 

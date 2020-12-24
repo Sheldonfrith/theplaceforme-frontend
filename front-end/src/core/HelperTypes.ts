@@ -67,3 +67,31 @@ export interface ButtonModel {
   text: string,
   nameOfEventToSendOnClick: string,
 }
+
+interface Question_SCORES_Breakdown {
+  score: number,
+  rank: number,
+  percentile: number,
+  dataWasMissing: boolean
+}
+interface Question_SCORES_Breakdowns {
+  [questionID: string]: Question_SCORES_Breakdown //number is score for that dataset
+}
+interface CategoryBreakdown {
+  [category: string]: number // total score for that category
+}
+export interface Location_SCORES {
+  primary_name: string,
+  totalScore: number,
+  rank: number,
+  percentile: number,
+  categoryBreakdown: CategoryBreakdown,
+  question_SCORES_Breakdowns: Question_SCORES_Breakdowns,
+}
+export interface AllLocation_SCORES {
+  [locationID: string]: Location_SCORES
+}
+
+//VIEW OBJECT
+//DATA
+// AllLocation_SCORES

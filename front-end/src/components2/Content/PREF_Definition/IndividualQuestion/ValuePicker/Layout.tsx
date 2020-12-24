@@ -24,8 +24,10 @@ const ValuePickerLayoutContent: React.FunctionComponent<ValuePickerLayoutContent
                 aria-expanded={getShowAdvanced()}
             >Show Advanced Options?</Button>
             <Collapse in={getShowAdvanced()}>
+                <>
                 <NormalizationPicker {...NormalizationPickerProps}/>
                 <MissingDataHandlerPicker {...MissingDataHandlerPickerProps}/>
+                </>
             </Collapse>
         </Container>
     );

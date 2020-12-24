@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import {OnMainMachineStateChangedCallback, MainMachineState, GenericMachineState} from '../HelperTypes';
 import Adapter from '../Adapter';
-
+import ViewStateObservable from './ViewStateObservable';
    // receiving events from the machines(state changes)
     // filtering out events we don't care about
     // applying the events we do care about to our MachineStateRelevantToView
@@ -15,9 +15,10 @@ export default class StateMachineObserver {
         'ExampleMachine'
     ];
     protected mainState: MainMachineState = {};
-
-    public constructor(){
+    protected viewStateObservable = {};
+    public constructor(onMainStateChanged: OnMainMachineStateChangedCallback){
         this.onMainStateChanged = onMainStateChanged;
+        this.viewStateObservable = new ViewStateObservable();
     }
     public updateState(machineName: string, machineState: GenericMachineState){
         if (this.shouldChangeMainState(machineName, machineState)) this.mainState[machineName] = machineState;

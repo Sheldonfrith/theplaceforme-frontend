@@ -1,6 +1,7 @@
 import React, {useState, useEffect, useContext, useCallback, useRef} from 'react';
 import {Collapse, Container, Button, ButtonGroup} from 'react-bootstrap';
 import WeightSimpleSelect, {WeightSimpleSelectProps} from './SimpleSelect';
+
 export interface WeightPickerLayoutContentProps{
     Explanation: JSX.Element
     getShowAdvanced ():boolean,
@@ -14,7 +15,7 @@ const WeightPickerLayoutContent: React.FunctionComponent<WeightPickerLayoutConte
 return (
 <Container>
     {Explanation}
-    <WeightSimpleSelect {...WeightSimpleSelectProps}>
+    {/* <WeightSimpleSelect {...WeightSimpleSelectProps}/> */}
     <Button
         onClick={()=>setShowAdvanced(!getShowAdvanced())}
         aria-controls="advanced options"

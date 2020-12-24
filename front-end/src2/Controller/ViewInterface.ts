@@ -1,10 +1,10 @@
 //this is all the information that my view layer needs to be able to access in order to render
-import * as c from '../../components2';
+import * as c from '../../src/components2';
 import React, { FunctionComponent } from 'react';
-import * as t from '../HelperTypes';
+import * as t from '../../src/core/HelperTypes';
 import { StateQueries as sq, ModelQueries as mq } from './Methods';
-import * as props from '../../components2/PropTypes';
-import ValuePickerAdvancedOptionsContent from '../../components2/Content/PREF_Definition/IndividualQuestion/ValuePicker/AdvancedOptionsContent';
+import * as props from '../../src/components2/PropTypes';
+import ValuePickerAdvancedOptionsContent from '../../src/components2/Content/PREF_Definition/IndividualQuestion/ValuePicker/AdvancedOptionsContent';
 import getValuePickerProps from './ValuePickerProps';
 import { sendParent } from 'xstate';
 //FOR EACH COMPONENT> disabled, or enabled

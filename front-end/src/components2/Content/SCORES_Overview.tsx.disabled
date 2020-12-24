@@ -1,0 +1,37 @@
+import React, {useState, useEffect, useContext, useCallback, useRef} from 'react';
+import {Container, Button} from 'react-bootstrap';
+import { Location_SCORES, ViewObjectProps, AllLocation_SCORES } from '../../../core/HelperTypes';
+
+
+interface SCORES_OverviewPopupProps{
+    buttons: ViewObjectProps[],
+    location_SCORES: AllLocation_SCORES,
+    getLocationIDsSortedBy(sortType: string): string[],
+}
+const SCORES_OverviewPopup: React.FunctionComponent<SCORES_OverviewPopupProps> =({
+    buttons, location_SCORES, getLocationIDsSortedBy
+})=> {
+
+return (
+<Container>
+    <Container>
+        {getLocationIDsSortedBy('rank').map(locationID=>{
+            const thisLocation_SCORES = location_SCORES[locationID];
+            return (
+                <div>
+                    {thisLocation_SCORES.totalScore}
+                </div>
+            );
+        })}
+    </Container>
+    <Container>
+        {buttons.map(button=>{
+            <Button key={button.id} onClick={button.onClick}>
+                {button.text}
+            </Button>
+        })}
+    </Container>
+</Container>
+);
+}
+export default SCORES_OverviewPopup;
