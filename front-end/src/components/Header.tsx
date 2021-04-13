@@ -4,13 +4,11 @@ import React, {
   useCallback,
 } from "react";
 import styled from "styled-components";
-import CollapsibleNav from "./reusable/CollapsibleNav";
 import { GlobalContext } from "./containers/GlobalProvider";
 import { auth } from "./App";
 import { useAuthState } from "react-firebase-hooks/auth";
 // import {StyledContext}from'./containers/StyledProvider';
 import { ThemeContext } from "styled-components";
-import { HorizontalFlexBox } from "../reusable-styles";
 import {Navbar, NavDropdown}from 'react-bootstrap';
 
 const Logo = styled.img`
